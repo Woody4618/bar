@@ -1,0 +1,17 @@
+[package]
+name = "solana-bar"
+version = "0.1.0"
+description = "Buy shots with Solana Pay"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+name = "solana_bar"
+
+[features]
+default = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+anchor-lang = { version = "0.31.0", features = ["init-if-needed"] }
+anchor-spl = "0.31.0"
