@@ -11,6 +11,8 @@ const TREASURE_PUBKEY: Pubkey = pubkey!("GsfNSuZFrT2r4xzSndnCSs9tTXwt47etPqU8yFV
 pub enum ShotErrorCode {
     #[msg("InvalidTreasury")]
     InvalidTreasury,
+    #[msg("ProductAlreadyExists")]
+    ProductAlreadyExists,
 }
 
 #[program]
@@ -19,6 +21,31 @@ pub mod solana_bar {
     const SHOT_PRICE: u64 = LAMPORTS_PER_SOL / 100; // 0.01 SOL
 
     pub fn initialize(_ctx: Context<Initialize>) -> Result<()> {
+        Ok(())
+    }
+
+    pub fn add_product(
+        ctx: Context<AddProduct>,
+        name: String,
+        price: u64,
+        decimals: u8,
+        mint: Pubkey,
+    ) -> Result<()> {
+        // Check if product with same mint already exists
+        for product in &ctx.accounts.receipts.products {
+            if product.mint == mint {
+                return Err(ShotErrorCode::ProductAlreadyExists.into());
+            }
+        }
+
+        // Add new product
+        ctx.accounts.receipts.products.push(Products {
+            name,
+            price,
+            decimals,
+            mint,
+        });
+
         Ok(())
     }
 
@@ -101,6 +128,14 @@ pub struct Initialize<'info> {
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,
+}
+
+#[derive(Accounts)]
+pub struct AddProduct<'info> {
+    #[account(mut, seeds = [b"receipts"], bump)]
+    pub receipts: Account<'info, Receipts>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
 }
 
 #[derive(Accounts)]
