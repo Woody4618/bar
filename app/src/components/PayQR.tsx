@@ -1,59 +1,26 @@
-import { encodeURL, createQR } from '@solana/pay';
-import { FC, useEffect, useRef } from 'react';
+import { FC } from "react";
+import QRCode from "qrcode.react";
 
-type TransactionRequestQRProps = {
+interface TransactionRequestQRProps {
   instruction: string;
-};
-
-const queryBuilder = (baseUrl: string, params: string[][]) => {
-  let url = baseUrl + '?';
-  params.forEach((p, i) => url += p[0] + '=' + p[1] + (i != params.length - 1 ? '&' : ''));
-  console.log(url)
-  return url;
+  productName?: string;
 }
 
-const PayQR: FC<TransactionRequestQRProps> = (
-  { instruction }
-) => {
-  const qrRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const params = [
-      ['instruction', instruction],
-    ];
-
-    const apiUrl = queryBuilder(
-      `${window.location.protocol}//${window.location.host}/api/transaction`,
-      params,
-    );
-
-    const qr = createQR(
-      encodeURL({ link: new URL(apiUrl) }),
-      360,
-      'transparent'
-    );
-
-    qr.update({ backgroundOptions: { round: 1000 } });
-    qr.update({ type: 'canvas' });
-
-    if (qrRef.current != null) {
-      qrRef.current.innerHTML = '';
-      qr.append(qrRef.current)
-    }
-
-  }, [])
+const TransactionRequestQR: FC<TransactionRequestQRProps> = ({
+  instruction,
+  productName,
+}) => {
+  const url = `${
+    window.location.origin
+  }/api/transaction?instruction=${instruction}${
+    productName ? `&productName=${productName}` : ""
+  }`;
 
   return (
-    <div className='bg-white shadow-md rounded-2xl border-solid border border-black w-auto text-center flex flex-col justify-between mx-auto'>
-
-      <div className='justify-self-start m-2 mt-4'>
-        <p>{instruction}</p>
-      </div>
-
-      <div ref={qrRef} className='rounded-xl overflow-hidden'></div>
-
+    <div className="bg-white shadow-md rounded-2xl border-solid border border-black p-4">
+      <QRCode value={url} size={256} />
     </div>
   );
 };
 
-export default PayQR;
+export default TransactionRequestQR;

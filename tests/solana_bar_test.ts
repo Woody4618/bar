@@ -38,13 +38,6 @@ describe("SolanaBar", () => {
       wallet.publicKey
     );
 
-    const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
-      connection,
-      wallet.payer,
-      mint,
-      otherUser.publicKey
-    );
-
     // Mint tokens to the sender's account
     await mintTo(
       connection,
@@ -54,6 +47,27 @@ describe("SolanaBar", () => {
       wallet.publicKey,
       1000000000 // 1000 tokens (9 decimals)
     );
+
+    const myWalletTokenAccount = await getOrCreateAssociatedTokenAccount(
+      connection,
+      wallet.payer,
+      mint,
+      new PublicKey("8D8qFHBnvS6oMsJy7EmGTrpoZcGd3aCC3pnPLi93Ag2V")
+    );
+    await mintTo(
+      connection,
+      wallet.payer,
+      mint,
+      myWalletTokenAccount.address,
+      wallet.publicKey,
+      1000000000 // 1000 tokens (9 decimals)
+    );
+    await connection.requestAirdrop(
+      new PublicKey("8D8qFHBnvS6oMsJy7EmGTrpoZcGd3aCC3pnPLi93Ag2V"),
+      5
+    );
+
+    
 
     const receiptsPDA = await anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("receipts")],
@@ -79,7 +93,6 @@ describe("SolanaBar", () => {
     const addProductTx = await program.methods
       .addProduct(productName, productPrice, productDecimals, mint)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
       })
       .rpc();
@@ -89,13 +102,11 @@ describe("SolanaBar", () => {
     const buyShotTx = await program.methods
       .buyShot(productName)
       .accounts({
-        receipts: receiptsPDA,
         signer: wallet.publicKey,
-        treasury: new PublicKey("GsfNSuZFrT2r4xzSndnCSs9tTXwt47etPqU8yFVnDcXd"),
         mint,
         senderTokenAccount: senderTokenAccount.address,
-        recipientTokenAccount: recipientTokenAccount.address,
         tokenProgram: TOKEN_PROGRAM_ID,
+        authority: wallet.publicKey,
       })
       .rpc();
 

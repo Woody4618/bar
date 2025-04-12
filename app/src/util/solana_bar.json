@@ -1,0 +1,333 @@
+{
+  "address": "HHpyCo9M9ZX2bhiYyYznMagry6eGJZxykPEAes54o29S",
+  "metadata": {
+    "name": "solana_bar",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Buy shots with Solana Pay"
+  },
+  "instructions": [
+    {
+      "name": "add_product",
+      "discriminator": [0, 219, 137, 36, 105, 180, 164, 93],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "price",
+          "type": "u64"
+        },
+        {
+          "name": "decimals",
+          "type": "u8"
+        },
+        {
+          "name": "mint",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "buy_shot",
+      "discriminator": [136, 77, 215, 171, 61, 106, 54, 119],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
+              }
+            ]
+          }
+        },
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "sender_token_account",
+          "writable": true
+        },
+        {
+          "name": "recipient_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "authority"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142,
+                13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216,
+                219, 233, 248, 89
+              ]
+            }
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "authority",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "product_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [175, 175, 109, 31, 13, 152, 155, 237],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "shop_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "mark_shot_as_delivered",
+      "discriminator": [128, 250, 184, 11, 161, 248, 146, 60],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
+              }
+            ]
+          }
+        },
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "recipe_id",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Receipts",
+      "discriminator": [222, 245, 237, 64, 59, 49, 29, 246]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidTreasury",
+      "msg": "InvalidTreasury"
+    },
+    {
+      "code": 6001,
+      "name": "ProductAlreadyExists",
+      "msg": "ProductAlreadyExists"
+    },
+    {
+      "code": 6002,
+      "name": "ProductNotFound",
+      "msg": "ProductNotFound"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidMint",
+      "msg": "InvalidMint"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidAuthority",
+      "msg": "InvalidAuthority"
+    }
+  ],
+  "types": [
+    {
+      "name": "Products",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "decimals",
+            "type": "u8"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Receipt",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "receipt_id",
+            "type": "u64"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "was_delivered",
+            "type": "bool"
+          },
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "table_number",
+            "type": "u8"
+          },
+          {
+            "name": "product_name",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Receipts",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "receipts",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Receipt"
+                }
+              }
+            }
+          },
+          {
+            "name": "total_shots_sold",
+            "type": "u64"
+          },
+          {
+            "name": "bar_name",
+            "type": "string"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "products",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Products"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

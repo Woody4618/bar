@@ -1,6 +1,7 @@
 use anchor_lang::solana_program::native_token::LAMPORTS_PER_SOL;
 use anchor_lang::system_program;
 use anchor_lang::{prelude::*, solana_program::pubkey};
+use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token_interface::{self, Mint, TokenAccount, TokenInterface, TransferChecked};
 
 declare_id!("HHpyCo9M9ZX2bhiYyYznMagry6eGJZxykPEAes54o29S");
@@ -64,10 +65,6 @@ pub mod solana_bar {
     }
 
     pub fn buy_shot(ctx: Context<BuyShot>, product_name: String) -> Result<()> {
-        if TREASURE_PUBKEY != *ctx.accounts.treasury.key {
-            return Err(ShotErrorCode::InvalidTreasury.into());
-        }
-
         // Find the product and verify the mint matches
         let product = ctx
             .accounts
@@ -118,7 +115,7 @@ pub mod solana_bar {
                 ctx.accounts.system_program.to_account_info(),
                 system_program::Transfer {
                     from: ctx.accounts.signer.to_account_info().clone(),
-                    to: ctx.accounts.treasury.to_account_info().clone(),
+                    to: ctx.accounts.authority.to_account_info().clone(),
                 },
             );
             system_program::transfer(cpi_context, price)?;
@@ -176,20 +173,24 @@ pub struct BuyShot<'info> {
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
     pub signer: Signer<'info>,
-    /// CHECK: checked against the treasury pubkey.
-    #[account(mut)]
-    pub treasury: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
     #[account(mut)]
     pub mint: InterfaceAccount<'info, Mint>,
-    // The source token account to transfer tokens from
     #[account(mut)]
     pub sender_token_account: InterfaceAccount<'info, TokenAccount>,
-    // The destination token account to receive tokens
-    #[account(mut)]
+    #[account(
+        init_if_needed,
+        payer = signer,
+        associated_token::mint = mint,
+        associated_token::authority = authority,
+        associated_token::token_program = token_program,
+    )]
     pub recipient_token_account: InterfaceAccount<'info, TokenAccount>,
-    // The token program that will process the transfer
     pub token_program: Interface<'info, TokenInterface>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+    /// CHECK: This is the authority's account
+    #[account(mut, address = receipts.authority)]
+    pub authority: SystemAccount<'info>,
 }
 
 #[derive(Accounts)]
