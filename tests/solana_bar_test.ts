@@ -27,7 +27,7 @@ describe("SolanaBar", () => {
       wallet.payer,
       wallet.publicKey,
       wallet.publicKey,
-      9
+      6
     );
 
     // Create token accounts for both users
@@ -62,21 +62,34 @@ describe("SolanaBar", () => {
 
     console.log("Receipts", receiptsPDA);
 
-    try {
-      const initializeTransaction = await program.methods
-        .initialize()
-        .accounts({
-          authority: wallet.publicKey,
-        })
-        .rpc();
-      console.log("Initialize transaction signature: ", initializeTransaction);
-    } catch (e) {
-      console.log(e);
-    }
-
-    const switchOnTransaction = await program.methods
-      .buyShot()
+    // Initialize the receipts account
+    const initializeTx = await program.methods
+      .initialize("Test Bar")
       .accounts({
+        authority: wallet.publicKey,
+      })
+      .rpc();
+    console.log("Initialize transaction signature: ", initializeTx);
+
+    // Add a product
+    const productName = "Test Shot";
+    const productPrice = new anchor.BN(1000000); // 1 SOL
+    const productDecimals = 6;
+
+    const addProductTx = await program.methods
+      .addProduct(productName, productPrice, productDecimals, mint)
+      .accounts({
+        receipts: receiptsPDA,
+        authority: wallet.publicKey,
+      })
+      .rpc();
+    console.log("Add product transaction signature: ", addProductTx);
+
+    // Buy the product
+    const buyShotTx = await program.methods
+      .buyShot(productName)
+      .accounts({
+        receipts: receiptsPDA,
         signer: wallet.publicKey,
         treasury: new PublicKey("GsfNSuZFrT2r4xzSndnCSs9tTXwt47etPqU8yFVnDcXd"),
         mint,
@@ -86,11 +99,18 @@ describe("SolanaBar", () => {
       })
       .rpc();
 
-    const ledAccount = await program.account.receipts.fetch(receiptsPDA);
-    console.log("Your switch on transaction signature", switchOnTransaction);
+    const receiptsAccount = await program.account.receipts.fetch(receiptsPDA);
+    console.log("Buy shot transaction signature", buyShotTx);
+    console.log("Current receipts", receiptsAccount.receipts.length);
 
-    console.log("Current receipts", ledAccount.receipts.length);
-
-    assert(ledAccount.receipts.length === 1, "There is now one receipt");
+    assert(receiptsAccount.receipts.length === 1, "There is now one receipt");
+    assert(
+      receiptsAccount.receipts[0].productName === productName,
+      "Receipt has correct product name"
+    );
+    assert(
+      receiptsAccount.receipts[0].price.eq(productPrice),
+      "Receipt has correct price"
+    );
   });
 });

@@ -6,6 +6,7 @@ use anchor_spl::token_interface::{self, Mint, TokenAccount, TokenInterface, Tran
 declare_id!("HHpyCo9M9ZX2bhiYyYznMagry6eGJZxykPEAes54o29S");
 
 const TREASURE_PUBKEY: Pubkey = pubkey!("GsfNSuZFrT2r4xzSndnCSs9tTXwt47etPqU8yFVnDcXd");
+const SOL_MINT: Pubkey = pubkey!("So11111111111111111111111111111111111111112");
 
 #[error_code]
 pub enum ShotErrorCode {
@@ -13,14 +14,21 @@ pub enum ShotErrorCode {
     InvalidTreasury,
     #[msg("ProductAlreadyExists")]
     ProductAlreadyExists,
+    #[msg("ProductNotFound")]
+    ProductNotFound,
+    #[msg("InvalidMint")]
+    InvalidMint,
+    #[msg("InvalidAuthority")]
+    InvalidAuthority,
 }
 
 #[program]
 pub mod solana_bar {
     use super::*;
-    const SHOT_PRICE: u64 = LAMPORTS_PER_SOL / 100; // 0.01 SOL
 
-    pub fn initialize(_ctx: Context<Initialize>) -> Result<()> {
+    pub fn initialize(ctx: Context<Initialize>, shop_name: String) -> Result<()> {
+        ctx.accounts.receipts.bar_name = shop_name;
+        ctx.accounts.receipts.authority = *ctx.accounts.authority.key;
         Ok(())
     }
 
@@ -31,6 +39,12 @@ pub mod solana_bar {
         decimals: u8,
         mint: Pubkey,
     ) -> Result<()> {
+        // Verify the caller is the authority
+        require!(
+            *ctx.accounts.authority.key == ctx.accounts.receipts.authority,
+            ShotErrorCode::InvalidAuthority
+        );
+
         // Check if product with same mint already exists
         for product in &ctx.accounts.receipts.products {
             if product.mint == mint {
@@ -49,20 +63,40 @@ pub mod solana_bar {
         Ok(())
     }
 
-    pub fn buy_shot(ctx: Context<BuyShot>) -> Result<()> {
+    pub fn buy_shot(ctx: Context<BuyShot>, product_name: String) -> Result<()> {
         if TREASURE_PUBKEY != *ctx.accounts.treasury.key {
             return Err(ShotErrorCode::InvalidTreasury.into());
         }
+
+        // Find the product and verify the mint matches
+        let product = ctx
+            .accounts
+            .receipts
+            .products
+            .iter()
+            .find(|p| p.name == product_name)
+            .ok_or(ShotErrorCode::ProductNotFound)?;
+
+        require!(
+            product.mint == ctx.accounts.mint.key(),
+            ShotErrorCode::InvalidMint
+        );
+
+        let price = product.price;
+        let decimals = product.decimals;
+        let name = product.name.clone();
+        let is_sol = product.mint == SOL_MINT;
 
         // Add a new receipt to the receipts account.
         let receipt_id = ctx.accounts.receipts.total_shots_sold;
         ctx.accounts.receipts.receipts.push(Receipt {
             buyer: *ctx.accounts.signer.key,
             was_delivered: false,
-            price: 1,
+            price,
             timestamp: Clock::get()?.unix_timestamp,
             receipt_id,
             table_number: 1,
+            product_name: name,
         });
 
         let len = ctx.accounts.receipts.receipts.len();
@@ -78,31 +112,29 @@ pub mod solana_bar {
             .checked_add(1)
             .unwrap();
 
-        // Transfer lamports to the treasury for payment.
-        let cpi_context = CpiContext::new(
-            ctx.accounts.system_program.to_account_info(),
-            system_program::Transfer {
-                from: ctx.accounts.signer.to_account_info().clone(),
-                to: ctx.accounts.treasury.to_account_info().clone(),
-            },
-        );
-        system_program::transfer(cpi_context, SHOT_PRICE)?;
+        // If mint is SOL, use system program transfer
+        if is_sol {
+            let cpi_context = CpiContext::new(
+                ctx.accounts.system_program.to_account_info(),
+                system_program::Transfer {
+                    from: ctx.accounts.signer.to_account_info().clone(),
+                    to: ctx.accounts.treasury.to_account_info().clone(),
+                },
+            );
+            system_program::transfer(cpi_context, price)?;
+        } else {
+            // Otherwise use token transfer
+            let cpi_accounts = TransferChecked {
+                mint: ctx.accounts.mint.to_account_info(),
+                from: ctx.accounts.sender_token_account.to_account_info(),
+                to: ctx.accounts.recipient_token_account.to_account_info(),
+                authority: ctx.accounts.signer.to_account_info(),
+            };
+            let cpi_program = ctx.accounts.token_program.to_account_info();
+            let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
 
-        // Get token decimals
-        let decimals = ctx.accounts.mint.decimals;
-
-        // Create CPI context for token transfer
-        let cpi_accounts = TransferChecked {
-            mint: ctx.accounts.mint.to_account_info(),
-            from: ctx.accounts.sender_token_account.to_account_info(),
-            to: ctx.accounts.recipient_token_account.to_account_info(),
-            authority: ctx.accounts.signer.to_account_info(),
-        };
-        let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
-
-        // Transfer tokens using transfer_checked
-        token_interface::transfer_checked(cpi_context, 1, decimals)?;
+            token_interface::transfer_checked(cpi_context, price, decimals)?;
+        }
 
         Ok(())
     }
@@ -193,4 +225,5 @@ pub struct Receipt {
     pub price: u64,
     pub timestamp: i64,
     pub table_number: u8,
+    pub product_name: String,
 }
