@@ -17,6 +17,11 @@ export default function Home() {
   const [receipts, setReceipts] = useState<any>();
   const [selectedProduct, setSelectedProduct] = useState<string>("Test Shot");
   const { publicKey, sendTransaction } = useWallet();
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: "",
+    decimals: "6",
+  });
 
   useEffect(() => {
     console.log("Wallet public key:", publicKey?.toString());
@@ -148,6 +153,42 @@ export default function Home() {
     }
   };
 
+  const handleAddProduct = async () => {
+    if (!publicKey) return;
+
+    try {
+      const price = new BN(
+        parseFloat(newProduct.price) *
+          Math.pow(10, parseInt(newProduct.decimals))
+      );
+      const decimals = parseInt(newProduct.decimals);
+
+      const transaction = await SOLANA_BAR_PROGRAM.methods
+        .addProduct(
+          newProduct.name,
+          price,
+          decimals,
+          new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
+        ) // USDC mint
+        .accounts({
+          authority: publicKey,
+        })
+        .transaction();
+
+      const signature = await sendTransaction(transaction, CONNECTION);
+      console.log("Product added:", signature);
+
+      // Reset form
+      setNewProduct({
+        name: "",
+        price: "",
+        decimals: "6",
+      });
+    } catch (error) {
+      console.error("Error adding product:", error);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-blue-500 to-purple-600">
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -188,10 +229,10 @@ export default function Home() {
                     />
                     <button
                       onClick={handleBuyShot}
-                      className="bg-white hover:bg-gray-100 text-black font-bold py-2 px-4 rounded-2xl border border-black shadow-md"
+                      className="bg-white/50 hover:bg-white/70 text-black font-bold py-2 px-4 rounded-2xl border border-black/50 shadow-md"
                       disabled={!publicKey}
                     >
-                      Buy with Wallet
+                      Buy with Wallet (Debug)
                     </button>
                   </div>
                 )}
@@ -217,6 +258,70 @@ export default function Home() {
             )}
 
             <Receipts receipts={receipts} />
+
+            {/* Add Product Form */}
+            {receipts != null && (
+              <div className="w-full max-w-md p-4 bg-white rounded-lg shadow-md mt-4">
+                <h2 className="text-xl font-bold mb-4">Add New Product</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Product Name
+                    </label>
+                    <input
+                      type="text"
+                      value={newProduct.name}
+                      onChange={(e) =>
+                        setNewProduct({ ...newProduct, name: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border rounded-md"
+                      placeholder="e.g., Test Shot"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Price (USDC)
+                    </label>
+                    <input
+                      type="number"
+                      value={newProduct.price}
+                      onChange={(e) =>
+                        setNewProduct({ ...newProduct, price: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border rounded-md"
+                      placeholder="e.g., 1.00"
+                      step="0.01"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Decimals
+                    </label>
+                    <input
+                      type="number"
+                      value={newProduct.decimals}
+                      onChange={(e) =>
+                        setNewProduct({
+                          ...newProduct,
+                          decimals: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border rounded-md"
+                      placeholder="e.g., 6"
+                    />
+                  </div>
+                  <button
+                    onClick={handleAddProduct}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md"
+                    disabled={
+                      !publicKey || !newProduct.name || !newProduct.price
+                    }
+                  >
+                    Add Product
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

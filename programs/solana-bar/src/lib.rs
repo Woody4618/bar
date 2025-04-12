@@ -1,4 +1,3 @@
-use anchor_lang::solana_program::native_token::LAMPORTS_PER_SOL;
 use anchor_lang::system_program;
 use anchor_lang::{prelude::*, solana_program::pubkey};
 use anchor_spl::associated_token::AssociatedToken;
@@ -6,7 +5,6 @@ use anchor_spl::token_interface::{self, Mint, TokenAccount, TokenInterface, Tran
 
 declare_id!("HHpyCo9M9ZX2bhiYyYznMagry6eGJZxykPEAes54o29S");
 
-const TREASURE_PUBKEY: Pubkey = pubkey!("GsfNSuZFrT2r4xzSndnCSs9tTXwt47etPqU8yFVnDcXd");
 const SOL_MINT: Pubkey = pubkey!("So11111111111111111111111111111111111111112");
 
 #[error_code]
