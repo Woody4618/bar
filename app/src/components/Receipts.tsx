@@ -1,39 +1,48 @@
 import { FC } from "react";
 import { BN } from "@coral-xyz/anchor";
+import { Receipts as ReceiptsType } from "@/src/util/solana_bar";
 
-const Receipts: FC<any> = ({ receipts }) => {
+interface ReceiptsProps {
+  receipts: ReceiptsType | null;
+}
+
+const Receipts: FC<ReceiptsProps> = ({ receipts }) => {
+  if (!receipts) return null;
+
   return (
-    <div className="bg-white shadow-md rounded-2xl border-solid border border-black w-[430px] text-center flex flex-col mx-auto p-4">
-      <h3 className="text-lg font-semibold mb-2">Receipts:</h3>
-      <div className="flex flex-col gap-2">
-        {receipts &&
-          receipts.receipts.map((receipt: any) => (
-            <div
-              key={receipt.receiptId}
-              className="flex flex-col items-center p-2 border-b last:border-b-0"
-            >
-              <div className="font-medium">
-                Receipt #{receipt.receiptId.toString()}
+    <div className="w-full max-w-md p-4 bg-white rounded-lg shadow-md">
+      <h2 className="text-xl font-bold mb-4">Recent Receipts</h2>
+      <div className="space-y-4">
+        {receipts.receipts.map((receipt) => (
+          <div
+            key={receipt.receipt_id}
+            className="p-4 border rounded-lg bg-gray-50"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-semibold">{receipt.product_name}</p>
+                <p className="text-sm text-gray-600">
+                  {new Date(receipt.timestamp * 1000).toLocaleString()}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Table: {receipt.table_number}
+                </p>
               </div>
-              <div className="text-sm font-medium text-blue-600">
-                {receipt.productName}
-              </div>
-              <div
-                className={
-                  receipt.wasDelivered ? "text-green-600" : "text-yellow-600"
-                }
-              >
-                {receipt.wasDelivered ? "Delivered" : "Pending"}
-              </div>
-              <div className="text-sm text-gray-600 break-all max-w-[380px]">
-                {receipt.buyer.toString()}
-              </div>
-              <div className="text-sm font-medium text-blue-600">
-                Price:{" "}
-                {new BN(receipt.price).div(new BN(1000000000)).toString()} SOL
+              <div className="text-right">
+                <p className="font-semibold">
+                  {(receipt.price / Math.pow(10, 6)).toFixed(2)} USDC
+                </p>
+                <p
+                  className={`text-sm ${
+                    receipt.was_delivered ? "text-green-600" : "text-yellow-600"
+                  }`}
+                >
+                  {receipt.was_delivered ? "Delivered" : "Pending"}
+                </p>
               </div>
             </div>
-          ))}
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -148,35 +148,6 @@ export default function Home() {
     }
   };
 
-  const testTransfer = async () => {
-    if (!publicKey) {
-      console.error("Wallet not connected");
-      return;
-    }
-
-    try {
-      const { blockhash } = await CONNECTION.getLatestBlockhash();
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: new PublicKey(
-            "CYg2vSJdujzEC1E7kHMzB9QhjiPLRdsAa4Js7MkuXfYq"
-          ),
-          lamports: 1000000, // 0.001 SOL
-        })
-      );
-
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = publicKey;
-
-      console.log("Sending test transfer...");
-      const signature = await sendTransaction(transaction, CONNECTION);
-      console.log("Transfer sent:", signature);
-    } catch (error) {
-      console.error("Error in test transfer:", error);
-    }
-  };
-
   return (
     <main className="min-h-screen bg-gradient-to-b from-blue-500 to-purple-600">
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -185,13 +156,6 @@ export default function Home() {
             <WalletMultiButton className="!bg-white !text-black hover:!bg-gray-100" />
           </div>
           <div className="flex flex-col items-center gap-4 mx-10 my-4">
-            <button
-              onClick={testTransfer}
-              className="bg-white hover:bg-gray-100 text-black font-bold py-2 px-4 rounded-2xl border border-black shadow-md"
-              disabled={!publicKey}
-            >
-              Test Transfer (0.001 SOL)
-            </button>
             {receipts != null ? (
               <div className="flex flex-col items-center gap-2">
                 <select
@@ -200,13 +164,21 @@ export default function Home() {
                   onChange={(e) => setSelectedProduct(e.target.value)}
                 >
                   <option value="">Select a product</option>
-                  {receipts.products?.map((product: any) => (
-                    <option key={product.name} value={product.name}>
-                      {product.name} -{" "}
-                      {new BN(product.price).div(new BN(1000000000)).toString()}{" "}
-                      SOL
-                    </option>
-                  ))}
+                  {receipts.products?.map(
+                    (product: {
+                      name: string;
+                      price: number;
+                      decimals: number;
+                    }) => (
+                      <option key={product.name} value={product.name}>
+                        {product.name} -{" "}
+                        {(
+                          product.price / Math.pow(10, product.decimals)
+                        ).toFixed(2)}{" "}
+                        USDC
+                      </option>
+                    )
+                  )}
                 </select>
                 {selectedProduct && (
                   <div className="flex flex-col items-center gap-2">
