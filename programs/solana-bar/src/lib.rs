@@ -1,7 +1,7 @@
+use anchor_lang::prelude::*;
 use anchor_lang::system_program;
-use anchor_lang::{prelude::*, solana_program::pubkey};
 use anchor_spl::associated_token::AssociatedToken;
-use anchor_spl::token_interface::{self, Mint, TokenAccount, TokenInterface, TransferChecked};
+use anchor_spl::token::{self, Mint, Token, TokenAccount, TransferChecked};
 
 declare_id!("HHpyCo9M9ZX2bhiYyYznMagry6eGJZxykPEAes54o29S");
 
@@ -25,14 +25,15 @@ pub enum ShotErrorCode {
 pub mod solana_bar {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>, shop_name: String) -> Result<()> {
-        ctx.accounts.receipts.bar_name = shop_name;
+    pub fn initialize(ctx: Context<Initialize>, bar_name: String) -> Result<()> {
+        ctx.accounts.receipts.bar_name = bar_name.clone();
         ctx.accounts.receipts.authority = *ctx.accounts.authority.key;
         Ok(())
     }
 
     pub fn add_product(
         ctx: Context<AddProduct>,
+        bar_name: String,
         name: String,
         price: u64,
         decimals: u8,
@@ -62,7 +63,7 @@ pub mod solana_bar {
         Ok(())
     }
 
-    pub fn buy_shot(ctx: Context<BuyShot>, product_name: String) -> Result<()> {
+    pub fn buy_shot(ctx: Context<BuyShot>, bar_name: String, product_name: String) -> Result<()> {
         // Find the product and verify the mint matches
         let product = ctx
             .accounts
@@ -128,13 +129,17 @@ pub mod solana_bar {
             let cpi_program = ctx.accounts.token_program.to_account_info();
             let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
 
-            token_interface::transfer_checked(cpi_context, price, decimals)?;
+            token::transfer_checked(cpi_context, price, decimals)?;
         }
 
         Ok(())
     }
 
-    pub fn mark_shot_as_delivered(ctx: Context<MarkShotAsDelivered>, recipe_id: u64) -> Result<()> {
+    pub fn mark_shot_as_delivered(
+        ctx: Context<MarkShotAsDelivered>,
+        _bar_name: String,
+        recipe_id: u64,
+    ) -> Result<()> {
         msg!("Marked shot as delivered");
         for i in 0..ctx.accounts.receipts.receipts.len() {
             msg!("Marked shot as delivered  {}", i);
@@ -148,34 +153,50 @@ pub mod solana_bar {
 }
 
 #[derive(Accounts)]
+#[instruction(bar_name: String)]
 pub struct Initialize<'info> {
-    #[account(init, payer = authority, space = 5000, seeds = [b"receipts"], bump)]
+    #[account(
+        init,
+        payer = authority,
+        space = 8 + 32 + 32 + 4 + 4 + (4 + 32 + 8 + 1 + 32) * 10 + (4 + 32 + 1 + 8 + 8 + 4 + 32) * 10,
+        seeds = [b"receipts", bar_name.as_bytes()],
+        bump
+    )]
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
-    pub rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]
+#[instruction(bar_name: String, name: String, price: u64, decimals: u8, mint: Pubkey)]
 pub struct AddProduct<'info> {
-    #[account(mut, seeds = [b"receipts"], bump)]
+    #[account(
+        mut,
+        seeds = [b"receipts", bar_name.as_bytes()],
+        bump
+    )]
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
     pub authority: Signer<'info>,
 }
 
 #[derive(Accounts)]
+#[instruction(bar_name: String, product_name: String)]
 pub struct BuyShot<'info> {
-    #[account(mut, seeds = [b"receipts"], bump)]
+    #[account(
+        mut,
+        seeds = [b"receipts", bar_name.as_bytes()],
+        bump
+    )]
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
     pub signer: Signer<'info>,
-    pub system_program: Program<'info, System>,
     #[account(mut)]
-    pub mint: InterfaceAccount<'info, Mint>,
+    pub authority: SystemAccount<'info>,
+    pub mint: Account<'info, Mint>,
     #[account(mut)]
-    pub sender_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub sender_token_account: Account<'info, TokenAccount>,
     #[account(
         init_if_needed,
         payer = signer,
@@ -183,20 +204,23 @@ pub struct BuyShot<'info> {
         associated_token::authority = authority,
         associated_token::token_program = token_program,
     )]
-    pub recipient_token_account: InterfaceAccount<'info, TokenAccount>,
-    pub token_program: Interface<'info, TokenInterface>,
+    pub recipient_token_account: Account<'info, TokenAccount>,
+    pub token_program: Program<'info, Token>,
+    pub system_program: Program<'info, System>,
     pub associated_token_program: Program<'info, AssociatedToken>,
-    /// CHECK: This is the authority's account
-    #[account(mut, address = receipts.authority)]
-    pub authority: SystemAccount<'info>,
 }
 
 #[derive(Accounts)]
+#[instruction(bar_name: String, recipe_id: u64)]
 pub struct MarkShotAsDelivered<'info> {
-    #[account(mut, seeds = [b"receipts"], bump)]
+    #[account(
+        mut,
+        seeds = [b"receipts", bar_name.as_bytes()],
+        bump
+    )]
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub authority: Signer<'info>,
 }
 
 #[account()]

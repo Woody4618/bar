@@ -2,7 +2,7 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { SolanaBar } from "../target/types/solana_bar";
 import { assert } from "chai";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import {
   TOKEN_PROGRAM_ID,
   createMint,
@@ -16,10 +16,9 @@ describe("SolanaBar", () => {
   const program = anchor.workspace.SolanaBar as Program<SolanaBar>;
   const wallet = anchor.workspace.SolanaBar.provider.wallet;
   const connection = program.provider.connection;
+  const barName = "Test Bar";
 
   it("Is initialized!", async () => {
-    // Create a new keypair for the other user
-    const otherUser = Keypair.generate();
 
     // Create a new mint
     const mint = await createMint(
@@ -29,6 +28,8 @@ describe("SolanaBar", () => {
       wallet.publicKey,
       6
     );
+
+    console.log("Mint", mint);
 
     // Create token accounts for both users
     const senderTokenAccount = await getOrCreateAssociatedTokenAccount(
@@ -67,20 +68,20 @@ describe("SolanaBar", () => {
       5
     );
 
-    
-
-    const receiptsPDA = await anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("receipts")],
+    const [receiptsPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("receipts"), Buffer.from(barName)],
       program.programId
-    )[0];
+    );
 
     console.log("Receipts", receiptsPDA);
 
     // Initialize the receipts account
     const initializeTx = await program.methods
-      .initialize("Test Bar")
-      .accounts({
+      .initialize(barName)
+      .accountsStrict({
+        receipts: receiptsPDA,
         authority: wallet.publicKey,
+        systemProgram: SystemProgram.programId,
       })
       .rpc();
     console.log("Initialize transaction signature: ", initializeTx);
@@ -91,22 +92,34 @@ describe("SolanaBar", () => {
     const productDecimals = 6;
 
     const addProductTx = await program.methods
-      .addProduct(productName, productPrice, productDecimals, mint)
-      .accounts({
+      .addProduct(barName, productName, productPrice, productDecimals, mint)
+      .accountsStrict({
+        receipts: receiptsPDA,
         authority: wallet.publicKey,
       })
       .rpc();
     console.log("Add product transaction signature: ", addProductTx);
 
     // Buy the product
+    const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
+      connection,
+      wallet.payer,
+      mint,
+      wallet.publicKey
+    );
+
     const buyShotTx = await program.methods
-      .buyShot(productName)
-      .accounts({
+      .buyShot(barName, productName)
+      .accountsStrict({
+        receipts: receiptsPDA,
         signer: wallet.publicKey,
-        mint,
-        senderTokenAccount: senderTokenAccount.address,
-        tokenProgram: TOKEN_PROGRAM_ID,
         authority: wallet.publicKey,
+        mint: mint,
+        senderTokenAccount: senderTokenAccount.address,
+        recipientTokenAccount: recipientTokenAccount.address,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: SystemProgram.programId,
+        associatedTokenProgram: anchor.utils.token.ASSOCIATED_PROGRAM_ID,
       })
       .rpc();
 

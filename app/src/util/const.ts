@@ -38,9 +38,11 @@ const provider = new AnchorProvider(CONNECTION, null as any, {
 
 export const SOLANA_BAR_PROGRAM = new Program<SolanaBar>(idl as any, provider);
 
-export const RECEIPTS_PDA = PublicKey.findProgramAddressSync(
-  [Buffer.from("receipts")],
-  SOLANA_BAR_PROGRAM_ID
-)[0];
+export const getReceiptsPDA = (barName: string) => {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from("receipts"), Buffer.from(barName)],
+    SOLANA_BAR_PROGRAM_ID
+  )[0];
+};
 
 export { TOKEN_PROGRAM_ID };

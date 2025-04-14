@@ -25,6 +25,10 @@ export type SolanaBar = {
               {
                 kind: "const";
                 value: [114, 101, 99, 101, 105, 112, 116, 115];
+              },
+              {
+                kind: "arg";
+                path: "barName";
               }
             ];
           };
@@ -36,6 +40,10 @@ export type SolanaBar = {
         }
       ];
       args: [
+        {
+          name: "barName";
+          type: "string";
+        },
         {
           name: "name";
           type: "string";
@@ -66,6 +74,10 @@ export type SolanaBar = {
               {
                 kind: "const";
                 value: [114, 101, 99, 101, 105, 112, 116, 115];
+              },
+              {
+                kind: "arg";
+                path: "barName";
               }
             ];
           };
@@ -76,12 +88,11 @@ export type SolanaBar = {
           signer: true;
         },
         {
-          name: "systemProgram";
-          address: "11111111111111111111111111111111";
+          name: "authority";
+          writable: true;
         },
         {
           name: "mint";
-          writable: true;
         },
         {
           name: "senderTokenAccount";
@@ -146,17 +157,22 @@ export type SolanaBar = {
         },
         {
           name: "tokenProgram";
+          address: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
         },
         {
           name: "associatedTokenProgram";
           address: "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL";
-        },
-        {
-          name: "authority";
-          writable: true;
         }
       ];
       args: [
+        {
+          name: "barName";
+          type: "string";
+        },
         {
           name: "productName";
           type: "string";
@@ -175,6 +191,10 @@ export type SolanaBar = {
               {
                 kind: "const";
                 value: [114, 101, 99, 101, 105, 112, 116, 115];
+              },
+              {
+                kind: "arg";
+                path: "barName";
               }
             ];
           };
@@ -187,15 +207,11 @@ export type SolanaBar = {
         {
           name: "systemProgram";
           address: "11111111111111111111111111111111";
-        },
-        {
-          name: "rent";
-          address: "SysvarRent111111111111111111111111111111111";
         }
       ];
       args: [
         {
-          name: "shopName";
+          name: "barName";
           type: "string";
         }
       ];
@@ -212,17 +228,25 @@ export type SolanaBar = {
               {
                 kind: "const";
                 value: [114, 101, 99, 101, 105, 112, 116, 115];
+              },
+              {
+                kind: "arg";
+                path: "barName";
               }
             ];
           };
         },
         {
-          name: "signer";
+          name: "authority";
           writable: true;
           signer: true;
         }
       ];
       args: [
+        {
+          name: "barName";
+          type: "string";
+        },
         {
           name: "recipeId";
           type: "u64";
