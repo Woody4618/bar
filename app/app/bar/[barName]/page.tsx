@@ -33,8 +33,10 @@ const WalletMultiButtonDynamic = dynamic(
 export default function BarPage() {
   const params = useParams();
   const barName = params?.barName as string;
+  const [loading, setLoading] = useState(true);
   const [receipts, setReceipts] = useState<any>();
   const [selectedProduct, setSelectedProduct] = useState<string>("");
+  const [selectedTable, setSelectedTable] = useState<number>(1);
   const { publicKey, sendTransaction } = useWallet();
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -50,6 +52,7 @@ export default function BarPage() {
   const [highestReceiptId, setHighestReceiptId] = useState(0);
   const [showQRCheckmark, setShowQRCheckmark] = useState(false);
   const [initialReceiptIds, setInitialReceiptIds] = useState<number[]>([]);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   const RECEIPTS_PDA = useMemo(() => getReceiptsPDA(barName), [barName]);
 
@@ -64,13 +67,15 @@ export default function BarPage() {
           RECEIPTS_PDA
         );
         setReceipts(gameData);
-        // Automatically select the first product if available
-        if (gameData?.products?.length > 0) {
+        // Only set selected product if we don't have one yet and there are products available
+        if (!selectedProduct && gameData?.products?.length > 0) {
           setSelectedProduct(gameData.products[0].name);
         }
       } catch (error) {
         console.error("Error fetching receipts:", error);
         setReceipts(null);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -86,8 +91,8 @@ export default function BarPage() {
           updatedAccountInfo.data
         );
         setReceipts(decoded);
-        // Automatically select the first product if available
-        if (decoded?.products?.length > 0) {
+        // Only set selected product if we don't have one yet and there are products available
+        if (!selectedProduct && decoded?.products?.length > 0) {
           setSelectedProduct(decoded.products[0].name);
         }
       },
@@ -100,24 +105,29 @@ export default function BarPage() {
         CONNECTION.removeAccountChangeListener(subscriptionId);
       }
     };
-  }, [publicKey]);
+  }, [publicKey, selectedProduct]);
 
   // Update the purchase detection useEffect
   useEffect(() => {
-    if (!receipts?.receipts) return;
+    if (!receipts?.receipts || hasInitialized) return;
 
     const currentReceiptIds = receipts.receipts.map((r: any) =>
       r.receiptId.toNumber()
     );
 
-    // If we haven't set initial IDs yet, do that now
-    if (initialReceiptIds.length === 0) {
-      setInitialReceiptIds(currentReceiptIds);
-      setHighestReceiptId(Math.max(...currentReceiptIds));
-      return;
-    }
+    // Set initial IDs and mark as initialized
+    setInitialReceiptIds(currentReceiptIds);
+    setHighestReceiptId(Math.max(...currentReceiptIds));
+    setHasInitialized(true);
+  }, [receipts?.receipts, hasInitialized]);
 
-    // Find the highest receipt ID in the current list
+  // Separate effect for handling new purchases
+  useEffect(() => {
+    if (!receipts?.receipts || !hasInitialized) return;
+
+    const currentReceiptIds = receipts.receipts.map((r: any) =>
+      r.receiptId.toNumber()
+    );
     const currentHighestId = Math.max(...currentReceiptIds);
 
     // Only trigger if we have a new higher receipt ID that wasn't in our initial set
@@ -147,7 +157,7 @@ export default function BarPage() {
         }, 3000);
       }
     }
-  }, [receipts?.receipts, highestReceiptId, initialReceiptIds]);
+  }, [receipts?.receipts, highestReceiptId, initialReceiptIds, hasInitialized]);
 
   if (!barName) {
     return (
@@ -158,6 +168,17 @@ export default function BarPage() {
             Please access this page with a bar name in the URL, e.g.,
             /bar/your-bar-name
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-500 to-purple-600 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl">Loading bar data...</p>
         </div>
       </div>
     );
@@ -231,7 +252,7 @@ export default function BarPage() {
       );
 
       const transaction = await SOLANA_BAR_PROGRAM.methods
-        .buyShot(barName, selectedProduct)
+        .buyShot(barName, selectedProduct, selectedTable)
         .accounts({
           signer: publicKey,
           authority: publicKey,
@@ -300,28 +321,41 @@ export default function BarPage() {
           <div className="flex flex-col items-center gap-4 mx-10 my-4">
             {receipts != null ? (
               <div className="flex flex-col items-center gap-2">
-                <select
-                  className="bg-white shadow-md rounded-2xl border-solid border border-black p-2"
-                  value={selectedProduct}
-                  onChange={(e) => setSelectedProduct(e.target.value)}
-                >
-                  <option value="">Select a product</option>
-                  {receipts.products?.map(
-                    (product: {
-                      name: string;
-                      price: number;
-                      decimals: number;
-                    }) => (
-                      <option key={product.name} value={product.name}>
-                        {product.name} -{" "}
-                        {(
-                          product.price / Math.pow(10, product.decimals)
-                        ).toFixed(2)}{" "}
-                        USDC
+                <div className="flex gap-4">
+                  <select
+                    className="bg-white shadow-md rounded-2xl border-solid border border-black p-2"
+                    value={selectedProduct}
+                    onChange={(e) => setSelectedProduct(e.target.value)}
+                  >
+                    <option value="">Select a product</option>
+                    {receipts.products?.map(
+                      (product: {
+                        name: string;
+                        price: number;
+                        decimals: number;
+                      }) => (
+                        <option key={product.name} value={product.name}>
+                          {product.name} -{" "}
+                          {(
+                            product.price / Math.pow(10, product.decimals)
+                          ).toFixed(2)}{" "}
+                          USDC
+                        </option>
+                      )
+                    )}
+                  </select>
+                  <select
+                    className="bg-white shadow-md rounded-2xl border-solid border border-black p-2"
+                    value={selectedTable}
+                    onChange={(e) => setSelectedTable(Number(e.target.value))}
+                  >
+                    {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
+                      <option key={num} value={num}>
+                        Table {num}
                       </option>
-                    )
-                  )}
-                </select>
+                    ))}
+                  </select>
+                </div>
                 {selectedProduct && (
                   <div className="flex flex-col items-center gap-2">
                     <div className="relative">
@@ -329,6 +363,7 @@ export default function BarPage() {
                         instruction={"buy_shot"}
                         barName={barName}
                         productName={selectedProduct}
+                        tableNumber={selectedTable}
                       />
                       {showQRCheckmark &&
                         lastPurchasedProduct === selectedProduct && (
@@ -361,7 +396,7 @@ export default function BarPage() {
                       onClick={handleBuyShot}
                       className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-100"
                     >
-                      Buy with Walletadapter
+                      Buy with Wallet
                     </button>
                   </div>
                 )}

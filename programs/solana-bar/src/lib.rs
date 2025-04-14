@@ -3,7 +3,7 @@ use anchor_lang::system_program;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, TransferChecked};
 
-declare_id!("HHpyCo9M9ZX2bhiYyYznMagry6eGJZxykPEAes54o29S");
+declare_id!("barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9");
 
 const SOL_MINT: Pubkey = pubkey!("So11111111111111111111111111111111111111112");
 
@@ -63,7 +63,12 @@ pub mod solana_bar {
         Ok(())
     }
 
-    pub fn buy_shot(ctx: Context<BuyShot>, bar_name: String, product_name: String) -> Result<()> {
+    pub fn buy_shot(
+        ctx: Context<BuyShot>,
+        bar_name: String,
+        product_name: String,
+        table_number: u8,
+    ) -> Result<()> {
         // Find the product and verify the mint matches
         let product = ctx
             .accounts
@@ -91,7 +96,7 @@ pub mod solana_bar {
             price,
             timestamp: Clock::get()?.unix_timestamp,
             receipt_id,
-            table_number: 1,
+            table_number,
             product_name: name,
         });
 
@@ -182,7 +187,7 @@ pub struct AddProduct<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(bar_name: String, product_name: String)]
+#[instruction(bar_name: String, product_name: String, table_number: u8)]
 pub struct BuyShot<'info> {
     #[account(
         mut,

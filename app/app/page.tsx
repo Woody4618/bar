@@ -29,6 +29,7 @@ interface Bar {
 export default function Home() {
   const [bars, setBars] = useState<Bar[]>([]);
   const [loading, setLoading] = useState(true);
+  const [newBarName, setNewBarName] = useState("");
 
   useEffect(() => {
     const fetchBars = async () => {
@@ -92,6 +93,32 @@ export default function Home() {
                 </div>
               </Link>
             ))}
+
+            {/* Create New Bar Card */}
+            <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                Create New Bar
+              </h2>
+              <div className="flex flex-col gap-4">
+                <input
+                  type="text"
+                  placeholder="Enter bar name"
+                  value={newBarName}
+                  onChange={(e) => setNewBarName(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <Link
+                  href={`/bar/${newBarName}`}
+                  className={`text-center px-4 py-2 rounded-lg ${
+                    newBarName
+                      ? "bg-blue-500 text-white hover:bg-blue-600"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  Create Bar
+                </Link>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -1,5 +1,5 @@
 {
-  "address": "HHpyCo9M9ZX2bhiYyYznMagry6eGJZxykPEAes54o29S",
+  "address": "barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9",
   "metadata": {
     "name": "solana_bar",
     "version": "0.1.0",
@@ -141,6 +141,10 @@
         {
           "name": "product_name",
           "type": "string"
+        },
+        {
+          "name": "table_number",
+          "type": "u8"
         }
       ]
     },

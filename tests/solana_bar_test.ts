@@ -19,7 +19,6 @@ describe("SolanaBar", () => {
   const barName = "Test Bar";
 
   it("Is initialized!", async () => {
-
     // Create a new mint
     const mint = await createMint(
       connection,
@@ -109,7 +108,7 @@ describe("SolanaBar", () => {
     );
 
     const buyShotTx = await program.methods
-      .buyShot(barName, productName)
+      .buyShot(barName, productName, 5)
       .accountsStrict({
         receipts: receiptsPDA,
         signer: wallet.publicKey,
@@ -135,6 +134,10 @@ describe("SolanaBar", () => {
     assert(
       receiptsAccount.receipts[0].price.eq(productPrice),
       "Receipt has correct price"
+    );
+    assert(
+      receiptsAccount.receipts[0].tableNumber === 5,
+      "Receipt has correct table number"
     );
   });
 });

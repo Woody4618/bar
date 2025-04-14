@@ -29,7 +29,7 @@ export const CONNECTION = new Connection(
 );
 
 export const SOLANA_BAR_PROGRAM_ID = new PublicKey(
-  "HHpyCo9M9ZX2bhiYyYznMagry6eGJZxykPEAes54o29S"
+  "barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9"
 );
 
 const provider = new AnchorProvider(CONNECTION, null as any, {

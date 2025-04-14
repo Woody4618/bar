@@ -13,7 +13,7 @@ const Receipts: FC<ReceiptsProps> = ({ receipts }) => {
     <div className="w-full max-w-md p-4 bg-white rounded-lg shadow-md">
       <h2 className="text-xl font-bold mb-4">Recent Receipts</h2>
       <div className="space-y-4">
-        {receipts.receipts.map((receipt) => (
+        {[...receipts.receipts].reverse().map((receipt) => (
           <div
             key={receipt.receiptId}
             className="p-4 border rounded-lg bg-gray-50"
