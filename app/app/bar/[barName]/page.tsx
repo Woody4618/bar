@@ -91,10 +91,6 @@ export default function BarPage() {
           updatedAccountInfo.data
         );
         setReceipts(decoded);
-        // Only set selected product if we don't have one yet and there are products available
-        if (!selectedProduct && decoded?.products?.length > 0) {
-          setSelectedProduct(decoded.products[0].name);
-        }
       },
       "confirmed"
     );
@@ -161,10 +157,12 @@ export default function BarPage() {
 
   if (!barName) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-500 to-purple-600 flex items-center justify-center">
-        <div className="text-white text-center">
-          <h1 className="text-2xl font-bold mb-4">Bar Name Required</h1>
-          <p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+          <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            Bar Name Required
+          </h1>
+          <p className="text-slate-300">
             Please access this page with a bar name in the URL, e.g.,
             /bar/your-bar-name
           </p>
@@ -175,10 +173,12 @@ export default function BarPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-500 to-purple-600 flex items-center justify-center">
-        <div className="text-white text-center">
-          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-xl">Loading bar data...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+          <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            Loading bar data...
+          </p>
         </div>
       </div>
     );
@@ -308,33 +308,39 @@ export default function BarPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-500 to-purple-600">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <PurchaseNotification
         show={showPurchaseNotification}
         productName={lastPurchasedProduct || ""}
       />
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex justify-end w-full px-4">
-            <WalletMultiButtonDynamic className="!bg-white !text-black hover:!bg-gray-100" />
+        <div className="flex flex-col items-center gap-4 w-full max-w-4xl px-4">
+          <div className="flex justify-end w-full">
+            <WalletMultiButtonDynamic className="!bg-slate-800 !text-white hover:!bg-slate-700 !border !border-slate-700" />
           </div>
-          <div className="flex flex-col items-center gap-4 mx-10 my-4">
+          <div className="flex flex-col items-center gap-4 w-full">
             {receipts != null ? (
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex gap-4">
+              <div className="flex flex-col items-center gap-4 w-full">
+                <div className="flex gap-4 w-full max-w-md">
                   <select
-                    className="bg-white shadow-md rounded-2xl border-solid border border-black p-2"
+                    className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
                     value={selectedProduct}
                     onChange={(e) => setSelectedProduct(e.target.value)}
                   >
-                    <option value="">Select a product</option>
+                    <option value="" className="bg-slate-800">
+                      Select a product
+                    </option>
                     {receipts.products?.map(
                       (product: {
                         name: string;
                         price: number;
                         decimals: number;
                       }) => (
-                        <option key={product.name} value={product.name}>
+                        <option
+                          key={product.name}
+                          value={product.name}
+                          className="bg-slate-800"
+                        >
                           {product.name} -{" "}
                           {(
                             product.price / Math.pow(10, product.decimals)
@@ -345,20 +351,20 @@ export default function BarPage() {
                     )}
                   </select>
                   <select
-                    className="bg-white shadow-md rounded-2xl border-solid border border-black p-2"
+                    className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
                     value={selectedTable}
                     onChange={(e) => setSelectedTable(Number(e.target.value))}
                   >
                     {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
-                      <option key={num} value={num}>
+                      <option key={num} value={num} className="bg-slate-800">
                         Table {num}
                       </option>
                     ))}
                   </select>
                 </div>
                 {selectedProduct && (
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="relative">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="relative bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
                       <PayQR
                         instruction={"buy_shot"}
                         barName={barName}
@@ -374,7 +380,7 @@ export default function BarPage() {
                             transition={{ duration: 0.3 }}
                             className="absolute inset-0 flex items-center justify-center"
                           >
-                            <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center">
+                            <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
                               <svg
                                 className="w-16 h-16 text-white"
                                 fill="none"
@@ -394,7 +400,7 @@ export default function BarPage() {
                     </div>
                     <button
                       onClick={handleBuyShot}
-                      className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-100"
+                      className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
                     >
                       Buy with Wallet
                     </button>
@@ -402,8 +408,8 @@ export default function BarPage() {
                 )}
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-4">
-                <h1 className="text-2xl font-bold text-white">
+              <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                   Initialize {barName}
                 </h1>
                 <PayQR
@@ -411,19 +417,21 @@ export default function BarPage() {
                   barName={barName}
                   productName={""}
                 />
-                <div className="text-white">OR</div>
+                <div className="text-slate-300">OR</div>
                 <button
                   onClick={handleInitialize}
-                  className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-100"
+                  className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
                 >
                   Initialize with Wallet
                 </button>
               </div>
             )}
             {receipts != null && (
-              <div className="flex flex-col items-center gap-4">
-                <h2 className="text-xl font-bold text-white">Add Product</h2>
-                <div className="flex flex-col gap-2">
+              <div className="flex flex-col items-center gap-4 w-full max-w-md p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                  Add Product
+                </h2>
+                <div className="flex flex-col gap-3 w-full">
                   <input
                     type="text"
                     placeholder="Product Name"
@@ -431,7 +439,7 @@ export default function BarPage() {
                     onChange={(e) =>
                       setNewProduct({ ...newProduct, name: e.target.value })
                     }
-                    className="bg-white shadow-md rounded-2xl border-solid border border-black p-2"
+                    className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                   <input
                     type="text"
@@ -440,7 +448,7 @@ export default function BarPage() {
                     onChange={(e) =>
                       setNewProduct({ ...newProduct, price: e.target.value })
                     }
-                    className="bg-white shadow-md rounded-2xl border-solid border border-black p-2"
+                    className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                   <input
                     type="text"
@@ -449,7 +457,7 @@ export default function BarPage() {
                     onChange={(e) =>
                       setNewProduct({ ...newProduct, decimals: e.target.value })
                     }
-                    className="bg-white shadow-md rounded-2xl border-solid border border-black p-2"
+                    className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                   <input
                     type="text"
@@ -458,11 +466,11 @@ export default function BarPage() {
                     onChange={(e) =>
                       setNewProduct({ ...newProduct, mint: e.target.value })
                     }
-                    className="bg-white shadow-md rounded-2xl border-solid border border-black p-2"
+                    className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                   <button
                     onClick={handleAddProduct}
-                    className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-100"
+                    className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
                   >
                     Add Product
                   </button>
@@ -472,7 +480,7 @@ export default function BarPage() {
           </div>
         </div>
       </div>
-      <div className="flex justify-center mt-8">
+      <div className="flex justify-center mt-8 pb-8">
         {receipts && <Receipts receipts={receipts} />}
       </div>
     </main>

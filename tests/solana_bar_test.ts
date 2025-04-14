@@ -9,6 +9,7 @@ import {
   getOrCreateAssociatedTokenAccount,
   mintTo,
 } from "@solana/spl-token";
+import * as fs from "fs";
 
 describe("SolanaBar", () => {
   anchor.setProvider(anchor.AnchorProvider.env());
@@ -19,13 +20,25 @@ describe("SolanaBar", () => {
   const barName = "Test Bar";
 
   it("Is initialized!", async () => {
+    const mintKeypair = Keypair.fromSecretKey(
+      new Uint8Array(
+        JSON.parse(
+          fs.readFileSync(
+            "./tests/tokSEbdQMxeCZx5GYKR32ywbax6VE4twyqJCYnEtAaC.json",
+            "utf-8"
+          )
+        )
+      )
+    );
+
     // Create a new mint
     const mint = await createMint(
       connection,
       wallet.payer,
       wallet.publicKey,
       wallet.publicKey,
-      6
+      6,
+      mintKeypair
     );
 
     console.log("Mint", mint);
@@ -64,7 +77,7 @@ describe("SolanaBar", () => {
     );
     await connection.requestAirdrop(
       new PublicKey("8D8qFHBnvS6oMsJy7EmGTrpoZcGd3aCC3pnPLi93Ag2V"),
-      5
+      1000000000 // 1000 tokens (9 decimals)
     );
 
     const [receiptsPDA] = PublicKey.findProgramAddressSync(

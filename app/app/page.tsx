@@ -56,21 +56,28 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-500 to-purple-600">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-end mb-8">
-          <WalletMultiButtonDynamic className="!bg-white !text-black hover:!bg-gray-100" />
+          <WalletMultiButtonDynamic className="!bg-slate-800 !text-white hover:!bg-slate-700 !border !border-slate-700" />
         </div>
 
-        <h1 className="text-4xl font-bold text-white mb-8 text-center">
+        <h1 className="text-5xl font-bold text-center mb-12 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
           Solana Bars
         </h1>
 
         {loading ? (
-          <div className="text-center text-white">Loading bars...</div>
+          <div className="text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+            <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              Loading bars...
+            </p>
+          </div>
         ) : bars.length === 0 ? (
-          <div className="text-center text-white">
-            No bars found. Create one to get started!
+          <div className="text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+            <p className="text-slate-300 text-xl">
+              No bars found. Create one to get started!
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -80,14 +87,14 @@ export default function Home() {
                 href={`/bar/${bar.barName}`}
                 className="block"
               >
-                <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-700/50 transition-all duration-200 shadow-xl">
+                  <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
                     {bar.barName}
                   </h2>
-                  <p className="text-gray-600">
+                  <p className="text-slate-400">
                     Address: {bar.pubkey.toString().slice(0, 8)}...
                   </p>
-                  <p className="text-gray-600">
+                  <p className="text-slate-400">
                     Shots sold: {bar.totalShotsSold}
                   </p>
                 </div>
@@ -95,8 +102,8 @@ export default function Home() {
             ))}
 
             {/* Create New Bar Card */}
-            <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 shadow-xl">
+              <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
                 Create New Bar
               </h2>
               <div className="flex flex-col gap-4">
@@ -105,14 +112,14 @@ export default function Home() {
                   placeholder="Enter bar name"
                   value={newBarName}
                   onChange={(e) => setNewBarName(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <Link
                   href={`/bar/${newBarName}`}
-                  className={`text-center px-4 py-2 rounded-lg ${
+                  className={`text-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg ${
                     newBarName
-                      ? "bg-blue-500 text-white hover:bg-blue-600"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600"
+                      : "bg-slate-700 text-slate-400 cursor-not-allowed"
                   }`}
                 >
                   Create Bar

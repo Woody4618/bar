@@ -47,7 +47,7 @@ pub mod solana_bar {
 
         // Check if product with same mint already exists
         for product in &ctx.accounts.receipts.products {
-            if product.mint == mint {
+            if product.name == name {
                 return Err(ShotErrorCode::ProductAlreadyExists.into());
             }
         }
