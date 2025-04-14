@@ -15,13 +15,13 @@ const Receipts: FC<ReceiptsProps> = ({ receipts }) => {
       <div className="space-y-4">
         {receipts.receipts.map((receipt) => (
           <div
-            key={receipt.receipt_id}
+            key={receipt.receiptId}
             className="p-4 border rounded-lg bg-gray-50"
           >
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
-                  <p className="font-semibold">{receipt.product_name}</p>
+                  <p className="font-semibold">{receipt.productName}</p>
                   <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
                     Table {receipt.tableNumber}
                   </span>

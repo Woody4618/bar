@@ -17,12 +17,22 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { useParams } from "next/navigation";
+import dynamic from "next/dynamic";
+
+// Dynamically import the WalletMultiButton to avoid hydration issues
+const WalletMultiButtonDynamic = dynamic(
+  () =>
+    import("@solana/wallet-adapter-react-ui").then(
+      (mod) => mod.WalletMultiButton
+    ),
+  { ssr: false }
+);
 
 export default function BarPage() {
   const params = useParams();
   const barName = params?.barName as string;
   const [receipts, setReceipts] = useState<any>();
-  const [selectedProduct, setSelectedProduct] = useState<string>("shot");
+  const [selectedProduct, setSelectedProduct] = useState<string>("");
   const { publicKey, sendTransaction } = useWallet();
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -49,6 +59,10 @@ export default function BarPage() {
         );
         console.log("Fetched game data:", gameData);
         setReceipts(gameData);
+        // Automatically select the first product if available
+        if (gameData?.products?.length > 0) {
+          setSelectedProduct(gameData.products[0].name);
+        }
       } catch (error) {
         console.error("Error fetching receipts:", error);
         setReceipts(null);
@@ -67,6 +81,10 @@ export default function BarPage() {
           updatedAccountInfo.data
         );
         setReceipts(decoded);
+        // Automatically select the first product if available
+        if (decoded?.products?.length > 0) {
+          setSelectedProduct(decoded.products[0].name);
+        }
       },
       "confirmed"
     );
@@ -222,7 +240,7 @@ export default function BarPage() {
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4">
           <div className="flex justify-end w-full px-4">
-            <WalletMultiButton className="!bg-white !text-black hover:!bg-gray-100" />
+            <WalletMultiButtonDynamic className="!bg-white !text-black hover:!bg-gray-100" />
           </div>
           <div className="flex flex-col items-center gap-4 mx-10 my-4">
             {receipts != null ? (
