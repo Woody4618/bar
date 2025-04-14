@@ -8,13 +8,10 @@ import {
 import PayQR from "@/src/components/PayQR";
 import Receipts from "@/src/components/Receipts";
 import { BN } from "@coral-xyz/anchor";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import {
-  getAssociatedTokenAddress,
-  TOKEN_PROGRAM_ID,
-  ASSOCIATED_TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddress
 } from "@solana/spl-token";
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -101,7 +98,7 @@ export default function BarPage() {
         CONNECTION.removeAccountChangeListener(subscriptionId);
       }
     };
-  }, [publicKey, selectedProduct]);
+  }, [publicKey, selectedProduct, RECEIPTS_PDA]);
 
   // Update the purchase detection useEffect
   useEffect(() => {
