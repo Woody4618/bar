@@ -18,6 +18,8 @@ import {
 } from "@solana/spl-token";
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
+import PurchaseNotification from "@/src/components/PurchaseNotification";
+import { motion } from "framer-motion";
 
 // Dynamically import the WalletMultiButton to avoid hydration issues
 const WalletMultiButtonDynamic = dynamic(
@@ -40,12 +42,16 @@ export default function BarPage() {
     decimals: "6",
     mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC mint address
   });
+  const [showPurchaseNotification, setShowPurchaseNotification] =
+    useState(false);
+  const [lastPurchasedProduct, setLastPurchasedProduct] = useState<
+    string | null
+  >(null);
+  const [highestReceiptId, setHighestReceiptId] = useState(0);
+  const [showQRCheckmark, setShowQRCheckmark] = useState(false);
+  const [initialReceiptIds, setInitialReceiptIds] = useState<number[]>([]);
 
   const RECEIPTS_PDA = useMemo(() => getReceiptsPDA(barName), [barName]);
-
-  useEffect(() => {
-    console.log("Bar name:", barName);
-  }, [barName]);
 
   useEffect(() => {
     if (!publicKey || typeof window === "undefined") return;
@@ -57,7 +63,6 @@ export default function BarPage() {
         const gameData = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
           RECEIPTS_PDA
         );
-        console.log("Fetched game data:", gameData);
         setReceipts(gameData);
         // Automatically select the first product if available
         if (gameData?.products?.length > 0) {
@@ -91,12 +96,58 @@ export default function BarPage() {
 
     // Cleanup subscription on unmount
     return () => {
-      console.log("Unmounting");
       if (subscriptionId) {
         CONNECTION.removeAccountChangeListener(subscriptionId);
       }
     };
   }, [publicKey]);
+
+  // Update the purchase detection useEffect
+  useEffect(() => {
+    if (!receipts?.receipts) return;
+
+    const currentReceiptIds = receipts.receipts.map((r: any) =>
+      r.receiptId.toNumber()
+    );
+
+    // If we haven't set initial IDs yet, do that now
+    if (initialReceiptIds.length === 0) {
+      setInitialReceiptIds(currentReceiptIds);
+      setHighestReceiptId(Math.max(...currentReceiptIds));
+      return;
+    }
+
+    // Find the highest receipt ID in the current list
+    const currentHighestId = Math.max(...currentReceiptIds);
+
+    // Only trigger if we have a new higher receipt ID that wasn't in our initial set
+    if (
+      currentHighestId > highestReceiptId &&
+      !initialReceiptIds.includes(currentHighestId)
+    ) {
+      // Find the receipt with the highest ID
+      const latestReceipt = receipts.receipts.reduce(
+        (prev: any, current: any) => {
+          return current.receiptId.toNumber() > prev.receiptId.toNumber()
+            ? current
+            : prev;
+        }
+      );
+
+      if (latestReceipt && !latestReceipt.wasDelivered) {
+        setLastPurchasedProduct(latestReceipt.productName);
+        setShowPurchaseNotification(true);
+        setShowQRCheckmark(true);
+        setHighestReceiptId(currentHighestId);
+
+        // Reset both notifications after a delay
+        setTimeout(() => {
+          setShowPurchaseNotification(false);
+          setShowQRCheckmark(false);
+        }, 3000);
+      }
+    }
+  }, [receipts?.receipts, highestReceiptId, initialReceiptIds]);
 
   if (!barName) {
     return (
@@ -237,6 +288,10 @@ export default function BarPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-blue-500 to-purple-600">
+      <PurchaseNotification
+        show={showPurchaseNotification}
+        productName={lastPurchasedProduct || ""}
+      />
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4">
           <div className="flex justify-end w-full px-4">
@@ -269,16 +324,44 @@ export default function BarPage() {
                 </select>
                 {selectedProduct && (
                   <div className="flex flex-col items-center gap-2">
-                    <PayQR
-                      instruction={"buy_shot"}
-                      barName={barName}
-                      productName={selectedProduct}
-                    />
+                    <div className="relative">
+                      <PayQR
+                        instruction={"buy_shot"}
+                        barName={barName}
+                        productName={selectedProduct}
+                      />
+                      {showQRCheckmark &&
+                        lastPurchasedProduct === selectedProduct && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="absolute inset-0 flex items-center justify-center"
+                          >
+                            <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center">
+                              <svg
+                                className="w-16 h-16 text-white"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={3}
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            </div>
+                          </motion.div>
+                        )}
+                    </div>
                     <button
                       onClick={handleBuyShot}
                       className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-100"
                     >
-                      Buy with Wallet
+                      Buy with Walletadapter
                     </button>
                   </div>
                 )}

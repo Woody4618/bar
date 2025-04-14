@@ -611,6 +611,15 @@ flat@^5.0.2:
   resolved "https://registry.yarnpkg.com/flat/-/flat-5.0.2.tgz#8ca6fe332069ffa9d324c327198c598259ceb241"
   integrity sha512-b6suED+5/3rTpUBdG1gupIl8MPFCAMA0QXwmljLhvCUKcUvdE4gWky9zpuGCcXHOsz4J9wPGNWq6OKpmIzz3hQ==
 
+framer-motion@^12.6.5:
+  version "12.6.5"
+  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-12.6.5.tgz#5777760290f2011ec71afe1bdd7053e91459bc47"
+  integrity sha512-MKvnWov0paNjvRJuIy6x418w23tFqRfS6CXHhZrCiSEpXVlo/F+usr8v4/3G6O0u7CpsaO1qop+v4Ip7PRCBqQ==
+  dependencies:
+    motion-dom "^12.6.5"
+    motion-utils "^12.6.5"
+    tslib "^2.4.0"
+
 fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
@@ -863,6 +872,18 @@ mocha@^9.0.3:
     yargs "16.2.0"
     yargs-parser "20.2.4"
     yargs-unparser "2.0.0"
+
+motion-dom@^12.6.5:
+  version "12.6.5"
+  resolved "https://registry.yarnpkg.com/motion-dom/-/motion-dom-12.6.5.tgz#e8507496f45905f50b0b978ad9b6bedb4f3ba065"
+  integrity sha512-jpM9TQLXzYMWMJ7Ec7sAj0iis8oIuu6WvjI3yNKJLdrZyrsI/b2cRInDVL8dCl683zQQq19DpL9cSMP+k8T1NA==
+  dependencies:
+    motion-utils "^12.6.5"
+
+motion-utils@^12.6.5:
+  version "12.6.5"
+  resolved "https://registry.yarnpkg.com/motion-utils/-/motion-utils-12.6.5.tgz#c147d0d6cca727c91e626a5c3ca5d31ca75a2960"
+  integrity sha512-IsOeKsOF+FWBhxQEDFBO6ZYC8/jlidmVbbLpe9/lXSA9j9kzGIMUuIBx2SZY+0reAS0DjZZ1i7dJp4NHrjocPw==
 
 ms@2.1.2:
   version "2.1.2"
@@ -1129,7 +1150,7 @@ tsconfig-paths@^3.5.0:
     minimist "^1.2.6"
     strip-bom "^3.0.0"
 
-tslib@^2.8.0:
+tslib@^2.4.0, tslib@^2.8.0:
   version "2.8.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.8.1.tgz#612efe4ed235d567e8aba5f2a5fab70280ade83f"
   integrity sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==
