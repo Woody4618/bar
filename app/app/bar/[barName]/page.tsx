@@ -254,8 +254,8 @@ export default function BarPage() {
               No Products Yet
             </h2>
             <p className="text-slate-300 text-center">
-              This bar doesn't have any products yet. Visit the setup page to
-              add some products.
+              This bar doesn&apos;t have any products yet. Visit the setup page
+              to add some products.
             </p>
             <Link
               href={`/bar/${barName}/setup`}

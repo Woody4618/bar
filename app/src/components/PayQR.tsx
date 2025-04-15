@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { encodeURL, createQR } from "@solana/pay";
 import { useSearchParams } from "next/navigation";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -19,11 +19,11 @@ interface TransactionRequestQRProps {
 export default function TransactionRequestQR({
   instruction,
   barName,
-  productName,
-  productMint,
-  productPrice,
-  productDecimals,
-  productQuantity,
+  productName = "",
+  productMint = "",
+  productPrice = 0,
+  productDecimals = 6,
+  productQuantity = 0,
   tableNumber = 1,
 }: TransactionRequestQRProps) {
   const [isClient, setIsClient] = useState(false);
@@ -35,8 +35,7 @@ export default function TransactionRequestQR({
     setIsClient(true);
   }, []);
 
-  // Memoize the URL to prevent unnecessary QR code regeneration
-  const url = useMemo(() => {
+  const generateUrl = useCallback(() => {
     if (!publicKey) return null;
 
     const params = new URLSearchParams();
@@ -46,7 +45,7 @@ export default function TransactionRequestQR({
     if (productMint) params.append("productMint", productMint);
     if (productPrice) {
       params.append("productPrice", productPrice.toString());
-      params.append("productDecimals", (productDecimals ?? 6).toString());
+      params.append("productDecimals", productDecimals.toString());
     }
     if (productQuantity)
       params.append("productQuantity", productQuantity.toString());
@@ -57,13 +56,15 @@ export default function TransactionRequestQR({
     publicKey,
     instruction,
     barName,
-    productName ?? "",
-    productMint ?? "",
-    productPrice ?? 0,
-    productDecimals ?? 6,
-    productQuantity ?? 0,
-    tableNumber ?? 1,
+    productName,
+    productMint,
+    productPrice,
+    productDecimals,
+    productQuantity,
+    tableNumber,
   ]);
+
+  const url = useMemo(() => generateUrl(), [generateUrl]);
 
   useEffect(() => {
     if (!isClient || !qrRef.current || !url) return;
@@ -71,14 +72,13 @@ export default function TransactionRequestQR({
     const solanaUrl = encodeURL({ link: new URL(url) });
     const qr = createQR(solanaUrl, 360, "transparent");
 
-    // Clean up previous QR code
-    qrRef.current.innerHTML = "";
-    qr.append(qrRef.current);
+    const currentRef = qrRef.current;
+    currentRef.innerHTML = "";
+    qr.append(currentRef);
 
-    // Cleanup function
     return () => {
-      if (qrRef.current) {
-        qrRef.current.innerHTML = "";
+      if (currentRef) {
+        currentRef.innerHTML = "";
       }
     };
   }, [isClient, url]);
