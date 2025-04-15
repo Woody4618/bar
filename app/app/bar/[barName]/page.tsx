@@ -189,8 +189,7 @@ export default function BarPage() {
   ]);
 
   const handleBuyShot = async () => {
-
-    if (!selectedProduct) return;
+    if (!publicKey || !selectedProduct) return;
 
     try {
       const receiptsAccount = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
