@@ -36,8 +36,6 @@ export default function TransactionRequestQR({
   }, []);
 
   const generateUrl = useCallback(() => {
-    if (!publicKey) return null;
-
     const params = new URLSearchParams();
     params.append("instruction", instruction);
     params.append("barName", barName);
@@ -53,7 +51,6 @@ export default function TransactionRequestQR({
 
     return `${window.location.origin}/api/transaction?${params.toString()}`;
   }, [
-    publicKey,
     instruction,
     barName,
     productName,
@@ -82,8 +79,6 @@ export default function TransactionRequestQR({
       }
     };
   }, [isClient, url]);
-
-  if (!publicKey) return null;
 
   return (
     <div className="flex flex-col items-center gap-4">

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   CONNECTION,
   SOLANA_BAR_PROGRAM,
@@ -26,8 +26,9 @@ export default function BarSetupPage() {
   const params = useParams();
   const barName = (params?.barName as string)?.toLowerCase();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [receipts, setReceipts] = useState<any>();
-  const { publicKey, sendTransaction } = useWallet();
+  const { publicKey, connected, sendTransaction } = useWallet();
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
@@ -48,48 +49,94 @@ export default function BarSetupPage() {
 
   const RECEIPTS_PDA = getReceiptsPDA(barName);
 
-  useEffect(() => {
-    if (!publicKey || typeof window === "undefined") return;
+  const subscriptionRef = useRef<number>();
+  const mountedRef = useRef(true);
 
-    let subscriptionId: number;
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // Initial fetch
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!connected) {
+      setLoading(false);
+      return;
+    }
 
     const fetchReceipts = async () => {
       try {
+        setError(null);
         const gameData = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
           RECEIPTS_PDA
         );
+
+        if (!mountedRef.current) return;
+
+        if (!gameData) {
+          setError("No bar data found");
+          return;
+        }
+
         setReceipts(gameData);
-      } catch (error) {
+      } catch (err) {
+        if (!mountedRef.current) return;
+        const error = err as Error;
         console.error("Error fetching receipts:", error);
+        setError("Failed to load bar data. Please try again later.");
         setReceipts(null);
       } finally {
-        setLoading(false);
+        if (mountedRef.current) {
+          setLoading(false);
+        }
       }
     };
 
-    // Initial fetch
     fetchReceipts();
+  }, [RECEIPTS_PDA, connected]);
 
-    // Set up account change subscription
-    subscriptionId = CONNECTION.onAccountChange(
-      RECEIPTS_PDA,
-      (updatedAccountInfo) => {
-        const decoded = SOLANA_BAR_PROGRAM.coder.accounts.decode(
-          "receipts",
-          updatedAccountInfo.data
+  // Subscription setup
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!connected) return;
+
+    const setupSubscription = () => {
+      if (subscriptionRef.current) return;
+
+      try {
+        subscriptionRef.current = CONNECTION.onAccountChange(
+          RECEIPTS_PDA,
+          (updatedAccountInfo) => {
+            if (!mountedRef.current) return;
+            try {
+              const decoded = SOLANA_BAR_PROGRAM.coder.accounts.decode(
+                "receipts",
+                updatedAccountInfo.data
+              );
+              setReceipts(decoded);
+            } catch (err) {
+              console.error("Error decoding account data:", err);
+            }
+          },
+          "confirmed"
         );
-        setReceipts(decoded);
-      },
-      "confirmed"
-    );
-
-    // Cleanup subscription on unmount
-    return () => {
-      if (subscriptionId) {
-        CONNECTION.removeAccountChangeListener(subscriptionId);
+      } catch (err) {
+        console.error("Error setting up account subscription:", err);
       }
     };
-  }, [publicKey, RECEIPTS_PDA]);
+
+    setupSubscription();
+
+    return () => {
+      if (subscriptionRef.current) {
+        CONNECTION.removeAccountChangeListener(subscriptionRef.current);
+        subscriptionRef.current = undefined;
+      }
+    };
+  }, [RECEIPTS_PDA, connected]);
 
   const handleInitialize = async () => {
     if (!publicKey) {
@@ -219,6 +266,22 @@ export default function BarSetupPage() {
           <p className="text-xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
             Loading bar data...
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!connected) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+          <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            Connect Your Wallet
+          </h2>
+          <p className="text-slate-300 mb-4">
+            Please connect your wallet to manage this bar
+          </p>
+          <WalletMultiButtonDynamic className="!bg-gradient-to-r from-purple-500 to-blue-500 !text-white hover:!from-purple-600 hover:!to-blue-600" />
         </div>
       </div>
     );

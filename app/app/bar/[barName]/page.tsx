@@ -1,5 +1,5 @@
 "use client"; // this makes next know that this page should be rendered in the client
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   CONNECTION,
   SOLANA_BAR_PROGRAM,
@@ -32,7 +32,7 @@ export default function BarPage() {
   const [receipts, setReceipts] = useState<any>();
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [selectedTable, setSelectedTable] = useState<number>(1);
-  const { publicKey, sendTransaction } = useWallet();
+  const { publicKey, sendTransaction, connected } = useWallet();
   const [showPurchaseNotification, setShowPurchaseNotification] =
     useState(false);
   const [lastPurchasedProduct, setLastPurchasedProduct] = useState<
@@ -42,105 +42,102 @@ export default function BarPage() {
   const [showQRCheckmark, setShowQRCheckmark] = useState(false);
   const [initialReceiptIds, setInitialReceiptIds] = useState<number[]>([]);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const subscriptionRef = useRef<number>();
+  const mountedRef = useRef(true);
 
   const RECEIPTS_PDA = getReceiptsPDA(barName);
 
   useEffect(() => {
-    if (!publicKey || typeof window === "undefined") {
-      console.log("Skipping fetch - no publicKey or not in browser");
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // Initial fetch
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!connected) {
+      setLoading(false);
       return;
     }
 
-    console.log("Starting to fetch receipts for bar:", barName);
-    console.log("Using PDA:", RECEIPTS_PDA.toString());
-    console.log("Current publicKey:", publicKey.toString());
-
-    let subscriptionId: number | undefined;
-
     const fetchReceipts = async () => {
       try {
-        console.log("Attempting to fetch receipts account...");
         setError(null);
         const gameData = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
           RECEIPTS_PDA
         );
-        console.log("Successfully fetched receipts:", gameData);
+
+        if (!mountedRef.current) return;
 
         if (!gameData) {
-          console.log("No data returned from fetch");
           setError("No bar data found");
           return;
         }
 
         setReceipts(gameData);
-        if (!selectedProduct && gameData?.products?.length > 0) {
-          console.log("Setting initial product:", gameData.products[0].name);
-          setSelectedProduct(gameData.products[0].name);
-        } else {
-          console.log("No products found in bar data");
-        }
       } catch (err) {
+        if (!mountedRef.current) return;
         const error = err as Error;
         console.error("Error fetching receipts:", error);
-        console.error("Error details:", {
-          message: error.message,
-          stack: error.stack,
-          name: error.name,
-        });
         setError("Failed to load bar data. Please try again later.");
         setReceipts(null);
       } finally {
-        console.log("Finished fetch attempt, setting loading to false");
-        setLoading(false);
+        if (mountedRef.current) {
+          setLoading(false);
+        }
       }
     };
 
     fetchReceipts();
+  }, [RECEIPTS_PDA, connected]);
 
-    try {
-      console.log("Setting up account change subscription...");
-      subscriptionId = CONNECTION.onAccountChange(
-        RECEIPTS_PDA,
-        (updatedAccountInfo) => {
-          console.log("Account change detected");
-          try {
-            const decoded = SOLANA_BAR_PROGRAM.coder.accounts.decode(
-              "receipts",
-              updatedAccountInfo.data
-            );
-            console.log("Successfully decoded updated account data");
-            setReceipts(decoded);
-          } catch (err) {
-            const error = err as Error;
-            console.error("Error decoding account data:", error);
-            console.error("Error details:", {
-              message: error.message,
-              stack: error.stack,
-              name: error.name,
-            });
-          }
-        },
-        "confirmed"
-      );
-      console.log("Account change subscription set up successfully");
-    } catch (err) {
-      const error = err as Error;
-      console.error("Error setting up account subscription:", error);
-      console.error("Error details:", {
-        message: error.message,
-        stack: error.stack,
-        name: error.name,
-      });
-    }
+  // Set initial selected product
+  useEffect(() => {
+    if (!receipts?.products?.length || selectedProduct) return;
+    setSelectedProduct(receipts.products[0].name);
+  }, [receipts?.products, selectedProduct]);
 
-    return () => {
-      console.log("Cleaning up subscription");
-      if (subscriptionId) {
-        CONNECTION.removeAccountChangeListener(subscriptionId);
-        console.log("Subscription cleaned up");
+  // Subscription setup
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!connected) return;
+
+    const setupSubscription = () => {
+      if (subscriptionRef.current) return;
+
+      try {
+        subscriptionRef.current = CONNECTION.onAccountChange(
+          RECEIPTS_PDA,
+          (updatedAccountInfo) => {
+            if (!mountedRef.current) return;
+            try {
+              const decoded = SOLANA_BAR_PROGRAM.coder.accounts.decode(
+                "receipts",
+                updatedAccountInfo.data
+              );
+              setReceipts(decoded);
+            } catch (err) {
+              console.error("Error decoding account data:", err);
+            }
+          },
+          "confirmed"
+        );
+      } catch (err) {
+        console.error("Error setting up account subscription:", err);
       }
     };
-  }, [publicKey, RECEIPTS_PDA]);
+
+    setupSubscription();
+
+    return () => {
+      if (subscriptionRef.current) {
+        CONNECTION.removeAccountChangeListener(subscriptionRef.current);
+        subscriptionRef.current = undefined;
+      }
+    };
+  }, [RECEIPTS_PDA, connected]);
 
   useEffect(() => {
     if (!receipts?.receipts || hasInitialized) return;
@@ -186,10 +183,28 @@ export default function BarPage() {
         }, 3000);
       }
     }
-  }, [receipts?.receipts, highestReceiptId, initialReceiptIds, hasInitialized]);
+  }, [
+    receipts?.receipts,
+    highestReceiptId,
+    initialReceiptIds,
+    hasInitialized,
+    barName,
+    selectedProduct,
+  ]);
 
   const handleBuyShot = async () => {
-    if (!publicKey || !selectedProduct) return;
+    if (!connected || !publicKey) {
+      return (
+        <div className="text-center p-4">
+          <p className="text-slate-300 mb-4">
+            Please connect your wallet to purchase
+          </p>
+          <WalletMultiButtonDynamic className="!bg-gradient-to-r from-purple-500 to-blue-500 !text-white hover:!from-purple-600 hover:!to-blue-600" />
+        </div>
+      );
+    }
+
+    if (!selectedProduct) return;
 
     try {
       const receiptsAccount = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
@@ -434,12 +449,14 @@ export default function BarPage() {
                         </motion.div>
                       )}
                   </div>
-                  <button
-                    onClick={handleBuyShot}
-                    className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
-                  >
-                    Buy with Wallet
-                  </button>
+                  {connected && (
+                    <button
+                      onClick={handleBuyShot}
+                      className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
+                    >
+                      Buy with Wallet
+                    </button>
+                  )}
                 </div>
               )}
             </div>
