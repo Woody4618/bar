@@ -28,6 +28,7 @@ export default function BarPage() {
   const params = useParams();
   const barName = (params?.barName as string)?.toLowerCase();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [receipts, setReceipts] = useState<any>();
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [selectedTable, setSelectedTable] = useState<number>(1);
@@ -47,10 +48,11 @@ export default function BarPage() {
   useEffect(() => {
     if (!publicKey || typeof window === "undefined") return;
 
-    let subscriptionId: number;
+    let subscriptionId: number | undefined;
 
     const fetchReceipts = async () => {
       try {
+        setError(null);
         const gameData = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
           RECEIPTS_PDA
         );
@@ -60,6 +62,7 @@ export default function BarPage() {
         }
       } catch (error) {
         console.error("Error fetching receipts:", error);
+        setError("Failed to load bar data. Please try again later.");
         setReceipts(null);
       } finally {
         setLoading(false);
@@ -68,24 +71,32 @@ export default function BarPage() {
 
     fetchReceipts();
 
-    subscriptionId = CONNECTION.onAccountChange(
-      RECEIPTS_PDA,
-      (updatedAccountInfo) => {
-        const decoded = SOLANA_BAR_PROGRAM.coder.accounts.decode(
-          "receipts",
-          updatedAccountInfo.data
-        );
-        setReceipts(decoded);
-      },
-      "confirmed"
-    );
+    try {
+      subscriptionId = CONNECTION.onAccountChange(
+        RECEIPTS_PDA,
+        (updatedAccountInfo) => {
+          try {
+            const decoded = SOLANA_BAR_PROGRAM.coder.accounts.decode(
+              "receipts",
+              updatedAccountInfo.data
+            );
+            setReceipts(decoded);
+          } catch (error) {
+            console.error("Error decoding account data:", error);
+          }
+        },
+        "confirmed"
+      );
+    } catch (error) {
+      console.error("Error setting up account subscription:", error);
+    }
 
     return () => {
       if (subscriptionId) {
         CONNECTION.removeAccountChangeListener(subscriptionId);
       }
     };
-  }, [publicKey, selectedProduct, RECEIPTS_PDA]);
+  }, [publicKey, RECEIPTS_PDA]);
 
   useEffect(() => {
     if (!receipts?.receipts || hasInitialized) return;
@@ -201,6 +212,19 @@ export default function BarPage() {
           <p className="text-xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
             Loading bar data...
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+          <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            Error
+          </h2>
+          <p className="text-slate-300">{error}</p>
         </div>
       </div>
     );
