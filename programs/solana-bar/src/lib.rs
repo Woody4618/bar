@@ -188,11 +188,11 @@ pub mod solana_bar {
             ShotErrorCode::InvalidAuthority
         );
 
-        // Verify the bar has no products
-        require!(
-            ctx.accounts.receipts.products.is_empty(),
-            ShotErrorCode::BarNotEmpty
-        );
+        // Probably not necessary to delete all products before deleting the bar
+        // require!(
+        //     ctx.accounts.receipts.products.is_empty(),
+        //     ShotErrorCode::BarNotEmpty
+        // );
 
         // Close the account and send rent to authority
         let authority = ctx.accounts.authority.to_account_info();

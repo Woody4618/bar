@@ -248,6 +248,22 @@ export default function BarPage() {
               Go to Setup
             </Link>
           </div>
+        ) : receipts.products?.length === 0 ? (
+          <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              No Products Yet
+            </h2>
+            <p className="text-slate-300 text-center">
+              This bar doesn't have any products yet. Visit the setup page to
+              add some products.
+            </p>
+            <Link
+              href={`/bar/${barName}/setup`}
+              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
+            >
+              Go to Setup
+            </Link>
+          </div>
         ) : (
           <div className="flex flex-col items-center gap-8">
             <div className="w-full max-w-md">

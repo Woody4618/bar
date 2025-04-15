@@ -220,6 +220,112 @@ export type SolanaBar = {
       ]
     },
     {
+      "name": "deleteBar",
+      "discriminator": [
+        20,
+        61,
+        206,
+        157,
+        244,
+        52,
+        227,
+        158
+      ],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "barName"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "barName",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "deleteProduct",
+      "discriminator": [
+        173,
+        212,
+        141,
+        230,
+        33,
+        82,
+        166,
+        25
+      ],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "barName"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "barName",
+          "type": "string"
+        },
+        {
+          "name": "productName",
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "initialize",
       "discriminator": [
         175,
@@ -370,6 +476,11 @@ export type SolanaBar = {
       "code": 6004,
       "name": "invalidAuthority",
       "msg": "invalidAuthority"
+    },
+    {
+      "code": 6005,
+      "name": "barNotEmpty",
+      "msg": "barNotEmpty"
     }
   ],
   "types": [

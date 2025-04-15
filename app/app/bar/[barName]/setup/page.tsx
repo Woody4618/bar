@@ -35,6 +35,17 @@ export default function BarSetupPage() {
     mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC mint address
   });
 
+  const MINT_OPTIONS = [
+    {
+      name: "USDC",
+      address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    },
+    {
+      name: "Test Token",
+      address: "tokSEbdQMxeCZx5GYKR32ywbax6VE4twyqJCYnEtAaC",
+    },
+  ];
+
   const RECEIPTS_PDA = getReceiptsPDA(barName);
 
   useEffect(() => {
@@ -151,6 +162,45 @@ export default function BarSetupPage() {
     }
   };
 
+  const handleDeleteProduct = async (productName: string) => {
+    if (!publicKey) return;
+
+    try {
+      const transaction = await SOLANA_BAR_PROGRAM.methods
+        .deleteProduct(barName, productName)
+        .accounts({
+          authority: publicKey,
+        })
+        .transaction();
+
+      const signature = await sendTransaction(transaction, CONNECTION);
+      console.log("Product deleted:", signature);
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
+
+  const handleDeleteBar = async () => {
+    if (!publicKey) return;
+
+    try {
+      const transaction = await SOLANA_BAR_PROGRAM.methods
+        .deleteBar(barName)
+        .accounts({
+          authority: publicKey,
+        })
+        .transaction();
+
+      const signature = await sendTransaction(transaction, CONNECTION);
+      console.log("Bar deleted:", signature);
+
+      // Redirect to home page after successful deletion
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error deleting bar:", error);
+    }
+  };
+
   if (!barName) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
@@ -244,15 +294,19 @@ export default function BarSetupPage() {
                   }
                   className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
-                <input
-                  type="text"
-                  placeholder="Mint Address"
+                <select
                   value={newProduct.mint}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, mint: e.target.value })
                   }
                   className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+                >
+                  {MINT_OPTIONS.map((option) => (
+                    <option key={option.address} value={option.address}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
                 <button
                   onClick={handleAddProduct}
                   className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
@@ -270,18 +324,26 @@ export default function BarSetupPage() {
                 {receipts.products?.map((product: any) => (
                   <div
                     key={product.name}
-                    className="p-4 rounded-xl bg-slate-800 border border-slate-700"
+                    className="p-4 rounded-xl bg-slate-800 border border-slate-700 flex justify-between items-center"
                   >
-                    <h3 className="text-lg font-semibold text-white">
-                      {product.name}
-                    </h3>
-                    <p className="text-slate-400">
-                      Price:{" "}
-                      {(product.price / Math.pow(10, product.decimals)).toFixed(
-                        2
-                      )}{" "}
-                      USDC
-                    </p>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">
+                        {product.name}
+                      </h3>
+                      <p className="text-slate-400">
+                        Price:{" "}
+                        {(
+                          product.price / Math.pow(10, product.decimals)
+                        ).toFixed(2)}{" "}
+                        USDC
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteProduct(product.name)}
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-200"
+                    >
+                      Delete
+                    </button>
                   </div>
                 ))}
               </div>
@@ -295,6 +357,14 @@ export default function BarSetupPage() {
               Receipts
             </h2>
             <Receipts receipts={receipts} />
+            <div className="mt-8 flex justify-start">
+              <button
+                onClick={handleDeleteBar}
+                className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg"
+              >
+                Delete Bar
+              </button>
+            </div>
           </div>
         )}
       </div>

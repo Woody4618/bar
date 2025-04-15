@@ -149,6 +149,76 @@
       ]
     },
     {
+      "name": "delete_bar",
+      "discriminator": [20, 61, 206, 157, 244, 52, 227, 158],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
+              },
+              {
+                "kind": "arg",
+                "path": "bar_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "bar_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "delete_product",
+      "discriminator": [173, 212, 141, 230, 33, 82, 166, 25],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
+              },
+              {
+                "kind": "arg",
+                "path": "bar_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "bar_name",
+          "type": "string"
+        },
+        {
+          "name": "product_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "initialize",
       "discriminator": [175, 175, 109, 31, 13, 152, 155, 237],
       "accounts": [
@@ -219,76 +289,6 @@
         {
           "name": "recipe_id",
           "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "delete_product",
-      "discriminator": [1, 2, 3, 4, 5, 6, 7, 8],
-      "accounts": [
-        {
-          "name": "receipts",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [114, 101, 99, 101, 105, 112, 116, 115]
-              },
-              {
-                "kind": "arg",
-                "path": "bar_name"
-              }
-            ]
-          }
-        },
-        {
-          "name": "authority",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "bar_name",
-          "type": "string"
-        },
-        {
-          "name": "product_name",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "delete_bar",
-      "discriminator": [9, 10, 11, 12, 13, 14, 15, 16],
-      "accounts": [
-        {
-          "name": "receipts",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [114, 101, 99, 101, 105, 112, 116, 115]
-              },
-              {
-                "kind": "arg",
-                "path": "bar_name"
-              }
-            ]
-          }
-        },
-        {
-          "name": "authority",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "bar_name",
-          "type": "string"
         }
       ]
     }
