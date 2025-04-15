@@ -38,8 +38,6 @@ pub mod solana_bar {
         bar_name: String,
         name: String,
         price: u64,
-        decimals: u8,
-        mint: Pubkey,
     ) -> Result<()> {
         // Verify the caller is the authority
         require!(
@@ -58,8 +56,8 @@ pub mod solana_bar {
         ctx.accounts.receipts.products.push(Products {
             name,
             price,
-            decimals,
-            mint,
+            decimals: ctx.accounts.mint.decimals,
+            mint: ctx.accounts.mint.key(),
         });
 
         Ok(())
@@ -224,7 +222,7 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(bar_name: String, name: String, price: u64, decimals: u8, mint: Pubkey)]
+#[instruction(bar_name: String, name: String, price: u64)]
 pub struct AddProduct<'info> {
     #[account(
         mut,
@@ -234,6 +232,7 @@ pub struct AddProduct<'info> {
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
     pub authority: Signer<'info>,
+    pub mint: Account<'info, Mint>,
 }
 
 #[derive(Accounts)]

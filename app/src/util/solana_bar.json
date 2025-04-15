@@ -31,6 +31,9 @@
           "name": "authority",
           "writable": true,
           "signer": true
+        },
+        {
+          "name": "mint"
         }
       ],
       "args": [
@@ -45,14 +48,6 @@
         {
           "name": "price",
           "type": "u64"
-        },
-        {
-          "name": "decimals",
-          "type": "u8"
-        },
-        {
-          "name": "mint",
-          "type": "pubkey"
         }
       ]
     },

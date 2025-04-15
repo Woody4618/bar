@@ -132,18 +132,12 @@ export default function BarSetupPage() {
         parseFloat(newProduct.price) *
           Math.pow(10, parseInt(newProduct.decimals))
       );
-      const decimals = parseInt(newProduct.decimals);
 
       const transaction = await SOLANA_BAR_PROGRAM.methods
-        .addProduct(
-          barName,
-          newProduct.name,
-          price,
-          decimals,
-          new PublicKey(newProduct.mint)
-        )
+        .addProduct(barName, newProduct.name, price)
         .accounts({
           authority: publicKey,
+          mint: new PublicKey(newProduct.mint),
         })
         .transaction();
 
@@ -282,15 +276,6 @@ export default function BarSetupPage() {
                   value={newProduct.price}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, price: e.target.value })
-                  }
-                  className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <input
-                  type="text"
-                  placeholder="Decimals"
-                  value={newProduct.decimals}
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, decimals: e.target.value })
                   }
                   className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />

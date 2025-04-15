@@ -100,13 +100,13 @@ describe("SolanaBar", () => {
     // Add a product
     const productName = "Test Shot";
     const productPrice = new anchor.BN(1000000); // 1 SOL
-    const productDecimals = 6;
 
     const addProductTx = await program.methods
-      .addProduct(barName, productName, productPrice, productDecimals, mint)
+      .addProduct(barName, productName, productPrice)
       .accountsStrict({
         receipts: receiptsPDA,
         authority: wallet.publicKey,
+        mint: mint,
       })
       .rpc();
     console.log("Add product transaction signature: ", addProductTx);
