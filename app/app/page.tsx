@@ -120,7 +120,7 @@ export default function Home() {
                   className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <Link
-                  href={`/bar/${newBarName}`}
+                  href={`/bar/${newBarName}/setup`}
                   className={`text-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg ${
                     newBarName
                       ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600"
