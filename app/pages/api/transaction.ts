@@ -56,7 +56,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse<GET>) => {
             Number(productPrice) / Math.pow(10, Number(productDecimals))
           ).toFixed(2)
         : "0.00";
-    label = `1 of ${productName} at ${barName} - ${price} USDC`;
+    label = `Buy 1 of ${productName} at ${barName} - ${price} USDC`;
   }
 
   res.status(200).json({
