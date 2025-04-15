@@ -26,7 +26,7 @@ const WalletMultiButtonDynamic = dynamic(
 
 export default function BarPage() {
   const params = useParams();
-  const barName = params?.barName as string;
+  const barName = (params?.barName as string)?.toLowerCase();
   const [loading, setLoading] = useState(true);
   const [receipts, setReceipts] = useState<any>();
   const [selectedProduct, setSelectedProduct] = useState<string>("");
@@ -327,6 +327,16 @@ export default function BarPage() {
                       instruction={"buy_shot"}
                       barName={barName}
                       productName={selectedProduct}
+                      productPrice={
+                        receipts.products.find(
+                          (p: any) => p.name === selectedProduct
+                        )?.price
+                      }
+                      productDecimals={
+                        receipts.products.find(
+                          (p: any) => p.name === selectedProduct
+                        )?.decimals
+                      }
                       tableNumber={selectedTable}
                     />
                     {showQRCheckmark &&

@@ -24,7 +24,7 @@ const WalletMultiButtonDynamic = dynamic(
 
 export default function BarSetupPage() {
   const params = useParams();
-  const barName = params?.barName as string;
+  const barName = (params?.barName as string)?.toLowerCase();
   const [loading, setLoading] = useState(true);
   const [receipts, setReceipts] = useState<any>();
   const { publicKey, sendTransaction } = useWallet();

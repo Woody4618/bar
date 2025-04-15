@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  SOLANA_BAR_PROGRAM,
-} from "@/src/util/const";
+import { SOLANA_BAR_PROGRAM } from "@/src/util/const";
 import { PublicKey } from "@solana/web3.js";
 import Link from "next/link";
 
@@ -70,7 +68,7 @@ export default function Home() {
                   type="text"
                   placeholder="Enter bar name"
                   value={newBarName}
-                  onChange={(e) => setNewBarName(e.target.value)}
+                  onChange={(e) => setNewBarName(e.target.value.toLowerCase())}
                   className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <Link
@@ -118,7 +116,7 @@ export default function Home() {
                   type="text"
                   placeholder="Enter bar name"
                   value={newBarName}
-                  onChange={(e) => setNewBarName(e.target.value)}
+                  onChange={(e) => setNewBarName(e.target.value.toLowerCase())}
                   className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <Link

@@ -40,9 +40,24 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 }
 
 const get = async (req: NextApiRequest, res: NextApiResponse<GET>) => {
-  const label = "Solana Shots";
+  console.log(req.query);
+  const barName = getFromPayload(req, "Query", "barName");
+  const productName = getFromPayload(req, "Query", "productName");
+  const productPrice = getFromPayload(req, "Query", "productPrice");
+  const productDecimals = getFromPayload(req, "Query", "productDecimals");
   const icon =
     "https://media.discordapp.net/attachments/964525722301501477/978683590743302184/sol-logo1.png";
+
+  let label = "Solana Shots";
+  if (productName && barName) {
+    const price =
+      productPrice && productDecimals
+        ? (
+            Number(productPrice) / Math.pow(10, Number(productDecimals))
+          ).toFixed(2)
+        : "0.00";
+    label = `1 of ${productName} at ${barName} - ${price} USDC`;
+  }
 
   res.status(200).json({
     label,
