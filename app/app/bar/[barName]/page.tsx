@@ -57,10 +57,6 @@ export default function BarPage() {
   // Initial fetch
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!connected) {
-      setLoading(false);
-      return;
-    }
 
     const fetchReceipts = async () => {
       try {
@@ -77,6 +73,9 @@ export default function BarPage() {
         }
 
         setReceipts(gameData);
+        if (!selectedProduct && gameData?.products?.length > 0) {
+          setSelectedProduct(gameData.products[0].name);
+        }
       } catch (err) {
         if (!mountedRef.current) return;
         const error = err as Error;
@@ -91,13 +90,7 @@ export default function BarPage() {
     };
 
     fetchReceipts();
-  }, [RECEIPTS_PDA, connected]);
-
-  // Set initial selected product
-  useEffect(() => {
-    if (!receipts?.products?.length || selectedProduct) return;
-    setSelectedProduct(receipts.products[0].name);
-  }, [receipts?.products, selectedProduct]);
+  }, [RECEIPTS_PDA]);
 
   // Subscription setup
   useEffect(() => {
@@ -315,7 +308,21 @@ export default function BarPage() {
           </h1>
         </div>
 
-        {receipts == null ? (
+        {loading ? (
+          <div className="text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+            <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              Loading bar data...
+            </p>
+          </div>
+        ) : error ? (
+          <div className="text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+            <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              Error
+            </h2>
+            <p className="text-slate-300">{error}</p>
+          </div>
+        ) : receipts == null ? (
           <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
               Bar Not Initialized
