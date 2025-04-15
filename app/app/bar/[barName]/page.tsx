@@ -10,9 +10,7 @@ import Receipts from "@/src/components/Receipts";
 import { BN } from "@coral-xyz/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
-import {
-  getAssociatedTokenAddress
-} from "@solana/spl-token";
+import { getAssociatedTokenAddress } from "@solana/spl-token";
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import PurchaseNotification from "@/src/components/PurchaseNotification";
@@ -310,11 +308,11 @@ export default function BarPage() {
         show={showPurchaseNotification}
         productName={lastPurchasedProduct || ""}
       />
+      <div className="fixed top-0 right-0 p-4 z-50">
+        <WalletMultiButtonDynamic className="!bg-slate-800 !text-white hover:!bg-slate-700 !border !border-slate-700" />
+      </div>
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4 w-full max-w-4xl px-4">
-          <div className="flex justify-end w-full">
-            <WalletMultiButtonDynamic className="!bg-slate-800 !text-white hover:!bg-slate-700 !border !border-slate-700" />
-          </div>
           <div className="flex flex-col items-center gap-4 w-full">
             {receipts != null ? (
               <div className="flex flex-col items-center gap-4 w-full">
