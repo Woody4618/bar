@@ -66,7 +66,7 @@ export default function PurchaseNotification({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 z-50"
+          className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
         >
           <svg
             className="w-6 h-6"
