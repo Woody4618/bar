@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { BN } from "@coral-xyz/anchor";
-import { Receipts as ReceiptsType } from "@/src/util/solana_bar";
+import { Receipts as ReceiptsType } from "@/src/types/solana_bar";
 
 interface ReceiptsProps {
   receipts: ReceiptsType | null;
@@ -36,7 +36,7 @@ const Receipts: FC<ReceiptsProps> = ({ receipts }) => {
                     Math.pow(
                       10,
                       receipts.products.find(
-                        (p) => p.name === receipt.productName
+                        (p: any) => p.name === receipt.productName
                       )?.decimals || 6
                     )
                   ).toFixed(2)}{" "}
