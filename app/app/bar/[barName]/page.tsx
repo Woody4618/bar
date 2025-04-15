@@ -290,6 +290,23 @@ export default function BarPage() {
               {selectedProduct && (
                 <div className="flex flex-col items-center gap-4">
                   <div className="relative bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+                    <div className="text-center mb-4">
+                      <h3 className="text-xl font-semibold text-white mb-1">
+                        {selectedProduct}
+                      </h3>
+                      {receipts.products?.find(
+                        (p: any) => p.name === selectedProduct
+                      ) && (
+                        <p className="text-slate-300">
+                          {(
+                            receipts.products.find(
+                              (p: any) => p.name === selectedProduct
+                            ).price / Math.pow(10, 6)
+                          ).toFixed(2)}{" "}
+                          USDC
+                        </p>
+                      )}
+                    </div>
                     <PayQR
                       instruction={"buy_shot"}
                       barName={barName}

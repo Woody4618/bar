@@ -3,9 +3,9 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 import {
   CONNECTION,
-  RECEIPTS_PDA,
   SOLANA_BAR_PROGRAM,
   TOKEN_PROGRAM_ID,
+  getReceiptsPDA,
 } from "@/src/util/const";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
 
@@ -53,9 +53,21 @@ const get = async (req: NextApiRequest, res: NextApiResponse<GET>) => {
 const post = async (req: NextApiRequest, res: NextApiResponse<POST>) => {
   const accountField = getFromPayload(req, "Body", "account");
   const instructionField = getFromPayload(req, "Query", "instruction");
+  const barName = getFromPayload(req, "Query", "barName");
   const productName = getFromPayload(req, "Query", "productName");
+  const tableNumber = getFromPayload(req, "Query", "tableNumber");
+
+  if (!barName || !productName || !tableNumber) {
+    res.status(400).send({
+      transaction: "",
+      message: "",
+      error: "Missing required parameters",
+    });
+    return;
+  }
 
   const sender = new PublicKey(accountField);
+  const RECEIPTS_PDA = getReceiptsPDA(barName);
 
   const transaction = new Transaction();
   const latestBlockhash = await CONNECTION.getLatestBlockhash();
@@ -85,28 +97,20 @@ const post = async (req: NextApiRequest, res: NextApiResponse<POST>) => {
       new PublicKey(product.mint),
       sender
     );
-    const recipientTokenAccount = await getAssociatedTokenAddress(
-      new PublicKey(product.mint),
-      new PublicKey("GsfNSuZFrT2r4xzSndnCSs9tTXwt47etPqU8yFVnDcXd")
-    );
 
     let ix = await SOLANA_BAR_PROGRAM.methods
-      .buyShot(productName)
+      .buyShot(barName, productName, Number(tableNumber))
       .accounts({
-        receipts: RECEIPTS_PDA,
         signer: sender,
-        treasury: new PublicKey("GsfNSuZFrT2r4xzSndnCSs9tTXwt47etPqU8yFVnDcXd"),
-        systemProgram: SystemProgram.programId,
+        authority: new PublicKey(receiptsAccount.authority),
         mint: new PublicKey(product.mint),
         senderTokenAccount,
-        recipientTokenAccount,
-        tokenProgram: TOKEN_PROGRAM_ID,
       })
       .instruction();
 
     transaction.add(ix);
 
-    message = `Buy ${productName}!`;
+    message = `Buy ${productName} at ${barName}!`;
   } else {
     message = "Unknown instruction";
   }
