@@ -121,7 +121,7 @@ export default function BarSetupPage() {
               console.error("Error decoding account data:", err);
             }
           },
-          "confirmed"
+          "processed"
         );
       } catch (err) {
         console.error("Error setting up account subscription:", err);
