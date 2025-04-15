@@ -18,19 +18,18 @@ describe("SolanaBar", () => {
   const wallet = anchor.workspace.SolanaBar.provider.wallet;
   const connection = program.provider.connection;
   const barName = "Test Bar";
-
-  it("Is initialized!", async () => {
-    const mintKeypair = Keypair.fromSecretKey(
-      new Uint8Array(
-        JSON.parse(
-          fs.readFileSync(
-            "./tests/tokSEbdQMxeCZx5GYKR32ywbax6VE4twyqJCYnEtAaC.json",
-            "utf-8"
-          )
+  const mintKeypair = Keypair.fromSecretKey(
+    new Uint8Array(
+      JSON.parse(
+        fs.readFileSync(
+          "./tests/tokSEbdQMxeCZx5GYKR32ywbax6VE4twyqJCYnEtAaC.json",
+          "utf-8"
         )
       )
-    );
+    )
+  );
 
+  it("Is initialized!", async () => {
     // Create a new mint
     const mint = await createMint(
       connection,
@@ -152,5 +151,110 @@ describe("SolanaBar", () => {
       receiptsAccount.receipts[0].tableNumber === 5,
       "Receipt has correct table number"
     );
+  });
+
+  it("Fails to delete a non-existent product", async () => {
+    const [receiptsPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("receipts"), Buffer.from(barName)],
+      program.programId
+    );
+
+    try {
+      await program.methods
+        .deleteProduct(barName, "non_existent_product")
+        .accountsStrict({
+          receipts: receiptsPDA,
+          authority: wallet.publicKey,
+        })
+        .rpc();
+      assert.fail("Should have thrown an error");
+    } catch (err) {
+      assert(err.toString().includes("ProductNotFound"));
+    }
+  });
+
+  it("Deletes a product", async () => {
+    const [receiptsPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("receipts"), Buffer.from(barName)],
+      program.programId
+    );
+
+    await program.methods
+      .deleteProduct(barName, "Test Shot")
+      .accountsStrict({
+        receipts: receiptsPDA,
+        authority: wallet.publicKey,
+      })
+      .rpc();
+
+    const account = await program.account.receipts.fetch(receiptsPDA);
+    assert(account.products.length === 0, "Product was deleted");
+  });
+
+  it("Fails to delete a non-empty bar", async () => {
+    const [receiptsPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("receipts"), Buffer.from(barName)],
+      program.programId
+    );
+
+    // Add a product back to make the bar non-empty
+    await program.methods
+      .addProduct(
+        barName,
+        "Test Shot",
+        new anchor.BN(1000000),
+        6,
+        mintKeypair.publicKey
+      )
+      .accountsStrict({
+        receipts: receiptsPDA,
+        authority: wallet.publicKey,
+      })
+      .rpc();
+
+    try {
+      await program.methods
+        .deleteBar(barName)
+        .accountsStrict({
+          receipts: receiptsPDA,
+          authority: wallet.publicKey,
+        })
+        .rpc();
+      assert.fail("Should have thrown an error");
+    } catch (err) {
+      assert(err.toString().includes("BarNotEmpty"));
+    }
+  });
+
+  it("Deletes a bar", async () => {
+    const [receiptsPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("receipts"), Buffer.from(barName)],
+      program.programId
+    );
+
+    // First delete the product
+    await program.methods
+      .deleteProduct(barName, "Test Shot")
+      .accountsStrict({
+        receipts: receiptsPDA,
+        authority: wallet.publicKey,
+      })
+      .rpc();
+
+    // Then delete the bar
+    await program.methods
+      .deleteBar(barName)
+      .accountsStrict({
+        receipts: receiptsPDA,
+        authority: wallet.publicKey,
+      })
+      .rpc();
+
+    try {
+      await program.account.receipts.fetch(receiptsPDA);
+      assert.fail("Should have thrown an error");
+    } catch (err) {
+      assert(err.toString().includes("Account does not exist"));
+    }
   });
 });

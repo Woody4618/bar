@@ -19,6 +19,8 @@ pub enum ShotErrorCode {
     InvalidMint,
     #[msg("InvalidAuthority")]
     InvalidAuthority,
+    #[msg("BarNotEmpty")]
+    BarNotEmpty,
 }
 
 #[program]
@@ -155,6 +157,54 @@ pub mod solana_bar {
         }
         Ok(())
     }
+
+    pub fn delete_product(
+        ctx: Context<DeleteProduct>,
+        bar_name: String,
+        product_name: String,
+    ) -> Result<()> {
+        // Verify the caller is the authority
+        require!(
+            *ctx.accounts.authority.key == ctx.accounts.receipts.authority,
+            ShotErrorCode::InvalidAuthority
+        );
+
+        // Find and remove the product
+        let products = &mut ctx.accounts.receipts.products;
+        let index = products
+            .iter()
+            .position(|p| p.name == product_name)
+            .ok_or(ShotErrorCode::ProductNotFound)?;
+
+        products.remove(index);
+
+        Ok(())
+    }
+
+    pub fn delete_bar(ctx: Context<DeleteBar>, bar_name: String) -> Result<()> {
+        // Verify the caller is the authority
+        require!(
+            *ctx.accounts.authority.key == ctx.accounts.receipts.authority,
+            ShotErrorCode::InvalidAuthority
+        );
+
+        // Verify the bar has no products
+        require!(
+            ctx.accounts.receipts.products.is_empty(),
+            ShotErrorCode::BarNotEmpty
+        );
+
+        // Close the account and send rent to authority
+        let authority = ctx.accounts.authority.to_account_info();
+        let receipts = ctx.accounts.receipts.to_account_info();
+        let dest_starting_lamports = authority.lamports();
+        **authority.lamports.borrow_mut() = dest_starting_lamports
+            .checked_add(receipts.lamports())
+            .unwrap();
+        **receipts.lamports.borrow_mut() = 0;
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -222,6 +272,33 @@ pub struct MarkShotAsDelivered<'info> {
         mut,
         seeds = [b"receipts", bar_name.as_bytes()],
         bump
+    )]
+    pub receipts: Account<'info, Receipts>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
+#[instruction(bar_name: String, product_name: String)]
+pub struct DeleteProduct<'info> {
+    #[account(
+        mut,
+        seeds = [b"receipts", bar_name.as_bytes()],
+        bump
+    )]
+    pub receipts: Account<'info, Receipts>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
+#[instruction(bar_name: String)]
+pub struct DeleteBar<'info> {
+    #[account(
+        mut,
+        seeds = [b"receipts", bar_name.as_bytes()],
+        bump,
+        close = authority
     )]
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]

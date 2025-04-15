@@ -221,6 +221,76 @@
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "delete_product",
+      "discriminator": [1, 2, 3, 4, 5, 6, 7, 8],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
+              },
+              {
+                "kind": "arg",
+                "path": "bar_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "bar_name",
+          "type": "string"
+        },
+        {
+          "name": "product_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "delete_bar",
+      "discriminator": [9, 10, 11, 12, 13, 14, 15, 16],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
+              },
+              {
+                "kind": "arg",
+                "path": "bar_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "bar_name",
+          "type": "string"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -254,6 +324,11 @@
       "code": 6004,
       "name": "InvalidAuthority",
       "msg": "InvalidAuthority"
+    },
+    {
+      "code": 6005,
+      "name": "BarNotEmpty",
+      "msg": "BarNotEmpty"
     }
   ],
   "types": [
