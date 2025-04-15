@@ -68,7 +68,7 @@ export default function BarPage() {
         if (!mountedRef.current) return;
 
         if (!gameData) {
-          setError("No bar data found");
+          setReceipts(null);
           return;
         }
 
@@ -80,7 +80,10 @@ export default function BarPage() {
         if (!mountedRef.current) return;
         const error = err as Error;
         console.error("Error fetching receipts:", error);
-        setError("Failed to load bar data. Please try again later.");
+        // Only set error if it's not a "Account does not exist" error
+        if (!error.message.includes("Account does not exist")) {
+          setError("Failed to load bar data. Please try again later.");
+        }
         setReceipts(null);
       } finally {
         if (mountedRef.current) {
@@ -186,16 +189,6 @@ export default function BarPage() {
   ]);
 
   const handleBuyShot = async () => {
-    if (!connected || !publicKey) {
-      return (
-        <div className="text-center p-4">
-          <p className="text-slate-300 mb-4">
-            Please connect your wallet to purchase
-          </p>
-          <WalletMultiButtonDynamic className="!bg-gradient-to-r from-purple-500 to-blue-500 !text-white hover:!from-purple-600 hover:!to-blue-600" />
-        </div>
-      );
-    }
 
     if (!selectedProduct) return;
 
@@ -328,15 +321,19 @@ export default function BarPage() {
               Bar Not Initialized
             </h2>
             <p className="text-slate-300 text-center">
-              This bar has not been initialized yet. Please visit the setup page
-              to get started.
+              This bar has not been initialized yet. Please connect your wallet
+              and visit the setup page to get started.
             </p>
-            <Link
-              href={`/bar/${barName}/setup`}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
-            >
-              Go to Setup
-            </Link>
+            <div className="flex flex-col gap-4">
+              {connected && (
+                <Link
+                  href={`/bar/${barName}/setup`}
+                  className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg text-center"
+                >
+                  Initialize Bar
+                </Link>
+              )}
+            </div>
           </div>
         ) : receipts.products?.length === 0 ? (
           <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
