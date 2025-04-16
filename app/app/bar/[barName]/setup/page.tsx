@@ -27,7 +27,6 @@ export default function BarSetupPage() {
   const params = useParams();
   const barName = (params?.barName as string)?.toLowerCase();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [receipts, setReceipts] = useState<any>();
   const [isInitializing, setIsInitializing] = useState(false);
   const { publicKey, connected, sendTransaction } = useWallet();
@@ -64,14 +63,9 @@ export default function BarSetupPage() {
   // Initial fetch
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!connected) {
-      setLoading(false);
-      return;
-    }
 
     const fetchReceipts = async () => {
       try {
-        setError(null);
         const receiptsData = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
           RECEIPTS_PDA
         );
@@ -79,19 +73,17 @@ export default function BarSetupPage() {
         if (!mountedRef.current) return;
 
         if (!receiptsData) {
-          setError("No bar data found");
+          setReceipts(null);
           return;
         }
-        const isEqual =
-          JSON.stringify(receiptsData) === JSON.stringify(receipts);
-        if (!isEqual) {
-          setReceipts(receiptsData);
-        }
+        setReceipts(receiptsData);
       } catch (err) {
         if (!mountedRef.current) return;
         const error = err as Error;
         console.error("Error fetching receipts:", error);
-        setError("Failed to load bar data. Please try again later.");
+        if (!error.message.includes("Account does not exist")) {
+          console.error("Failed to load bar data. Please try again later.");
+        }
         setReceipts(null);
       } finally {
         if (mountedRef.current) {
@@ -101,12 +93,11 @@ export default function BarSetupPage() {
     };
 
     fetchReceipts();
-  }, [RECEIPTS_PDA, connected]);
+  }, [RECEIPTS_PDA]);
 
   // Subscription setup
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!connected) return;
 
     const setupSubscription = () => {
       if (subscriptionRef.current) return;
@@ -121,11 +112,7 @@ export default function BarSetupPage() {
                 "receipts",
                 updatedAccountInfo.data
               );
-              const isEqual =
-                JSON.stringify(decoded) === JSON.stringify(receipts);
-              if (!isEqual) {
-                setReceipts(decoded);
-              }
+              setReceipts(decoded);
             } catch (err) {
               console.error("Error decoding account data:", err);
             }
@@ -145,7 +132,13 @@ export default function BarSetupPage() {
         subscriptionRef.current = undefined;
       }
     };
-  }, [RECEIPTS_PDA, connected]);
+  }, [RECEIPTS_PDA]);
+
+  const isAuthority = useMemo(() => {
+    if (!publicKey) return false;
+    if (!receipts) return true; // If no receipts account exists, connected wallet can be authority
+    return publicKey.equals(new PublicKey(receipts.authority));
+  }, [publicKey, receipts]);
 
   const handleInitialize = async () => {
     if (!publicKey) {
@@ -286,22 +279,6 @@ export default function BarSetupPage() {
     );
   }
 
-  if (!connected) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-          <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Connect Your Wallet
-          </h2>
-          <p className="text-slate-300 mb-4">
-            Please connect your wallet to manage this bar
-          </p>
-          <WalletMultiButtonDynamic className="!bg-gradient-to-r from-purple-500 to-blue-500 !text-white hover:!from-purple-600 hover:!to-blue-600" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="fixed top-0 right-0 p-4 z-50 flex gap-4">
@@ -342,9 +319,18 @@ export default function BarSetupPage() {
             ) : (
               <button
                 onClick={handleInitialize}
-                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
+                disabled={!connected || !isAuthority}
+                className={`${
+                  connected && isAuthority
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                    : "bg-slate-700 cursor-not-allowed"
+                } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg`}
               >
-                Initialize with Wallet
+                {!connected
+                  ? "Connect Wallet"
+                  : !isAuthority
+                  ? "Not Authorized"
+                  : "Initialize with Wallet"}
               </button>
             )}
           </div>
@@ -388,9 +374,18 @@ export default function BarSetupPage() {
                 </select>
                 <button
                   onClick={handleAddProduct}
-                  className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
+                  disabled={!connected || !isAuthority}
+                  className={`${
+                    connected && isAuthority
+                      ? "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                      : "bg-slate-700 cursor-not-allowed"
+                  } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg`}
                 >
-                  Add Product
+                  {!connected
+                    ? "Connect Wallet"
+                    : !isAuthority
+                    ? "Not Authorized"
+                    : "Add Product"}
                 </button>
               </div>
             </div>
@@ -419,9 +414,18 @@ export default function BarSetupPage() {
                     </div>
                     <button
                       onClick={() => handleDeleteProduct(product.name)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-200"
+                      disabled={!connected || !isAuthority}
+                      className={`${
+                        connected && isAuthority
+                          ? "bg-red-500 hover:bg-red-600"
+                          : "bg-slate-700 cursor-not-allowed"
+                      } text-white px-4 py-2 rounded-lg transition-all duration-200`}
                     >
-                      Delete
+                      {!connected
+                        ? "Connect Wallet"
+                        : !isAuthority
+                        ? "Not Authorized"
+                        : "Delete"}
                     </button>
                   </div>
                 ))}
@@ -439,9 +443,18 @@ export default function BarSetupPage() {
             <div className="mt-8 flex justify-start">
               <button
                 onClick={handleDeleteBar}
-                className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg"
+                disabled={!connected || !isAuthority}
+                className={`${
+                  connected && isAuthority
+                    ? "bg-red-500 hover:bg-red-600"
+                    : "bg-slate-700 cursor-not-allowed"
+                } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg`}
               >
-                Delete Bar
+                {!connected
+                  ? "Connect Wallet"
+                  : !isAuthority
+                  ? "Not Authorized"
+                  : "Delete Bar"}
               </button>
             </div>
           </div>
