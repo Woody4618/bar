@@ -68,7 +68,6 @@ export default async function handler(
             hour: "2-digit",
             minute: "2-digit",
             hour12: false,
-            timeZone: "auto",
           }
         )})`;
 
@@ -120,12 +119,7 @@ export default async function handler(
             purchaseEvent.data.productName
           }. (${new Date(
             purchaseEvent.data.timestamp * 1000
-          ).toLocaleTimeString(undefined, {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-            timeZone: "auto",
-          })})`;
+          ).toLocaleTimeString()})`;
 
           // Send the message to the Telegram channel
           await sendTelegramMessage(
