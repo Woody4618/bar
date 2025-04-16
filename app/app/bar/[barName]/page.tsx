@@ -1,5 +1,5 @@
 "use client"; // this makes next know that this page should be rendered in the client
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import {
   CONNECTION,
   SOLANA_BAR_PROGRAM,
@@ -45,7 +45,12 @@ export default function BarPage() {
   const subscriptionRef = useRef<number>();
   const mountedRef = useRef(true);
 
-  const RECEIPTS_PDA = getReceiptsPDA(barName);
+  const RECEIPTS_PDA = useMemo(() => getReceiptsPDA(barName), [barName]);
+
+  // Debug connected state
+  useEffect(() => {
+    console.log("Connected state changed:", connected);
+  }, [connected]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -102,7 +107,9 @@ export default function BarPage() {
     if (!connected) return;
 
     const setupSubscription = () => {
-      console.log("Setting up subscription" + RECEIPTS_PDA + " connected" + connected);
+      console.log(
+        "Setting up subscription" + RECEIPTS_PDA + " connected" + connected
+      );
       if (subscriptionRef.current) return;
 
       try {

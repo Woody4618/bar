@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import {
   CONNECTION,
   SOLANA_BAR_PROGRAM,
@@ -47,7 +47,7 @@ export default function BarSetupPage() {
     },
   ];
 
-  const RECEIPTS_PDA = getReceiptsPDA(barName);
+  const RECEIPTS_PDA = useMemo(() => getReceiptsPDA(barName), [barName]);
 
   const subscriptionRef = useRef<number>();
   const mountedRef = useRef(true);
