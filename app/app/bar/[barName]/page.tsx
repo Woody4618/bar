@@ -14,6 +14,7 @@ import PurchaseNotification from "@/src/components/PurchaseNotification";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
+import Image from "next/image";
 
 // Dynamically import the WalletMultiButton to avoid hydration issues
 const WalletMultiButtonDynamic = dynamic(
@@ -313,7 +314,16 @@ export default function BarPage() {
         <WalletMultiButtonDynamic className="!bg-slate-800 !text-white hover:!bg-slate-700 !border !border-slate-700" />
       </div>
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
+        <div className="mb-8 flex items-center gap-2">
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <Image
+              src="/solana-logo.png"
+              alt="Solana Logo"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
+          </Link>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
             {barName}
           </h1>

@@ -12,6 +12,7 @@ import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import Receipts from "@/src/components/Receipts";
 import Link from "next/link";
+import Image from "next/image";
 
 // Dynamically import the WalletMultiButton to avoid hydration issues
 const WalletMultiButtonDynamic = dynamic(
@@ -170,7 +171,10 @@ export default function BarSetupPage() {
       const signature = await sendTransaction(transaction, CONNECTION);
       console.log("Initialization transaction sent:", signature);
 
-      const confirmation = await CONNECTION.confirmTransaction(signature, "confirmed");
+      const confirmation = await CONNECTION.confirmTransaction(
+        signature,
+        "confirmed"
+      );
       if (confirmation.value.err) {
         throw new Error("Transaction failed to confirm");
       }
@@ -310,7 +314,16 @@ export default function BarSetupPage() {
         <WalletMultiButtonDynamic className="!bg-slate-800 !text-white hover:!bg-slate-700 !border !border-slate-700" />
       </div>
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
+        <div className="mb-8 flex items-center gap-2">
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <Image
+              src="/solana-logo.png"
+              alt="Solana Logo"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
+          </Link>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
             {barName} - Setup
           </h1>
