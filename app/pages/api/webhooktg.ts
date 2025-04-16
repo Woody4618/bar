@@ -119,7 +119,7 @@ export default async function handler(
             purchaseEvent.data.productName
           }. (${new Date(
             purchaseEvent.data.timestamp * 1000
-          ).toLocaleTimeString()})`;
+          ).toLocaleTimeString()} UTC)`;
 
           // Send the message to the Telegram channel
           await sendTelegramMessage(
