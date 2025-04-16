@@ -70,18 +70,21 @@ export default function BarSetupPage() {
     const fetchReceipts = async () => {
       try {
         setError(null);
-        const gameData = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
+        const receiptsData = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
           RECEIPTS_PDA
         );
 
         if (!mountedRef.current) return;
 
-        if (!gameData) {
+        if (!receiptsData) {
           setError("No bar data found");
           return;
         }
-
-        setReceipts(gameData);
+        const isEqual =
+          JSON.stringify(receiptsData) === JSON.stringify(receipts);
+        if (!isEqual) {
+          setReceipts(receiptsData);
+        }
       } catch (err) {
         if (!mountedRef.current) return;
         const error = err as Error;
@@ -96,7 +99,7 @@ export default function BarSetupPage() {
     };
 
     fetchReceipts();
-  }, [RECEIPTS_PDA, connected]);
+  }, [RECEIPTS_PDA, connected, receipts]);
 
   // Subscription setup
   useEffect(() => {
@@ -116,7 +119,11 @@ export default function BarSetupPage() {
                 "receipts",
                 updatedAccountInfo.data
               );
-              setReceipts(decoded);
+              const isEqual =
+                JSON.stringify(decoded) === JSON.stringify(receipts);
+              if (!isEqual) {
+                setReceipts(decoded);
+              }
             } catch (err) {
               console.error("Error decoding account data:", err);
             }

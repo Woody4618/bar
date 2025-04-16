@@ -58,6 +58,8 @@ export default function BarPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    console.log("Fetching receipts");
+
     const fetchReceipts = async () => {
       try {
         setError(null);
@@ -73,9 +75,6 @@ export default function BarPage() {
         }
 
         setReceipts(gameData);
-        if (!selectedProduct && gameData?.products?.length > 0) {
-          setSelectedProduct(gameData.products[0].name);
-        }
       } catch (err) {
         if (!mountedRef.current) return;
         const error = err as Error;
@@ -93,10 +92,12 @@ export default function BarPage() {
     };
 
     fetchReceipts();
-  }, [RECEIPTS_PDA]);
+  }, [RECEIPTS_PDA, selectedProduct]);
 
   // Subscription setup
   useEffect(() => {
+    console.log("Subscription setup");
+
     if (typeof window === "undefined") return;
     if (!connected) return;
 
@@ -136,6 +137,8 @@ export default function BarPage() {
   }, [RECEIPTS_PDA, connected]);
 
   useEffect(() => {
+    console.log("Initial receipt ids");
+
     if (!receipts?.receipts || hasInitialized) return;
 
     const currentReceiptIds = receipts.receipts.map((r: any) =>
@@ -148,6 +151,14 @@ export default function BarPage() {
   }, [receipts?.receipts, hasInitialized]);
 
   useEffect(() => {
+    if (!selectedProduct && receipts?.products?.length > 0) {
+      setSelectedProduct(receipts.products[0].name);
+    }
+  }, [receipts, selectedProduct]);
+
+  useEffect(() => {
+    console.log("Checking for new receipts");
+
     if (!receipts?.receipts || !hasInitialized) return;
 
     const currentReceiptIds = receipts.receipts.map((r: any) =>
