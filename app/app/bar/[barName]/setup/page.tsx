@@ -28,6 +28,7 @@ export default function BarSetupPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [receipts, setReceipts] = useState<any>();
+  const [isInitializing, setIsInitializing] = useState(false);
   const { publicKey, connected, sendTransaction } = useWallet();
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -152,6 +153,7 @@ export default function BarSetupPage() {
     }
 
     try {
+      setIsInitializing(true);
       const { blockhash } = await CONNECTION.getLatestBlockhash();
 
       const transaction = await SOLANA_BAR_PROGRAM.methods
@@ -168,13 +170,15 @@ export default function BarSetupPage() {
       const signature = await sendTransaction(transaction, CONNECTION);
       console.log("Initialization transaction sent:", signature);
 
-      const confirmation = await CONNECTION.confirmTransaction(signature);
+      const confirmation = await CONNECTION.confirmTransaction(signature, "confirmed");
       if (confirmation.value.err) {
         throw new Error("Transaction failed to confirm");
       }
       console.log("Transaction confirmed!");
     } catch (error) {
       console.error("Error initializing:", error);
+    } finally {
+      setIsInitializing(false);
     }
   };
 
@@ -317,12 +321,19 @@ export default function BarSetupPage() {
             <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
               Initialize {barName}
             </h2>
-            <button
-              onClick={handleInitialize}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
-            >
-              Initialize with Wallet
-            </button>
+            {isInitializing ? (
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-slate-300">Initializing bar...</p>
+              </div>
+            ) : (
+              <button
+                onClick={handleInitialize}
+                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
+              >
+                Initialize with Wallet
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
