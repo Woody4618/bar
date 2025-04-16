@@ -321,12 +321,55 @@ export type SolanaBar = {
           type: "u64";
         }
       ];
+    },
+    {
+      name: "updateTelegramChannel";
+      discriminator: [125, 26, 242, 114, 17, 12, 103, 200];
+      accounts: [
+        {
+          name: "receipts";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [114, 101, 99, 101, 105, 112, 116, 115];
+              },
+              {
+                kind: "arg";
+                path: "barName";
+              }
+            ];
+          };
+        },
+        {
+          name: "authority";
+          writable: true;
+          signer: true;
+        }
+      ];
+      args: [
+        {
+          name: "barName";
+          type: "string";
+        },
+        {
+          name: "telegramChannelId";
+          type: "string";
+        }
+      ];
     }
   ];
   accounts: [
     {
       name: "receipts";
       discriminator: [222, 245, 237, 64, 59, 49, 29, 246];
+    }
+  ];
+  events: [
+    {
+      name: "shotPurchased";
+      discriminator: [10, 83, 68, 24, 183, 5, 48, 233];
     }
   ];
   errors: [
@@ -458,6 +501,54 @@ export type SolanaBar = {
                 };
               };
             };
+          },
+          {
+            name: "telegramChannelId";
+            type: "string";
+          }
+        ];
+      };
+    },
+    {
+      name: "shotPurchased";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "buyer";
+            type: "pubkey";
+          },
+          {
+            name: "productName";
+            type: "string";
+          },
+          {
+            name: "price";
+            type: "u64";
+          },
+          {
+            name: "timestamp";
+            type: "i64";
+          },
+          {
+            name: "tableNumber";
+            type: "u8";
+          },
+          {
+            name: "receiptId";
+            type: "u64";
+          },
+          {
+            name: "telegramChannelId";
+            type: "string";
+          },
+          {
+            name: "barName";
+            type: "string";
+          },
+          {
+            name: "receiptsAccount";
+            type: "pubkey";
           }
         ];
       };

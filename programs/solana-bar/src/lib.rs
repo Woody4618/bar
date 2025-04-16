@@ -7,6 +7,19 @@ declare_id!("barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9");
 
 const SOL_MINT: Pubkey = pubkey!("So11111111111111111111111111111111111111112");
 
+#[event]
+pub struct ShotPurchased {
+    pub buyer: Pubkey,
+    pub product_name: String,
+    pub price: u64,
+    pub timestamp: i64,
+    pub table_number: u8,
+    pub receipt_id: u64,
+    pub telegram_channel_id: String,
+    pub bar_name: String,
+    pub receipts_account: Pubkey,
+}
+
 #[error_code]
 pub enum ShotErrorCode {
     #[msg("InvalidTreasury")]
@@ -21,6 +34,8 @@ pub enum ShotErrorCode {
     InvalidAuthority,
     #[msg("BarNotEmpty")]
     BarNotEmpty,
+    #[msg("ProductNameEmpty")]
+    ProductNameEmpty,
 }
 
 #[program]
@@ -30,6 +45,22 @@ pub mod solana_bar {
     pub fn initialize(ctx: Context<Initialize>, bar_name: String) -> Result<()> {
         ctx.accounts.receipts.bar_name = bar_name.clone();
         ctx.accounts.receipts.authority = *ctx.accounts.authority.key;
+        ctx.accounts.receipts.telegram_channel_id = String::new(); // Initialize as empty
+        Ok(())
+    }
+
+    pub fn update_telegram_channel(
+        ctx: Context<UpdateTelegramChannel>,
+        bar_name: String,
+        telegram_channel_id: String,
+    ) -> Result<()> {
+        // Verify the caller is the authority
+        require!(
+            *ctx.accounts.authority.key == ctx.accounts.receipts.authority,
+            ShotErrorCode::InvalidAuthority
+        );
+
+        ctx.accounts.receipts.telegram_channel_id = telegram_channel_id;
         Ok(())
     }
 
@@ -44,6 +75,9 @@ pub mod solana_bar {
             *ctx.accounts.authority.key == ctx.accounts.receipts.authority,
             ShotErrorCode::InvalidAuthority
         );
+
+        // Check if product name is empty
+        require!(!name.trim().is_empty(), ShotErrorCode::ProductNameEmpty);
 
         // Check if product with same mint already exists
         for product in &ctx.accounts.receipts.products {
@@ -97,7 +131,7 @@ pub mod solana_bar {
             timestamp: Clock::get()?.unix_timestamp,
             receipt_id,
             table_number,
-            product_name: name,
+            product_name: name.clone(),
         });
 
         let len = ctx.accounts.receipts.receipts.len();
@@ -136,6 +170,19 @@ pub mod solana_bar {
 
             token::transfer_checked(cpi_context, price, decimals)?;
         }
+
+        // Emit the purchase event
+        emit!(ShotPurchased {
+            buyer: *ctx.accounts.signer.key,
+            product_name: name,
+            price,
+            timestamp: Clock::get()?.unix_timestamp,
+            table_number,
+            receipt_id,
+            telegram_channel_id: ctx.accounts.receipts.telegram_channel_id.clone(),
+            bar_name: ctx.accounts.receipts.bar_name.clone(),
+            receipts_account: ctx.accounts.receipts.key(),
+        });
 
         Ok(())
     }
@@ -211,7 +258,7 @@ pub struct Initialize<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + 32 + 32 + 4 + 4 + (4 + 32 + 8 + 1 + 32) * 10 + (4 + 32 + 1 + 8 + 8 + 4 + 32) * 10,
+        space = 8 + 32 + 32 + 4 + 4 + (4 + 32 + 8 + 1 + 32) * 10 + (4 + 32 + 1 + 8 + 8 + 4 + 32) * 10 + 4 + 32,
         seeds = [b"receipts", bar_name.as_bytes()],
         bump
     )]
@@ -219,6 +266,19 @@ pub struct Initialize<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(bar_name: String, telegram_channel_id: String)]
+pub struct UpdateTelegramChannel<'info> {
+    #[account(
+        mut,
+        seeds = [b"receipts", bar_name.as_bytes()],
+        bump
+    )]
+    pub receipts: Account<'info, Receipts>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
 }
 
 #[derive(Accounts)]
@@ -311,6 +371,7 @@ pub struct Receipts {
     pub bar_name: String,
     pub authority: Pubkey,
     pub products: Vec<Products>,
+    pub telegram_channel_id: String,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]

@@ -29,6 +29,8 @@ export default function BarSetupPage() {
   const [loading, setLoading] = useState(true);
   const [receipts, setReceipts] = useState<any>();
   const [isInitializing, setIsInitializing] = useState(false);
+  const [telegramChannelId, setTelegramChannelId] = useState("");
+  const [isUpdatingTelegram, setIsUpdatingTelegram] = useState(false);
   const { publicKey, connected, sendTransaction } = useWallet();
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -134,6 +136,13 @@ export default function BarSetupPage() {
     };
   }, [RECEIPTS_PDA]);
 
+  // Update telegram channel ID when receipts change
+  useEffect(() => {
+    if (receipts) {
+      setTelegramChannelId(receipts.telegramChannelId || "");
+    }
+  }, [receipts]);
+
   const isAuthority = useMemo(() => {
     if (!publicKey) return false;
     if (!receipts) return true; // If no receipts account exists, connected wallet can be authority
@@ -183,6 +192,12 @@ export default function BarSetupPage() {
     if (!publicKey) return;
 
     try {
+      // Check if product name is empty
+      if (!newProduct.name.trim()) {
+        console.error("Product name cannot be empty");
+        return;
+      }
+
       const price = new BN(
         parseFloat(newProduct.price) *
           Math.pow(10, parseInt(newProduct.decimals))
@@ -247,6 +262,41 @@ export default function BarSetupPage() {
       window.location.href = "/";
     } catch (error) {
       console.error("Error deleting bar:", error);
+    }
+  };
+
+  const handleUpdateTelegramChannel = async () => {
+    if (!publicKey) return;
+
+    try {
+      setIsUpdatingTelegram(true);
+      const { blockhash } = await CONNECTION.getLatestBlockhash();
+
+      const transaction = await SOLANA_BAR_PROGRAM.methods
+        .updateTelegramChannel(barName, telegramChannelId)
+        .accounts({
+          authority: publicKey,
+        })
+        .transaction();
+
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = publicKey;
+
+      const signature = await sendTransaction(transaction, CONNECTION);
+      console.log("Telegram channel update transaction sent:", signature);
+
+      const confirmation = await CONNECTION.confirmTransaction(
+        signature,
+        "confirmed"
+      );
+      if (confirmation.value.err) {
+        throw new Error("Transaction failed to confirm");
+      }
+      console.log("Transaction confirmed!");
+    } catch (error) {
+      console.error("Error updating telegram channel:", error);
+    } finally {
+      setIsUpdatingTelegram(false);
     }
   };
 
@@ -440,23 +490,65 @@ export default function BarSetupPage() {
               Receipts
             </h2>
             <Receipts receipts={receipts} />
-            <div className="mt-8 flex justify-start">
-              <button
-                onClick={handleDeleteBar}
-                disabled={!connected || !isAuthority}
-                className={`${
-                  connected && isAuthority
-                    ? "bg-red-500 hover:bg-red-600"
-                    : "bg-slate-700 cursor-not-allowed"
-                } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg`}
-              >
-                {!connected
-                  ? "Connect Wallet"
-                  : !isAuthority
-                  ? "Not Authorized"
-                  : "Delete Bar"}
-              </button>
+          </div>
+        )}
+
+        {receipts && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
+              Telegram Notifications
+            </h2>
+            <div className="p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+              <div className="flex flex-col gap-3">
+                <div className="text-slate-300 mb-2">
+                  Current Channel ID: {receipts.telegramChannelId || "Not set"}
+                </div>
+                <input
+                  type="text"
+                  placeholder="Telegram Channel ID"
+                  value={telegramChannelId}
+                  onChange={(e) => setTelegramChannelId(e.target.value)}
+                  className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                <button
+                  onClick={handleUpdateTelegramChannel}
+                  disabled={!connected || !isAuthority || isUpdatingTelegram}
+                  className={`${
+                    connected && isAuthority && !isUpdatingTelegram
+                      ? "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                      : "bg-slate-700 cursor-not-allowed"
+                  } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg`}
+                >
+                  {!connected
+                    ? "Connect Wallet"
+                    : !isAuthority
+                    ? "Not Authorized"
+                    : isUpdatingTelegram
+                    ? "Updating..."
+                    : "Update Channel"}
+                </button>
+              </div>
             </div>
+          </div>
+        )}
+
+        {receipts && (
+          <div className="mt-8 flex justify-start">
+            <button
+              onClick={handleDeleteBar}
+              disabled={!connected || !isAuthority}
+              className={`${
+                connected && isAuthority
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-slate-700 cursor-not-allowed"
+              } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg`}
+            >
+              {!connected
+                ? "Connect Wallet"
+                : !isAuthority
+                ? "Not Authorized"
+                : "Delete Bar"}
+            </button>
           </div>
         )}
       </div>
