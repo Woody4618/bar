@@ -62,7 +62,15 @@ export default async function handler(
           return res.status(400).json({ error: "Channel ID is required" });
         }
 
-        const testMessage = `Table 4 ordered a beer. (${new Date().toLocaleTimeString()})`;
+        const testMessage = `Table 4 ordered a beer. (${new Date().toLocaleTimeString(
+          undefined,
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+            timeZone: "auto",
+          }
+        )})`;
 
         await sendTelegramMessage(channelId as string, testMessage);
 
@@ -112,7 +120,12 @@ export default async function handler(
             purchaseEvent.data.productName
           }. (${new Date(
             purchaseEvent.data.timestamp * 1000
-          ).toLocaleTimeString()})`;
+          ).toLocaleTimeString(undefined, {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+            timeZone: "auto",
+          })})`;
 
           // Send the message to the Telegram channel
           await sendTelegramMessage(
