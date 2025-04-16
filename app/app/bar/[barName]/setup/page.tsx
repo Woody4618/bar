@@ -99,7 +99,7 @@ export default function BarSetupPage() {
     };
 
     fetchReceipts();
-  }, [RECEIPTS_PDA, connected, receipts]);
+  }, [RECEIPTS_PDA, connected]);
 
   // Subscription setup
   useEffect(() => {

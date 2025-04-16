@@ -63,18 +63,18 @@ export default function BarPage() {
     const fetchReceipts = async () => {
       try {
         setError(null);
-        const gameData = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
+        const receiptsData = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
           RECEIPTS_PDA
         );
 
         if (!mountedRef.current) return;
 
-        if (!gameData) {
+        if (!receiptsData) {
           setReceipts(null);
           return;
         }
 
-        setReceipts(gameData);
+        setReceipts(receiptsData);
       } catch (err) {
         if (!mountedRef.current) return;
         const error = err as Error;
@@ -92,7 +92,7 @@ export default function BarPage() {
     };
 
     fetchReceipts();
-  }, [RECEIPTS_PDA, selectedProduct]);
+  }, [RECEIPTS_PDA]);
 
   // Subscription setup
   useEffect(() => {
@@ -157,7 +157,7 @@ export default function BarPage() {
   }, [receipts, selectedProduct]);
 
   useEffect(() => {
-    console.log("Checking for new receipts");
+    console.log("Update qr code data ");
 
     if (!receipts?.receipts || !hasInitialized) return;
 
