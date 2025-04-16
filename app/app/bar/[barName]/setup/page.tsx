@@ -503,6 +503,28 @@ export default function BarSetupPage() {
                 <div className="text-slate-300 mb-2">
                   Current Channel ID: {receipts.telegramChannelId || "Not set"}
                 </div>
+                <div className="text-slate-400 text-sm mb-4">
+                  <p className="font-semibold mb-2">Setup Instructions:</p>
+                  <ol className="list-decimal list-inside space-y-2">
+                    <li>Create a Telegram channel (or use an existing one)</li>
+                    <li>
+                      Add @solanabarbot as an administrator to your channel
+                    </li>
+                    <li>
+                      For public channels: Use @channelname (e.g.,
+                      @foolsgold_test)
+                    </li>
+                    <li>
+                      For private channels: Use the numeric ID (e.g.,
+                      -10025253...)
+                    </li>
+                    <li>Enter the channel ID below and click Update</li>
+                  </ol>
+                  <p className="mt-2 text-slate-500">
+                    Note: The bot will only send notifications when a channel ID
+                    is set.
+                  </p>
+                </div>
                 <input
                   type="text"
                   placeholder="Telegram Channel ID"
@@ -510,23 +532,46 @@ export default function BarSetupPage() {
                   onChange={(e) => setTelegramChannelId(e.target.value)}
                   className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
-                <button
-                  onClick={handleUpdateTelegramChannel}
-                  disabled={!connected || !isAuthority || isUpdatingTelegram}
-                  className={`${
-                    connected && isAuthority && !isUpdatingTelegram
-                      ? "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                      : "bg-slate-700 cursor-not-allowed"
-                  } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg`}
-                >
-                  {!connected
-                    ? "Connect Wallet"
-                    : !isAuthority
-                    ? "Not Authorized"
-                    : isUpdatingTelegram
-                    ? "Updating..."
-                    : "Update Channel"}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleUpdateTelegramChannel}
+                    disabled={!connected || !isAuthority || isUpdatingTelegram}
+                    className={`${
+                      connected && isAuthority && !isUpdatingTelegram
+                        ? "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                        : "bg-slate-700 cursor-not-allowed"
+                    } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg flex-1`}
+                  >
+                    {!connected
+                      ? "Connect Wallet"
+                      : !isAuthority
+                      ? "Not Authorized"
+                      : isUpdatingTelegram
+                      ? "Updating..."
+                      : "Update Channel"}
+                  </button>
+                  {isUpdatingTelegram && (
+                    <div className="w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                </div>
+                {receipts.telegramChannelId && (
+                  <div className="mt-2 text-green-400 text-sm flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Channel ID successfully set!
+                  </div>
+                )}
               </div>
             </div>
           </div>
