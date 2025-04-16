@@ -96,7 +96,7 @@ export default async function handler(
         );
         console.log("Parsed Anchor events:", events);
 
-        const purchaseEvent = events.find((e) => e.name === "ShotPurchased");
+        const purchaseEvent = events.find((e) => e.name === "shotPurchased");
 
         if (purchaseEvent) {
           console.log("ShotPurchased event:", purchaseEvent);
