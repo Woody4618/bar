@@ -102,6 +102,7 @@ export default function BarPage() {
     if (!connected) return;
 
     const setupSubscription = () => {
+      console.log("Setting up subscription" + RECEIPTS_PDA + " connected" + connected);
       if (subscriptionRef.current) return;
 
       try {
