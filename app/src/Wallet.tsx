@@ -4,8 +4,13 @@ import {
   ConnectionProvider,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import { BackpackWalletAdapter } from "@solana/wallet-adapter-backpack";
 import {
-  WalletModalProvider
+  WalletModalProvider,
+  WalletDisconnectButton,
+  WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
 import { CONNECTION } from "./util/const";
 
@@ -17,7 +22,10 @@ type Props = {
 };
 
 export const Wallet: FC<Props> = ({ children }) => {
-  const wallets = useMemo(() => [], []);
+  const wallets = useMemo(
+    () => [new BackpackWalletAdapter()],
+    []
+  );
 
   return (
     <ConnectionProvider endpoint={CONNECTION.rpcEndpoint}>
