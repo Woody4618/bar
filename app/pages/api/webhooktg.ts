@@ -108,7 +108,7 @@ export default async function handler(
           }
 
           // Concise message format
-          const message = `Table ${purchaseEvent.data.tableNumber} ordered ${
+          const message = `Table ${purchaseEvent.data.tableNumber} ordered 1 ${
             purchaseEvent.data.productName
           }. (${new Date(
             purchaseEvent.data.timestamp * 1000
