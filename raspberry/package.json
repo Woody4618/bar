@@ -1,23 +1,26 @@
 {
-    "scripts": {
-        "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-        "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
-        "build": "webpack"
-    },
-    "dependencies": {
-        "@coral-xyz/anchor": "^0.28.0",
-        "onoff": "^6.0.3",
-        "webpack": "^5.88.2"
-    },
-    "devDependencies": {
-        "@types/bn.js": "^5.1.0",
-        "@types/chai": "^4.3.0",
-        "@types/mocha": "^9.0.0",
-        "chai": "^4.3.4",
-        "mocha": "^9.0.3",
-        "prettier": "^2.6.2",
-        "ts-mocha": "^10.0.0",
-        "typescript": "^4.3.5",
-        "webpack-cli": "^5.1.4"
-    }
+  "scripts": {
+    "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "build": "webpack"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.0",
+    "onoff": "^6.0.3",
+    "webpack": "^5.88.2",
+    "i2c-bus": "^5.2.3",
+    "oled-font-5x7": "^1.0.3",
+    "oled-i2c-bus": "^1.0.12"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.0",
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.0.0",
+    "chai": "^4.3.4",
+    "mocha": "^9.0.3",
+    "prettier": "^2.6.2",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^4.3.5",
+    "webpack-cli": "^5.1.4"
+  }
 }
