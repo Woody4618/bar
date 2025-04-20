@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import {
   CONNECTION,
-  SOLANA_BAR_PROGRAM,
+  LET_ME_PAY_PROGRAM,
   getReceiptsPDA,
 } from "@/src/util/const";
 import { BN } from "@coral-xyz/anchor";
@@ -25,7 +25,7 @@ const WalletMultiButtonDynamic = dynamic(
 
 export default function BarSetupPage() {
   const params = useParams();
-  const barName = (params?.barName as string)?.toLowerCase();
+  const storeName = (params?.storeName as string)?.toLowerCase();
   const [loading, setLoading] = useState(true);
   const [receipts, setReceipts] = useState<any>();
   const [isInitializing, setIsInitializing] = useState(false);
@@ -38,6 +38,7 @@ export default function BarSetupPage() {
     decimals: "6",
     mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC mint address
   });
+  const [error, setError] = useState<string | null>(null);
 
   const MINT_OPTIONS = [
     {
@@ -50,7 +51,7 @@ export default function BarSetupPage() {
     },
   ];
 
-  const RECEIPTS_PDA = useMemo(() => getReceiptsPDA(barName), [barName]);
+  const RECEIPTS_PDA = useMemo(() => getReceiptsPDA(storeName), [storeName]);
 
   const subscriptionRef = useRef<number>();
   const mountedRef = useRef(true);
@@ -68,7 +69,7 @@ export default function BarSetupPage() {
 
     const fetchReceipts = async () => {
       try {
-        const receiptsData = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
+        const receiptsData = await LET_ME_PAY_PROGRAM.account.receipts.fetch(
           RECEIPTS_PDA
         );
 
@@ -110,7 +111,7 @@ export default function BarSetupPage() {
           (updatedAccountInfo) => {
             if (!mountedRef.current) return;
             try {
-              const decoded = SOLANA_BAR_PROGRAM.coder.accounts.decode(
+              const decoded = LET_ME_PAY_PROGRAM.coder.accounts.decode(
                 "receipts",
                 updatedAccountInfo.data
               );
@@ -155,12 +156,17 @@ export default function BarSetupPage() {
       return;
     }
 
+    if (storeName.includes(" ")) {
+      console.error("Store name cannot contain spaces");
+      return;
+    }
+
     try {
       setIsInitializing(true);
       const { blockhash } = await CONNECTION.getLatestBlockhash();
 
-      const transaction = await SOLANA_BAR_PROGRAM.methods
-        .initialize(barName)
+      const transaction = await LET_ME_PAY_PROGRAM.methods
+        .initialize(storeName)
         .accounts({
           authority: publicKey,
         })
@@ -194,17 +200,25 @@ export default function BarSetupPage() {
     try {
       // Check if product name is empty
       if (!newProduct.name.trim()) {
-        console.error("Product name cannot be empty");
+        setError("Product name cannot be empty");
         return;
       }
+
+      // Validate price is a number
+      if (isNaN(Number(newProduct.price)) || newProduct.price.trim() === "") {
+        setError("Price must be a number");
+        return;
+      }
+
+      setError(null); // Clear any previous errors
 
       const price = new BN(
         parseFloat(newProduct.price) *
           Math.pow(10, parseInt(newProduct.decimals))
       );
 
-      const transaction = await SOLANA_BAR_PROGRAM.methods
-        .addProduct(barName, newProduct.name, price)
+      const transaction = await LET_ME_PAY_PROGRAM.methods
+        .addProduct(storeName, newProduct.name, price)
         .accounts({
           authority: publicKey,
           mint: new PublicKey(newProduct.mint),
@@ -230,8 +244,8 @@ export default function BarSetupPage() {
     if (!publicKey) return;
 
     try {
-      const transaction = await SOLANA_BAR_PROGRAM.methods
-        .deleteProduct(barName, productName)
+      const transaction = await LET_ME_PAY_PROGRAM.methods
+        .deleteProduct(storeName, productName)
         .accounts({
           authority: publicKey,
         })
@@ -244,24 +258,24 @@ export default function BarSetupPage() {
     }
   };
 
-  const handleDeleteBar = async () => {
+  const handleDeleteStore = async () => {
     if (!publicKey) return;
 
     try {
-      const transaction = await SOLANA_BAR_PROGRAM.methods
-        .deleteBar(barName)
+      const transaction = await LET_ME_PAY_PROGRAM.methods
+        .deleteStore(storeName)
         .accounts({
           authority: publicKey,
         })
         .transaction();
 
       const signature = await sendTransaction(transaction, CONNECTION);
-      console.log("Bar deleted:", signature);
+      console.log("Store deleted:", signature);
 
       // Redirect to home page after successful deletion
       window.location.href = "/";
     } catch (error) {
-      console.error("Error deleting bar:", error);
+      console.error("Error deleting store:", error);
     }
   };
 
@@ -272,8 +286,8 @@ export default function BarSetupPage() {
       setIsUpdatingTelegram(true);
       const { blockhash } = await CONNECTION.getLatestBlockhash();
 
-      const transaction = await SOLANA_BAR_PROGRAM.methods
-        .updateTelegramChannel(barName, telegramChannelId)
+      const transaction = await LET_ME_PAY_PROGRAM.methods
+        .updateTelegramChannel(storeName, telegramChannelId)
         .accounts({
           authority: publicKey,
         })
@@ -300,16 +314,16 @@ export default function BarSetupPage() {
     }
   };
 
-  if (!barName) {
+  if (!storeName) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
           <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Bar Name Required
+            Store Name Required
           </h1>
           <p className="text-slate-300">
-            Please access this page with a bar name in the URL, e.g.,
-            /bar/your-bar-name/setup
+            Please access this page with a store name in the URL, e.g.,
+            /store/your-store-name/setup
           </p>
         </div>
       </div>
@@ -333,7 +347,7 @@ export default function BarSetupPage() {
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="fixed top-0 right-0 p-4 z-50 flex gap-4">
         <Link
-          href={`/bar/${barName}`}
+          href={`/store/${storeName}`}
           className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200"
         >
           View Storefront
@@ -352,14 +366,14 @@ export default function BarSetupPage() {
             />
           </Link>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            {barName} - Setup
+            {storeName} - Setup
           </h1>
         </div>
 
         {receipts == null ? (
           <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Initialize {barName}
+              Initialize {storeName}
             </h2>
             {isInitializing ? (
               <div className="flex flex-col items-center gap-4">
@@ -391,22 +405,33 @@ export default function BarSetupPage() {
                 Add Product
               </h2>
               <div className="flex flex-col gap-3">
+                {error && (
+                  <div className="bg-red-500/50 border border-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium animate-pulse">
+                    {error}
+                  </div>
+                )}
                 <input
                   type="text"
                   placeholder="Product Name"
                   value={newProduct.name}
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, name: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setNewProduct({ ...newProduct, name: e.target.value });
+                    setError(null); // Clear error when user starts typing
+                  }}
                   className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <input
                   type="text"
                   placeholder="Price"
                   value={newProduct.price}
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, price: e.target.value })
-                  }
+                  onChange={(e) => {
+                    // Only allow numbers and decimal point
+                    const value = e.target.value.replace(/[^0-9.]/g, "");
+                    // Only allow one decimal point
+                    const parts = value.split(".");
+                    if (parts.length > 2) return;
+                    setNewProduct({ ...newProduct, price: value });
+                  }}
                   className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <select
@@ -424,9 +449,11 @@ export default function BarSetupPage() {
                 </select>
                 <button
                   onClick={handleAddProduct}
-                  disabled={!connected || !isAuthority}
+                  disabled={
+                    !connected || !isAuthority || !newProduct.name.trim()
+                  }
                   className={`${
-                    connected && isAuthority
+                    connected && isAuthority && newProduct.name.trim()
                       ? "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
                       : "bg-slate-700 cursor-not-allowed"
                   } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg`}
@@ -580,7 +607,7 @@ export default function BarSetupPage() {
         {receipts && (
           <div className="mt-8 flex justify-start">
             <button
-              onClick={handleDeleteBar}
+              onClick={handleDeleteStore}
               disabled={!connected || !isAuthority}
               className={`${
                 connected && isAuthority
@@ -592,7 +619,7 @@ export default function BarSetupPage() {
                 ? "Connect Wallet"
                 : !isAuthority
                 ? "Not Authorized"
-                : "Delete Bar"}
+                : "Delete Store"}
             </button>
           </div>
         )}

@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import {
   CONNECTION,
-  SOLANA_BAR_PROGRAM,
+  LET_ME_PAY_PROGRAM,
   getReceiptsPDA,
 } from "@/src/util/const";
 import PayQR from "@/src/components/PayQR";
@@ -25,9 +25,9 @@ const WalletMultiButtonDynamic = dynamic(
   { ssr: false }
 );
 
-export default function BarPage() {
+export default function StorePage() {
   const params = useParams();
-  const barName = (params?.barName as string)?.toLowerCase();
+  const storeName = (params?.storeName as string)?.toLowerCase();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [receipts, setReceipts] = useState<any>();
@@ -46,7 +46,7 @@ export default function BarPage() {
   const subscriptionRef = useRef<number>();
   const mountedRef = useRef(true);
 
-  const RECEIPTS_PDA = useMemo(() => getReceiptsPDA(barName), [barName]);
+  const RECEIPTS_PDA = useMemo(() => getReceiptsPDA(storeName), [storeName]);
 
   // Debug connected state
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function BarPage() {
     const fetchReceipts = async () => {
       try {
         setError(null);
-        const receiptsData = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
+        const receiptsData = await LET_ME_PAY_PROGRAM.account.receipts.fetch(
           RECEIPTS_PDA
         );
 
@@ -87,7 +87,7 @@ export default function BarPage() {
         console.error("Error fetching receipts:", error);
         // Only set error if it's not a "Account does not exist" error
         if (!error.message.includes("Account does not exist")) {
-          setError("Failed to load bar data. Please try again later.");
+          setError("Failed to load store data. Please try again later.");
         }
         setReceipts(null);
       } finally {
@@ -119,7 +119,7 @@ export default function BarPage() {
           (updatedAccountInfo) => {
             if (!mountedRef.current) return;
             try {
-              const decoded = SOLANA_BAR_PROGRAM.coder.accounts.decode(
+              const decoded = LET_ME_PAY_PROGRAM.coder.accounts.decode(
                 "receipts",
                 updatedAccountInfo.data
               );
@@ -128,7 +128,7 @@ export default function BarPage() {
               console.error("Error decoding account data:", err);
             }
           },
-          "processed"
+          "confirmed"
         );
       } catch (err) {
         console.error("Error setting up account subscription:", err);
@@ -204,15 +204,15 @@ export default function BarPage() {
     highestReceiptId,
     initialReceiptIds,
     hasInitialized,
-    barName,
+    storeName,
     selectedProduct,
   ]);
 
-  const handleBuyShot = async () => {
-    if (!publicKey || !selectedProduct) return;
+  const handlePurchase = async () => {
+    if (!publicKey || !selectedProduct || !selectedTable) return;
 
     try {
-      const receiptsAccount = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
+      const receiptsAccount = await LET_ME_PAY_PROGRAM.account.receipts.fetch(
         RECEIPTS_PDA
       );
       const products = receiptsAccount.products as any[];
@@ -229,13 +229,9 @@ export default function BarPage() {
         new PublicKey(product.mint),
         publicKey
       );
-      const recipientTokenAccount = await getAssociatedTokenAddress(
-        new PublicKey(product.mint),
-        new PublicKey(receiptsAccount.authority)
-      );
 
-      const transaction = await SOLANA_BAR_PROGRAM.methods
-        .buyShot(barName, selectedProduct, selectedTable)
+      const transaction = await LET_ME_PAY_PROGRAM.methods
+        .makePurchase(storeName, selectedProduct, selectedTable)
         .accounts({
           signer: publicKey,
           authority: publicKey,
@@ -244,24 +240,29 @@ export default function BarPage() {
         })
         .transaction();
 
-      console.log("Transaction:", transaction);
-      const signature = await sendTransaction(transaction, CONNECTION);
-      console.log("Transaction sent:", signature);
+      console.log("Sending transaction...");
+      const signature = await sendTransaction(transaction, CONNECTION, {
+        
+      });
+      console.log("Transaction sent with signature:", signature);
+
+      // Show success message or update UI here
     } catch (error) {
-      console.error("Error sending transaction:", error);
+      console.error("Error in purchase transaction:", error);
+      // You might want to show this error to the user
     }
   };
 
-  if (!barName) {
+  if (!storeName) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
           <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Bar Name Required
+            Store Name Required
           </h1>
           <p className="text-slate-300">
-            Please access this page with a bar name in the URL, e.g.,
-            /bar/your-bar-name
+            Please access this page with a store name in the URL, e.g.,
+            /store/your-store-name
           </p>
         </div>
       </div>
@@ -274,7 +275,7 @@ export default function BarPage() {
         <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
           <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Loading bar data...
+            Loading store data...
           </p>
         </div>
       </div>
@@ -305,10 +306,10 @@ export default function BarPage() {
       <div className="fixed top-0 right-0 p-4 z-40 flex gap-4">
         {receipts && (
           <Link
-            href={`/bar/${barName}/setup`}
+            href={`/store/${storeName}/setup`}
             className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200"
           >
-            Manage Bar
+            Store Setup
           </Link>
         )}
         <WalletMultiButtonDynamic className="!bg-slate-800 !text-white hover:!bg-slate-700 !border !border-slate-700" />
@@ -325,7 +326,7 @@ export default function BarPage() {
             />
           </Link>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            {barName}
+            {storeName}
           </h1>
         </div>
 
@@ -333,7 +334,7 @@ export default function BarPage() {
           <div className="text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
             <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Loading bar data...
+              Loading store data...
             </p>
           </div>
         ) : error ? (
@@ -346,19 +347,19 @@ export default function BarPage() {
         ) : receipts == null ? (
           <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Bar Not Initialized
+              Store Not Initialized
             </h2>
             <p className="text-slate-300 text-center">
-              This bar has not been initialized yet. Please connect your wallet
-              and visit the setup page to get started.
+              This store has not been initialized yet. Please connect your
+              wallet and visit the setup page to get started.
             </p>
             <div className="flex flex-col gap-4">
               {connected && (
                 <Link
-                  href={`/bar/${barName}/setup`}
+                  href={`/store/${storeName}/setup`}
                   className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg text-center"
                 >
-                  Initialize Bar
+                  Initialize Store
                 </Link>
               )}
             </div>
@@ -369,11 +370,11 @@ export default function BarPage() {
               No Products Yet
             </h2>
             <p className="text-slate-300 text-center">
-              This bar doesn&apos;t have any products yet. Visit the setup page
-              to add some products.
+              This store doesn&apos;t have any products yet. Visit the setup
+              page to add some products.
             </p>
             <Link
-              href={`/bar/${barName}/setup`}
+              href={`/store/${storeName}/setup`}
               className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
             >
               Go to Setup
@@ -440,7 +441,7 @@ export default function BarPage() {
                     </div>
                     <PayQR
                       instruction={"buy_shot"}
-                      barName={barName}
+                      storeName={storeName}
                       productName={selectedProduct}
                       productPrice={
                         receipts.products.find(
@@ -483,7 +484,7 @@ export default function BarPage() {
                   </div>
                   {connected && (
                     <button
-                      onClick={handleBuyShot}
+                      onClick={handlePurchase}
                       className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
                     >
                       Buy with Wallet

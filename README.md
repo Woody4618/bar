@@ -1,4 +1,4 @@
-# Solana Bar
+# Let Me Pay
 
 A decentralized bar system built on Solana that allows users to purchase drinks using USDC, connected to a Raspberry Pi that shows the product and plays a sound as soon as the transaction is confirmed, and also sends Telegram notifications to a channel for tracking sales and table deliveries.
 
@@ -52,7 +52,7 @@ A detailed guide on how to connect the OLED display to the raspberry pi can be f
 ## Software Setup
 
 You can directly use the bar at https://bar-six-self.vercel.app/ you only need to deploy a new program if you want to do changes to the bar or want your own unique frontend design.
-  
+
 1. Clone the repository:
 
 ```bash

@@ -1,0 +1,20 @@
+[package]
+name = "let-me-pay"
+version = "0.1.0"
+description = "Setup any store and let people pay via Qr Codes on letmepay.app"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+name = "let_me_pay"
+
+[features]
+default = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+anchor-lang = { version = "0.31.1", features = ["init-if-needed"] }
+anchor-spl = "0.31.1"
+proc-macro2 = "=1.0.93"
+
+

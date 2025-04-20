@@ -1,14 +1,20 @@
-{
+/**
+ * Program IDL in camelCase format in order to be used in JS/TS.
+ *
+ * Note that this is only a type helper and is not the actual IDL. The original
+ * IDL can be found at `target/idl/let_me_pay.json`.
+ */
+export type LetMePay = {
   "address": "barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9",
   "metadata": {
-    "name": "let_me_pay",
+    "name": "letMePay",
     "version": "0.1.0",
     "spec": "0.1.0",
-    "description": "Buy shots with Solana Pay"
+    "description": "Setup any store and let people pay via Qr Codes on letmepay.app"
   },
   "instructions": [
     {
-      "name": "add_product",
+      "name": "addProduct",
       "discriminator": [
         0,
         219,
@@ -40,7 +46,7 @@
               },
               {
                 "kind": "arg",
-                "path": "store_name"
+                "path": "storeName"
               }
             ]
           }
@@ -56,7 +62,7 @@
       ],
       "args": [
         {
-          "name": "store_name",
+          "name": "storeName",
           "type": "string"
         },
         {
@@ -70,7 +76,7 @@
       ]
     },
     {
-      "name": "delete_product",
+      "name": "deleteProduct",
       "discriminator": [
         173,
         212,
@@ -102,7 +108,7 @@
               },
               {
                 "kind": "arg",
-                "path": "store_name"
+                "path": "storeName"
               }
             ]
           }
@@ -115,17 +121,17 @@
       ],
       "args": [
         {
-          "name": "store_name",
+          "name": "storeName",
           "type": "string"
         },
         {
-          "name": "product_name",
+          "name": "productName",
           "type": "string"
         }
       ]
     },
     {
-      "name": "delete_store",
+      "name": "deleteStore",
       "discriminator": [
         150,
         83,
@@ -157,7 +163,7 @@
               },
               {
                 "kind": "arg",
-                "path": "store_name"
+                "path": "storeName"
               }
             ]
           }
@@ -170,7 +176,7 @@
       ],
       "args": [
         {
-          "name": "store_name",
+          "name": "storeName",
           "type": "string"
         }
       ]
@@ -208,7 +214,7 @@
               },
               {
                 "kind": "arg",
-                "path": "store_name"
+                "path": "storeName"
               }
             ]
           }
@@ -219,19 +225,19 @@
           "signer": true
         },
         {
-          "name": "system_program",
+          "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
         {
-          "name": "store_name",
+          "name": "storeName",
           "type": "string"
         }
       ]
     },
     {
-      "name": "make_purchase",
+      "name": "makePurchase",
       "discriminator": [
         193,
         62,
@@ -263,7 +269,7 @@
               },
               {
                 "kind": "arg",
-                "path": "store_name"
+                "path": "storeName"
               }
             ]
           }
@@ -281,11 +287,11 @@
           "name": "mint"
         },
         {
-          "name": "sender_token_account",
+          "name": "senderTokenAccount",
           "writable": true
         },
         {
-          "name": "recipient_token_account",
+          "name": "recipientTokenAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -295,7 +301,7 @@
               },
               {
                 "kind": "account",
-                "path": "token_program"
+                "path": "tokenProgram"
               },
               {
                 "kind": "account",
@@ -342,35 +348,35 @@
           }
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
         {
-          "name": "system_program",
+          "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         },
         {
-          "name": "associated_token_program",
+          "name": "associatedTokenProgram",
           "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         }
       ],
       "args": [
         {
-          "name": "store_name",
+          "name": "storeName",
           "type": "string"
         },
         {
-          "name": "product_name",
+          "name": "productName",
           "type": "string"
         },
         {
-          "name": "table_number",
+          "name": "tableNumber",
           "type": "u8"
         }
       ]
     },
     {
-      "name": "mark_as_delivered",
+      "name": "markAsDelivered",
       "discriminator": [
         112,
         46,
@@ -402,7 +408,7 @@
               },
               {
                 "kind": "arg",
-                "path": "store_name"
+                "path": "storeName"
               }
             ]
           }
@@ -415,17 +421,17 @@
       ],
       "args": [
         {
-          "name": "_store_name",
+          "name": "storeName",
           "type": "string"
         },
         {
-          "name": "receipt_id",
+          "name": "receiptId",
           "type": "u64"
         }
       ]
     },
     {
-      "name": "update_telegram_channel",
+      "name": "updateTelegramChannel",
       "discriminator": [
         125,
         26,
@@ -457,7 +463,7 @@
               },
               {
                 "kind": "arg",
-                "path": "store_name"
+                "path": "storeName"
               }
             ]
           }
@@ -470,11 +476,11 @@
       ],
       "args": [
         {
-          "name": "store_name",
+          "name": "storeName",
           "type": "string"
         },
         {
-          "name": "telegram_channel_id",
+          "name": "telegramChannelId",
           "type": "string"
         }
       ]
@@ -482,7 +488,7 @@
   ],
   "accounts": [
     {
-      "name": "Receipts",
+      "name": "receipts",
       "discriminator": [
         222,
         245,
@@ -497,7 +503,7 @@
   ],
   "events": [
     {
-      "name": "PurchaseMade",
+      "name": "purchaseMade",
       "discriminator": [
         73,
         37,
@@ -513,43 +519,43 @@
   "errors": [
     {
       "code": 6000,
-      "name": "InvalidTreasury",
-      "msg": "InvalidTreasury"
+      "name": "invalidTreasury",
+      "msg": "invalidTreasury"
     },
     {
       "code": 6001,
-      "name": "ProductAlreadyExists",
-      "msg": "ProductAlreadyExists"
+      "name": "productAlreadyExists",
+      "msg": "productAlreadyExists"
     },
     {
       "code": 6002,
-      "name": "ProductNotFound",
-      "msg": "ProductNotFound"
+      "name": "productNotFound",
+      "msg": "productNotFound"
     },
     {
       "code": 6003,
-      "name": "InvalidMint",
-      "msg": "InvalidMint"
+      "name": "invalidMint",
+      "msg": "invalidMint"
     },
     {
       "code": 6004,
-      "name": "InvalidAuthority",
-      "msg": "InvalidAuthority"
+      "name": "invalidAuthority",
+      "msg": "invalidAuthority"
     },
     {
       "code": 6005,
-      "name": "StoreNotEmpty",
-      "msg": "StoreNotEmpty"
+      "name": "storeNotEmpty",
+      "msg": "storeNotEmpty"
     },
     {
       "code": 6006,
-      "name": "ProductNameEmpty",
-      "msg": "ProductNameEmpty"
+      "name": "productNameEmpty",
+      "msg": "productNameEmpty"
     }
   ],
   "types": [
     {
-      "name": "Products",
+      "name": "products",
       "type": {
         "kind": "struct",
         "fields": [
@@ -573,7 +579,7 @@
       }
     },
     {
-      "name": "PurchaseMade",
+      "name": "purchaseMade",
       "type": {
         "kind": "struct",
         "fields": [
@@ -582,7 +588,7 @@
             "type": "pubkey"
           },
           {
-            "name": "product_name",
+            "name": "productName",
             "type": "string"
           },
           {
@@ -594,35 +600,35 @@
             "type": "i64"
           },
           {
-            "name": "table_number",
+            "name": "tableNumber",
             "type": "u8"
           },
           {
-            "name": "receipt_id",
+            "name": "receiptId",
             "type": "u64"
           },
           {
-            "name": "telegram_channel_id",
+            "name": "telegramChannelId",
             "type": "string"
           },
           {
-            "name": "store_name",
+            "name": "storeName",
             "type": "string"
           },
           {
-            "name": "receipts_account",
+            "name": "receiptsAccount",
             "type": "pubkey"
           }
         ]
       }
     },
     {
-      "name": "Receipt",
+      "name": "receipt",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "receipt_id",
+            "name": "receiptId",
             "type": "u64"
           },
           {
@@ -630,7 +636,7 @@
             "type": "pubkey"
           },
           {
-            "name": "was_delivered",
+            "name": "wasDelivered",
             "type": "bool"
           },
           {
@@ -642,18 +648,18 @@
             "type": "i64"
           },
           {
-            "name": "table_number",
+            "name": "tableNumber",
             "type": "u8"
           },
           {
-            "name": "product_name",
+            "name": "productName",
             "type": "string"
           }
         ]
       }
     },
     {
-      "name": "Receipts",
+      "name": "receipts",
       "type": {
         "kind": "struct",
         "fields": [
@@ -662,17 +668,17 @@
             "type": {
               "vec": {
                 "defined": {
-                  "name": "Receipt"
+                  "name": "receipt"
                 }
               }
             }
           },
           {
-            "name": "total_purchases",
+            "name": "totalPurchases",
             "type": "u64"
           },
           {
-            "name": "store_name",
+            "name": "storeName",
             "type": "string"
           },
           {
@@ -684,17 +690,17 @@
             "type": {
               "vec": {
                 "defined": {
-                  "name": "Products"
+                  "name": "products"
                 }
               }
             }
           },
           {
-            "name": "telegram_channel_id",
+            "name": "telegramChannelId",
             "type": "string"
           }
         ]
       }
     }
   ]
-}
+};

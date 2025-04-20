@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { SolanaBar } from "../target/types/solana_bar";
+import { LetMePay } from "../target/types/let_me_pay";
 import { assert } from "chai";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import {
@@ -11,13 +11,13 @@ import {
 } from "@solana/spl-token";
 import * as fs from "fs";
 
-describe("SolanaBar", () => {
+describe("SolanaStore", () => {
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const program = anchor.workspace.SolanaBar as Program<SolanaBar>;
-  const wallet = anchor.workspace.SolanaBar.provider.wallet;
+  const program = anchor.workspace.LetMePay as Program<LetMePay>;
+  const wallet = anchor.workspace.LetMePay.provider.wallet;
   const connection = program.provider.connection;
-  const barName = "Test Bar";
+  const storeName = "Test Store";
   const mintKeypair = Keypair.fromSecretKey(
     new Uint8Array(
       JSON.parse(
@@ -80,7 +80,7 @@ describe("SolanaBar", () => {
     );
 
     const [receiptsPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("receipts"), Buffer.from(barName)],
+      [Buffer.from("receipts"), Buffer.from(storeName)],
       program.programId
     );
 
@@ -88,7 +88,7 @@ describe("SolanaBar", () => {
 
     // Initialize the receipts account
     const initializeTx = await program.methods
-      .initialize(barName)
+      .initialize(storeName)
       .accountsStrict({
         receipts: receiptsPDA,
         authority: wallet.publicKey,
@@ -98,11 +98,11 @@ describe("SolanaBar", () => {
     console.log("Initialize transaction signature: ", initializeTx);
 
     // Add a product
-    const productName = "Test Shot";
+    const productName = "Test Product";
     const productPrice = new anchor.BN(1000000); // 1 SOL
 
     const addProductTx = await program.methods
-      .addProduct(barName, productName, productPrice)
+      .addProduct(storeName, productName, productPrice)
       .accountsStrict({
         receipts: receiptsPDA,
         authority: wallet.publicKey,
@@ -119,8 +119,8 @@ describe("SolanaBar", () => {
       wallet.publicKey
     );
 
-    const buyShotTx = await program.methods
-      .buyShot(barName, productName, 5)
+    const makePurchaseTx = await program.methods
+      .makePurchase(storeName, productName, 5)
       .accountsStrict({
         receipts: receiptsPDA,
         signer: wallet.publicKey,
@@ -135,7 +135,7 @@ describe("SolanaBar", () => {
       .rpc();
 
     const receiptsAccount = await program.account.receipts.fetch(receiptsPDA);
-    console.log("Buy shot transaction signature", buyShotTx);
+    console.log("Make purchase transaction signature", makePurchaseTx);
     console.log("Current receipts", receiptsAccount.receipts.length);
 
     assert(receiptsAccount.receipts.length === 1, "There is now one receipt");
@@ -155,13 +155,13 @@ describe("SolanaBar", () => {
 
   it("Fails to delete a non-existent product", async () => {
     const [receiptsPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("receipts"), Buffer.from(barName)],
+      [Buffer.from("receipts"), Buffer.from(storeName)],
       program.programId
     );
 
     try {
       await program.methods
-        .deleteProduct(barName, "non_existent_product")
+        .deleteProduct(storeName, "non_existent_product")
         .accountsStrict({
           receipts: receiptsPDA,
           authority: wallet.publicKey,
@@ -175,12 +175,12 @@ describe("SolanaBar", () => {
 
   it("Deletes a product", async () => {
     const [receiptsPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("receipts"), Buffer.from(barName)],
+      [Buffer.from("receipts"), Buffer.from(storeName)],
       program.programId
     );
 
     await program.methods
-      .deleteProduct(barName, "Test Shot")
+      .deleteProduct(storeName, "Test Product")
       .accountsStrict({
         receipts: receiptsPDA,
         authority: wallet.publicKey,
@@ -191,50 +191,15 @@ describe("SolanaBar", () => {
     assert(account.products.length === 0, "Product was deleted");
   });
 
-  // it("Fails to delete a non-empty bar", async () => {
-  //   const [receiptsPDA] = PublicKey.findProgramAddressSync(
-  //     [Buffer.from("receipts"), Buffer.from(barName)],
-  //     program.programId
-  //   );
-
-  //   // Add a product back to make the bar non-empty
-  //   await program.methods
-  //     .addProduct(
-  //       barName,
-  //       "Test Shot",
-  //       new anchor.BN(1000000),
-  //       6,
-  //       mintKeypair.publicKey
-  //     )
-  //     .accountsStrict({
-  //       receipts: receiptsPDA,
-  //       authority: wallet.publicKey,
-  //     })
-  //     .rpc();
-
-  //   try {
-  //     await program.methods
-  //       .deleteBar(barName)
-  //       .accountsStrict({
-  //         receipts: receiptsPDA,
-  //         authority: wallet.publicKey,
-  //       })
-  //       .rpc();
-  //     assert.fail("Should have thrown an error");
-  //   } catch (err) {
-  //     assert(err.toString().includes("BarNotEmpty"));
-  //   }
-  // });
-
-  it("Deletes a bar", async () => {
+  it("Deletes a store", async () => {
     const [receiptsPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("receipts"), Buffer.from(barName)],
+      [Buffer.from("receipts"), Buffer.from(storeName)],
       program.programId
     );
 
-    // Then delete the bar
+    // Then delete the store
     await program.methods
-      .deleteBar(barName)
+      .deleteStore(storeName)
       .accountsStrict({
         receipts: receiptsPDA,
         authority: wallet.publicKey,

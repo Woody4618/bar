@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { SolanaBar } from "./solana_bar";
-import idl from "./solana_bar.json";
+import { LetMePay } from "./let_me_pay";
+import idl from "./let_me_pay.json";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { Gpio } from "onoff";
 const i2c = require("i2c-bus");
@@ -114,7 +114,7 @@ async function startListeningToLedSwitchAccount() {
     );
 
     // Fetch initial state
-    const SOLANA_BAR_PROGRAM = new Program<SolanaBar>(idl as any, provider);
+    const SOLANA_BAR_PROGRAM = new Program<LetMePay>(idl as any, provider);
 
     const receiptsAccount = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
       receiptsPDA
