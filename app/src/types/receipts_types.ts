@@ -11,8 +11,8 @@ export type Receipts = {
     tableNumber: number;
     productName: string;
   }>;
-  totalShotsSold: BN;
-  barName: string;
+  totalPurchases: BN;
+  storeName: string;
   authority: PublicKey;
   products: Array<{
     price: BN;

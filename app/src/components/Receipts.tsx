@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { BN } from "@coral-xyz/anchor";
-import { Receipts as ReceiptsType } from "@/src/types/solana_bar";
+import { Receipts as ReceiptsType } from "@/src/types/receipts_types";
 
 interface ReceiptsProps {
   receipts: ReceiptsType | null;

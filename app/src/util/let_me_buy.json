@@ -1,10 +1,10 @@
 {
-  "address": "barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9",
+  "address": "BUYuxRfhCMWavaUWxhGtPP3ksKEDZxCD5gzknk3JfAya",
   "metadata": {
-    "name": "solana_bar",
+    "name": "let_me_buy",
     "version": "0.1.0",
     "spec": "0.1.0",
-    "description": "Buy shots with Solana Pay"
+    "description": "Setup any store and let people pay via Qr Codes on letmebuy.app"
   },
   "instructions": [
     {
@@ -40,7 +40,7 @@
               },
               {
                 "kind": "arg",
-                "path": "bar_name"
+                "path": "store_name"
               }
             ]
           }
@@ -52,11 +52,15 @@
         },
         {
           "name": "mint"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
         {
-          "name": "bar_name",
+          "name": "store_name",
           "type": "string"
         },
         {
@@ -70,16 +74,16 @@
       ]
     },
     {
-      "name": "buy_shot",
+      "name": "delete_product",
       "discriminator": [
-        136,
-        77,
-        215,
-        171,
-        61,
-        106,
-        54,
-        119
+        173,
+        212,
+        141,
+        230,
+        33,
+        82,
+        166,
+        25
       ],
       "accounts": [
         {
@@ -102,7 +106,172 @@
               },
               {
                 "kind": "arg",
-                "path": "bar_name"
+                "path": "store_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "store_name",
+          "type": "string"
+        },
+        {
+          "name": "product_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "delete_store",
+      "discriminator": [
+        150,
+        83,
+        75,
+        192,
+        195,
+        29,
+        178,
+        183
+      ],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "store_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "store_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "store_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "store_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "make_purchase",
+      "discriminator": [
+        193,
+        62,
+        227,
+        136,
+        105,
+        212,
+        201,
+        20
+      ],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "store_name"
               }
             ]
           }
@@ -195,7 +364,7 @@
       ],
       "args": [
         {
-          "name": "bar_name",
+          "name": "store_name",
           "type": "string"
         },
         {
@@ -209,122 +378,16 @@
       ]
     },
     {
-      "name": "delete_bar",
+      "name": "mark_as_delivered",
       "discriminator": [
-        20,
-        61,
-        206,
-        157,
-        244,
-        52,
-        227,
-        158
-      ],
-      "accounts": [
-        {
-          "name": "receipts",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "bar_name"
-              }
-            ]
-          }
-        },
-        {
-          "name": "authority",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "bar_name",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "delete_product",
-      "discriminator": [
-        173,
-        212,
-        141,
+        112,
+        46,
         230,
-        33,
-        82,
-        166,
-        25
-      ],
-      "accounts": [
-        {
-          "name": "receipts",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "bar_name"
-              }
-            ]
-          }
-        },
-        {
-          "name": "authority",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "bar_name",
-          "type": "string"
-        },
-        {
-          "name": "product_name",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "initialize",
-      "discriminator": [
-        175,
-        175,
-        109,
-        31,
-        13,
+        68,
         152,
-        155,
-        237
+        97,
+        194,
+        62
       ],
       "accounts": [
         {
@@ -347,62 +410,7 @@
               },
               {
                 "kind": "arg",
-                "path": "bar_name"
-              }
-            ]
-          }
-        },
-        {
-          "name": "authority",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "bar_name",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "mark_shot_as_delivered",
-      "discriminator": [
-        128,
-        250,
-        184,
-        11,
-        161,
-        248,
-        146,
-        60
-      ],
-      "accounts": [
-        {
-          "name": "receipts",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "bar_name"
+                "path": "store_name"
               }
             ]
           }
@@ -415,11 +423,11 @@
       ],
       "args": [
         {
-          "name": "_bar_name",
+          "name": "_store_name",
           "type": "string"
         },
         {
-          "name": "recipe_id",
+          "name": "receipt_id",
           "type": "u64"
         }
       ]
@@ -457,7 +465,7 @@
               },
               {
                 "kind": "arg",
-                "path": "bar_name"
+                "path": "store_name"
               }
             ]
           }
@@ -470,7 +478,7 @@
       ],
       "args": [
         {
-          "name": "bar_name",
+          "name": "store_name",
           "type": "string"
         },
         {
@@ -497,16 +505,16 @@
   ],
   "events": [
     {
-      "name": "ShotPurchased",
+      "name": "PurchaseMade",
       "discriminator": [
-        10,
-        83,
-        68,
-        24,
-        183,
-        5,
-        48,
-        233
+        73,
+        37,
+        99,
+        22,
+        201,
+        228,
+        56,
+        21
       ]
     }
   ],
@@ -538,8 +546,23 @@
     },
     {
       "code": 6005,
-      "name": "BarNotEmpty",
-      "msg": "BarNotEmpty"
+      "name": "StoreNotEmpty",
+      "msg": "StoreNotEmpty"
+    },
+    {
+      "code": 6006,
+      "name": "ProductNameEmpty",
+      "msg": "ProductNameEmpty"
+    },
+    {
+      "code": 6007,
+      "name": "StringTooLong",
+      "msg": "StringTooLong"
+    },
+    {
+      "code": 6008,
+      "name": "VectorLimitReached",
+      "msg": "VectorLimitReached"
     }
   ],
   "types": [
@@ -563,6 +586,50 @@
           {
             "name": "name",
             "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PurchaseMade",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "product_name",
+            "type": "string"
+          },
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "table_number",
+            "type": "u8"
+          },
+          {
+            "name": "receipt_id",
+            "type": "u64"
+          },
+          {
+            "name": "telegram_channel_id",
+            "type": "string"
+          },
+          {
+            "name": "store_name",
+            "type": "string"
+          },
+          {
+            "name": "receipts_account",
+            "type": "pubkey"
           }
         ]
       }
@@ -619,11 +686,11 @@
             }
           },
           {
-            "name": "total_shots_sold",
+            "name": "total_purchases",
             "type": "u64"
           },
           {
-            "name": "bar_name",
+            "name": "store_name",
             "type": "string"
           },
           {
@@ -643,50 +710,10 @@
           {
             "name": "telegram_channel_id",
             "type": "string"
-          }
-        ]
-      }
-    },
-    {
-      "name": "ShotPurchased",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "buyer",
-            "type": "pubkey"
           },
           {
-            "name": "product_name",
-            "type": "string"
-          },
-          {
-            "name": "price",
-            "type": "u64"
-          },
-          {
-            "name": "timestamp",
-            "type": "i64"
-          },
-          {
-            "name": "table_number",
+            "name": "bump",
             "type": "u8"
-          },
-          {
-            "name": "receipt_id",
-            "type": "u64"
-          },
-          {
-            "name": "telegram_channel_id",
-            "type": "string"
-          },
-          {
-            "name": "bar_name",
-            "type": "string"
-          },
-          {
-            "name": "receipts_account",
-            "type": "pubkey"
           }
         ]
       }
