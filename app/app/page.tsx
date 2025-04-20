@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { LET_ME_PAY_PROGRAM } from "@/src/util/const";
+import { LET_ME_BUY_PROGRAM } from "@/src/util/const";
 import { PublicKey } from "@solana/web3.js";
 import Link from "next/link";
 import Image from "next/image";
@@ -21,7 +21,7 @@ export default function Home() {
     const fetchBars = async () => {
       try {
         // Use Anchor's built-in account filtering
-        const accounts = await LET_ME_PAY_PROGRAM.account.receipts.all();
+        const accounts = await LET_ME_BUY_PROGRAM.account.receipts.all();
 
         const barsWithNames = accounts.map((account) => ({
           pubkey: account.publicKey,
@@ -47,8 +47,8 @@ export default function Home() {
         <div className="flex flex-col items-center mb-12">
           <div className="w-64 h-64 mb-6 relative">
             <Image
-              src="/letmepaylogowhite.png"
-              alt="Let Me Pay Logo"
+              src="/icon_white_transparent.png"
+              alt="Let Me Buy Logo"
               fill
               className="object-contain"
               priority

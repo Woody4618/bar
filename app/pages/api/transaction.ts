@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 import {
   CONNECTION,
-  LET_ME_PAY_PROGRAM,
+  LET_ME_BUY_PROGRAM,
   getReceiptsPDA,
 } from "@/src/util/const";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
@@ -44,9 +44,9 @@ const get = async (req: NextApiRequest, res: NextApiResponse<GET>) => {
   const productName = getFromPayload(req, "Query", "productName");
   const productPrice = getFromPayload(req, "Query", "productPrice");
   const productDecimals = getFromPayload(req, "Query", "productDecimals");
-  const icon = "https://www.letmepay.app/icon.png";
+  const icon = "https://www.letmebuy.app/icon.png";
 
-  let label = "Let me pay";
+  let label = "Let me buy";
   if (productName && storeName) {
     const price =
       productPrice && productDecimals
@@ -90,7 +90,7 @@ const post = async (req: NextApiRequest, res: NextApiResponse<POST>) => {
   let message;
   if (instructionField == "buy_shot") {
     // Get the receipts account to find the product
-    const receiptsAccount = await LET_ME_PAY_PROGRAM.account.receipts.fetch(
+    const receiptsAccount = await LET_ME_BUY_PROGRAM.account.receipts.fetch(
       RECEIPTS_PDA
     );
     const products = receiptsAccount.products as any[];
@@ -111,7 +111,7 @@ const post = async (req: NextApiRequest, res: NextApiResponse<POST>) => {
       sender
     );
 
-    let ix = await LET_ME_PAY_PROGRAM.methods
+    let ix = await LET_ME_BUY_PROGRAM.methods
       .makePurchase(storeName, productName, Number(tableNumber))
       .accounts({
         signer: sender,

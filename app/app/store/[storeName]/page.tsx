@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import {
   CONNECTION,
-  LET_ME_PAY_PROGRAM,
+  LET_ME_BUY_PROGRAM,
   getReceiptsPDA,
 } from "@/src/util/const";
 import PayQR from "@/src/components/PayQR";
@@ -69,7 +69,7 @@ export default function StorePage() {
     const fetchReceipts = async () => {
       try {
         setError(null);
-        const receiptsData = await LET_ME_PAY_PROGRAM.account.receipts.fetch(
+        const receiptsData = await LET_ME_BUY_PROGRAM.account.receipts.fetch(
           RECEIPTS_PDA
         );
 
@@ -119,7 +119,7 @@ export default function StorePage() {
           (updatedAccountInfo) => {
             if (!mountedRef.current) return;
             try {
-              const decoded = LET_ME_PAY_PROGRAM.coder.accounts.decode(
+              const decoded = LET_ME_BUY_PROGRAM.coder.accounts.decode(
                 "receipts",
                 updatedAccountInfo.data
               );
@@ -212,7 +212,7 @@ export default function StorePage() {
     if (!publicKey || !selectedProduct || !selectedTable) return;
 
     try {
-      const receiptsAccount = await LET_ME_PAY_PROGRAM.account.receipts.fetch(
+      const receiptsAccount = await LET_ME_BUY_PROGRAM.account.receipts.fetch(
         RECEIPTS_PDA
       );
       const products = receiptsAccount.products as any[];
@@ -230,20 +230,18 @@ export default function StorePage() {
         publicKey
       );
 
-      const transaction = await LET_ME_PAY_PROGRAM.methods
+      const transaction = await LET_ME_BUY_PROGRAM.methods
         .makePurchase(storeName, selectedProduct, selectedTable)
         .accounts({
           signer: publicKey,
-          authority: publicKey,
+          authority: new PublicKey(receiptsAccount.authority),
           mint: new PublicKey(product.mint),
-          senderTokenAccount: senderTokenAccount,
+          senderTokenAccount,
         })
         .transaction();
 
       console.log("Sending transaction...");
-      const signature = await sendTransaction(transaction, CONNECTION, {
-        
-      });
+      const signature = await sendTransaction(transaction, CONNECTION, {});
       console.log("Transaction sent with signature:", signature);
 
       // Show success message or update UI here

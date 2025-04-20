@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import {
   CONNECTION,
-  LET_ME_PAY_PROGRAM,
+  LET_ME_BUY_PROGRAM,
   getReceiptsPDA,
 } from "@/src/util/const";
 import { BN } from "@coral-xyz/anchor";
@@ -69,7 +69,7 @@ export default function BarSetupPage() {
 
     const fetchReceipts = async () => {
       try {
-        const receiptsData = await LET_ME_PAY_PROGRAM.account.receipts.fetch(
+        const receiptsData = await LET_ME_BUY_PROGRAM.account.receipts.fetch(
           RECEIPTS_PDA
         );
 
@@ -111,7 +111,7 @@ export default function BarSetupPage() {
           (updatedAccountInfo) => {
             if (!mountedRef.current) return;
             try {
-              const decoded = LET_ME_PAY_PROGRAM.coder.accounts.decode(
+              const decoded = LET_ME_BUY_PROGRAM.coder.accounts.decode(
                 "receipts",
                 updatedAccountInfo.data
               );
@@ -165,7 +165,7 @@ export default function BarSetupPage() {
       setIsInitializing(true);
       const { blockhash } = await CONNECTION.getLatestBlockhash();
 
-      const transaction = await LET_ME_PAY_PROGRAM.methods
+      const transaction = await LET_ME_BUY_PROGRAM.methods
         .initialize(storeName)
         .accounts({
           authority: publicKey,
@@ -217,7 +217,7 @@ export default function BarSetupPage() {
           Math.pow(10, parseInt(newProduct.decimals))
       );
 
-      const transaction = await LET_ME_PAY_PROGRAM.methods
+      const transaction = await LET_ME_BUY_PROGRAM.methods
         .addProduct(storeName, newProduct.name, price)
         .accounts({
           authority: publicKey,
@@ -244,7 +244,7 @@ export default function BarSetupPage() {
     if (!publicKey) return;
 
     try {
-      const transaction = await LET_ME_PAY_PROGRAM.methods
+      const transaction = await LET_ME_BUY_PROGRAM.methods
         .deleteProduct(storeName, productName)
         .accounts({
           authority: publicKey,
@@ -262,7 +262,7 @@ export default function BarSetupPage() {
     if (!publicKey) return;
 
     try {
-      const transaction = await LET_ME_PAY_PROGRAM.methods
+      const transaction = await LET_ME_BUY_PROGRAM.methods
         .deleteStore(storeName)
         .accounts({
           authority: publicKey,
@@ -286,7 +286,7 @@ export default function BarSetupPage() {
       setIsUpdatingTelegram(true);
       const { blockhash } = await CONNECTION.getLatestBlockhash();
 
-      const transaction = await LET_ME_PAY_PROGRAM.methods
+      const transaction = await LET_ME_BUY_PROGRAM.methods
         .updateTelegramChannel(storeName, telegramChannelId)
         .accounts({
           authority: publicKey,

@@ -1,8 +1,8 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { Program, AnchorProvider } from "@coral-xyz/anchor";
-import { LetMePay } from "./let_me_pay";
+import { LetMeBuy } from "./let_me_buy";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import idl from "./let_me_pay.json";
+import idl from "./let_me_buy.json";
 
 export const CONNECTION = new Connection(
   process.env.NEXT_PUBLIC_RPC
@@ -16,20 +16,20 @@ export const CONNECTION = new Connection(
   }
 );
 
-export const LET_ME_PAY_PROGRAM_ID = new PublicKey(
-  "barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9"
+export const LET_ME_BUY_PROGRAM_ID = new PublicKey(
+  "BUYuxRfhCMWavaUWxhGtPP3ksKEDZxCD5gzknk3JfAya"
 );
 
 const provider = new AnchorProvider(CONNECTION, null as any, {
   commitment: "confirmed",
 });
 
-export const LET_ME_PAY_PROGRAM = new Program<LetMePay>(idl as any, provider);
+export const LET_ME_BUY_PROGRAM = new Program<LetMeBuy>(idl as any, provider);
 
 export const getReceiptsPDA = (barName: string) => {
   return PublicKey.findProgramAddressSync(
     [Buffer.from("receipts"), Buffer.from(barName.toLowerCase())],
-    LET_ME_PAY_PROGRAM_ID
+    LET_ME_BUY_PROGRAM_ID
   )[0];
 };
 

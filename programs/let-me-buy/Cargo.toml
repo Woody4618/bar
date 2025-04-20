@@ -1,12 +1,12 @@
 [package]
-name = "let-me-pay"
+name = "let-me-buy"
 version = "0.1.0"
-description = "Setup any store and let people pay via Qr Codes on letmepay.app"
+description = "Setup any store and let people pay via Qr Codes on letmebuy.app"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
-name = "let_me_pay"
+name = "let_me_buy"
 
 [features]
 default = []

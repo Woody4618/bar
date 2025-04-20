@@ -1,30 +1,15 @@
-/**
- * Program IDL in camelCase format in order to be used in JS/TS.
- *
- * Note that this is only a type helper and is not the actual IDL. The original
- * IDL can be found at `target/idl/let_me_pay.json`.
- */
-export type LetMePay = {
-  "address": "barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9",
+{
+  "address": "BUYuxRfhCMWavaUWxhGtPP3ksKEDZxCD5gzknk3JfAya",
   "metadata": {
-    "name": "letMePay",
+    "name": "let_me_buy",
     "version": "0.1.0",
     "spec": "0.1.0",
-    "description": "Setup any store and let people pay via Qr Codes on letmepay.app"
+    "description": "Setup any store and let people pay via Qr Codes on letmebuy.app"
   },
   "instructions": [
     {
-      "name": "addProduct",
-      "discriminator": [
-        0,
-        219,
-        137,
-        36,
-        105,
-        180,
-        164,
-        93
-      ],
+      "name": "add_product",
+      "discriminator": [0, 219, 137, 36, 105, 180, 164, 93],
       "accounts": [
         {
           "name": "receipts",
@@ -33,20 +18,11 @@ export type LetMePay = {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
-                "path": "storeName"
+                "path": "store_name"
               }
             ]
           }
@@ -62,7 +38,7 @@ export type LetMePay = {
       ],
       "args": [
         {
-          "name": "storeName",
+          "name": "store_name",
           "type": "string"
         },
         {
@@ -76,17 +52,8 @@ export type LetMePay = {
       ]
     },
     {
-      "name": "deleteProduct",
-      "discriminator": [
-        173,
-        212,
-        141,
-        230,
-        33,
-        82,
-        166,
-        25
-      ],
+      "name": "delete_product",
+      "discriminator": [173, 212, 141, 230, 33, 82, 166, 25],
       "accounts": [
         {
           "name": "receipts",
@@ -95,20 +62,11 @@ export type LetMePay = {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
-                "path": "storeName"
+                "path": "store_name"
               }
             ]
           }
@@ -121,27 +79,18 @@ export type LetMePay = {
       ],
       "args": [
         {
-          "name": "storeName",
+          "name": "store_name",
           "type": "string"
         },
         {
-          "name": "productName",
+          "name": "product_name",
           "type": "string"
         }
       ]
     },
     {
-      "name": "deleteStore",
-      "discriminator": [
-        150,
-        83,
-        75,
-        192,
-        195,
-        29,
-        178,
-        183
-      ],
+      "name": "delete_store",
+      "discriminator": [150, 83, 75, 192, 195, 29, 178, 183],
       "accounts": [
         {
           "name": "receipts",
@@ -150,20 +99,11 @@ export type LetMePay = {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
-                "path": "storeName"
+                "path": "store_name"
               }
             ]
           }
@@ -176,23 +116,14 @@ export type LetMePay = {
       ],
       "args": [
         {
-          "name": "storeName",
+          "name": "store_name",
           "type": "string"
         }
       ]
     },
     {
       "name": "initialize",
-      "discriminator": [
-        175,
-        175,
-        109,
-        31,
-        13,
-        152,
-        155,
-        237
-      ],
+      "discriminator": [175, 175, 109, 31, 13, 152, 155, 237],
       "accounts": [
         {
           "name": "receipts",
@@ -201,20 +132,11 @@ export type LetMePay = {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
-                "path": "storeName"
+                "path": "store_name"
               }
             ]
           }
@@ -225,29 +147,20 @@ export type LetMePay = {
           "signer": true
         },
         {
-          "name": "systemProgram",
+          "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
         {
-          "name": "storeName",
+          "name": "store_name",
           "type": "string"
         }
       ]
     },
     {
-      "name": "makePurchase",
-      "discriminator": [
-        193,
-        62,
-        227,
-        136,
-        105,
-        212,
-        201,
-        20
-      ],
+      "name": "make_purchase",
+      "discriminator": [193, 62, 227, 136, 105, 212, 201, 20],
       "accounts": [
         {
           "name": "receipts",
@@ -256,20 +169,11 @@ export type LetMePay = {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
-                "path": "storeName"
+                "path": "store_name"
               }
             ]
           }
@@ -287,11 +191,11 @@ export type LetMePay = {
           "name": "mint"
         },
         {
-          "name": "senderTokenAccount",
+          "name": "sender_token_account",
           "writable": true
         },
         {
-          "name": "recipientTokenAccount",
+          "name": "recipient_token_account",
           "writable": true,
           "pda": {
             "seeds": [
@@ -301,7 +205,7 @@ export type LetMePay = {
               },
               {
                 "kind": "account",
-                "path": "tokenProgram"
+                "path": "token_program"
               },
               {
                 "kind": "account",
@@ -311,82 +215,44 @@ export type LetMePay = {
             "program": {
               "kind": "const",
               "value": [
-                140,
-                151,
-                37,
-                143,
-                78,
-                36,
-                137,
-                241,
-                187,
-                61,
-                16,
-                41,
-                20,
-                142,
-                13,
-                131,
-                11,
-                90,
-                19,
-                153,
-                218,
-                255,
-                16,
-                132,
-                4,
-                142,
-                123,
-                216,
-                219,
-                233,
-                248,
-                89
+                140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142,
+                13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216,
+                219, 233, 248, 89
               ]
             }
           }
         },
         {
-          "name": "tokenProgram",
+          "name": "token_program",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
         {
-          "name": "systemProgram",
+          "name": "system_program",
           "address": "11111111111111111111111111111111"
         },
         {
-          "name": "associatedTokenProgram",
+          "name": "associated_token_program",
           "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         }
       ],
       "args": [
         {
-          "name": "storeName",
+          "name": "store_name",
           "type": "string"
         },
         {
-          "name": "productName",
+          "name": "product_name",
           "type": "string"
         },
         {
-          "name": "tableNumber",
+          "name": "table_number",
           "type": "u8"
         }
       ]
     },
     {
-      "name": "markAsDelivered",
-      "discriminator": [
-        112,
-        46,
-        230,
-        68,
-        152,
-        97,
-        194,
-        62
-      ],
+      "name": "mark_as_delivered",
+      "discriminator": [112, 46, 230, 68, 152, 97, 194, 62],
       "accounts": [
         {
           "name": "receipts",
@@ -395,20 +261,11 @@ export type LetMePay = {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
-                "path": "storeName"
+                "path": "store_name"
               }
             ]
           }
@@ -421,27 +278,18 @@ export type LetMePay = {
       ],
       "args": [
         {
-          "name": "storeName",
+          "name": "_store_name",
           "type": "string"
         },
         {
-          "name": "receiptId",
+          "name": "receipt_id",
           "type": "u64"
         }
       ]
     },
     {
-      "name": "updateTelegramChannel",
-      "discriminator": [
-        125,
-        26,
-        242,
-        114,
-        17,
-        12,
-        103,
-        200
-      ],
+      "name": "update_telegram_channel",
+      "discriminator": [125, 26, 242, 114, 17, 12, 103, 200],
       "accounts": [
         {
           "name": "receipts",
@@ -450,20 +298,11 @@ export type LetMePay = {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
-                "path": "storeName"
+                "path": "store_name"
               }
             ]
           }
@@ -476,11 +315,11 @@ export type LetMePay = {
       ],
       "args": [
         {
-          "name": "storeName",
+          "name": "store_name",
           "type": "string"
         },
         {
-          "name": "telegramChannelId",
+          "name": "telegram_channel_id",
           "type": "string"
         }
       ]
@@ -488,74 +327,56 @@ export type LetMePay = {
   ],
   "accounts": [
     {
-      "name": "receipts",
-      "discriminator": [
-        222,
-        245,
-        237,
-        64,
-        59,
-        49,
-        29,
-        246
-      ]
+      "name": "Receipts",
+      "discriminator": [222, 245, 237, 64, 59, 49, 29, 246]
     }
   ],
   "events": [
     {
-      "name": "purchaseMade",
-      "discriminator": [
-        73,
-        37,
-        99,
-        22,
-        201,
-        228,
-        56,
-        21
-      ]
+      "name": "PurchaseMade",
+      "discriminator": [73, 37, 99, 22, 201, 228, 56, 21]
     }
   ],
   "errors": [
     {
       "code": 6000,
-      "name": "invalidTreasury",
-      "msg": "invalidTreasury"
+      "name": "InvalidTreasury",
+      "msg": "InvalidTreasury"
     },
     {
       "code": 6001,
-      "name": "productAlreadyExists",
-      "msg": "productAlreadyExists"
+      "name": "ProductAlreadyExists",
+      "msg": "ProductAlreadyExists"
     },
     {
       "code": 6002,
-      "name": "productNotFound",
-      "msg": "productNotFound"
+      "name": "ProductNotFound",
+      "msg": "ProductNotFound"
     },
     {
       "code": 6003,
-      "name": "invalidMint",
-      "msg": "invalidMint"
+      "name": "InvalidMint",
+      "msg": "InvalidMint"
     },
     {
       "code": 6004,
-      "name": "invalidAuthority",
-      "msg": "invalidAuthority"
+      "name": "InvalidAuthority",
+      "msg": "InvalidAuthority"
     },
     {
       "code": 6005,
-      "name": "storeNotEmpty",
-      "msg": "storeNotEmpty"
+      "name": "StoreNotEmpty",
+      "msg": "StoreNotEmpty"
     },
     {
       "code": 6006,
-      "name": "productNameEmpty",
-      "msg": "productNameEmpty"
+      "name": "ProductNameEmpty",
+      "msg": "ProductNameEmpty"
     }
   ],
   "types": [
     {
-      "name": "products",
+      "name": "Products",
       "type": {
         "kind": "struct",
         "fields": [
@@ -579,7 +400,7 @@ export type LetMePay = {
       }
     },
     {
-      "name": "purchaseMade",
+      "name": "PurchaseMade",
       "type": {
         "kind": "struct",
         "fields": [
@@ -588,7 +409,7 @@ export type LetMePay = {
             "type": "pubkey"
           },
           {
-            "name": "productName",
+            "name": "product_name",
             "type": "string"
           },
           {
@@ -600,35 +421,35 @@ export type LetMePay = {
             "type": "i64"
           },
           {
-            "name": "tableNumber",
+            "name": "table_number",
             "type": "u8"
           },
           {
-            "name": "receiptId",
+            "name": "receipt_id",
             "type": "u64"
           },
           {
-            "name": "telegramChannelId",
+            "name": "telegram_channel_id",
             "type": "string"
           },
           {
-            "name": "storeName",
+            "name": "store_name",
             "type": "string"
           },
           {
-            "name": "receiptsAccount",
+            "name": "receipts_account",
             "type": "pubkey"
           }
         ]
       }
     },
     {
-      "name": "receipt",
+      "name": "Receipt",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "receiptId",
+            "name": "receipt_id",
             "type": "u64"
           },
           {
@@ -636,7 +457,7 @@ export type LetMePay = {
             "type": "pubkey"
           },
           {
-            "name": "wasDelivered",
+            "name": "was_delivered",
             "type": "bool"
           },
           {
@@ -648,18 +469,18 @@ export type LetMePay = {
             "type": "i64"
           },
           {
-            "name": "tableNumber",
+            "name": "table_number",
             "type": "u8"
           },
           {
-            "name": "productName",
+            "name": "product_name",
             "type": "string"
           }
         ]
       }
     },
     {
-      "name": "receipts",
+      "name": "Receipts",
       "type": {
         "kind": "struct",
         "fields": [
@@ -668,17 +489,17 @@ export type LetMePay = {
             "type": {
               "vec": {
                 "defined": {
-                  "name": "receipt"
+                  "name": "Receipt"
                 }
               }
             }
           },
           {
-            "name": "totalPurchases",
+            "name": "total_purchases",
             "type": "u64"
           },
           {
-            "name": "storeName",
+            "name": "store_name",
             "type": "string"
           },
           {
@@ -690,17 +511,17 @@ export type LetMePay = {
             "type": {
               "vec": {
                 "defined": {
-                  "name": "products"
+                  "name": "Products"
                 }
               }
             }
           },
           {
-            "name": "telegramChannelId",
+            "name": "telegram_channel_id",
             "type": "string"
           }
         ]
       }
     }
   ]
-};
+}

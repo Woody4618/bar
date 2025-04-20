@@ -3,7 +3,7 @@ use anchor_lang::system_program;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, TransferChecked};
 
-declare_id!("barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9");
+declare_id!("BUYuxRfhCMWavaUWxhGtPP3ksKEDZxCD5gzknk3JfAya");
 
 const SOL_MINT: Pubkey = pubkey!("So11111111111111111111111111111111111111111");
 
@@ -39,7 +39,7 @@ pub enum StoreErrorCode {
 }
 
 #[program]
-pub mod let_me_pay {
+pub mod let_me_buy {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>, store_name: String) -> Result<()> {

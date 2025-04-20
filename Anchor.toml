@@ -3,7 +3,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-led_switch = "barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9"
+led_switch = "BUYuxRfhCMWavaUWxhGtPP3ksKEDZxCD5gzknk3JfAya"
 
 [registry]
 url = "https://api.apr.dev"

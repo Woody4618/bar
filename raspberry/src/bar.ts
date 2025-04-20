@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { LetMePay } from "./let_me_pay";
-import idl from "./let_me_pay.json";
+import { LetMeBuy } from "./let_me_buy";
+import idl from "./let_me_buy.json";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { Gpio } from "onoff";
 const i2c = require("i2c-bus");
@@ -66,43 +66,76 @@ const BAR_NAME = "foolsgold"; // Replace with your actual bar name
 startListeningToLedSwitchAccount();
 
 function drawSolanaLogo(x: number, y: number, size: number) {
-    // Draw three horizontal lines with 2px thickness
-    // Top line
-    oled.drawLine(1+x - size/2, y - size/2, 2+x + size/2, y - size/2, 1);
-    oled.drawLine(x - size/2, y - size/2 + 1, 1+x + size/2, y - size/2 + 1, 1);
-    
-    // Middle line
-    oled.drawLine(x - size/2, y, 1+x + size/2, y, 1);
-    oled.drawLine(1+x - size/2, y + 1, 2+x + size/2, y + 1, 1);
-    
-    // Bottom line
-    oled.drawLine(1+x - size/2, y + size/2, 2+x + size/2, y + size/2, 1);
-    oled.drawLine(x - size/2, y + size/2 + 1, 1+x + size/2, y + size/2 + 1, 1);
+  // Draw three horizontal lines with 2px thickness
+  // Top line
+  oled.drawLine(
+    1 + x - size / 2,
+    y - size / 2,
+    2 + x + size / 2,
+    y - size / 2,
+    1
+  );
+  oled.drawLine(
+    x - size / 2,
+    y - size / 2 + 1,
+    1 + x + size / 2,
+    y - size / 2 + 1,
+    1
+  );
+
+  // Middle line
+  oled.drawLine(x - size / 2, y, 1 + x + size / 2, y, 1);
+  oled.drawLine(1 + x - size / 2, y + 1, 2 + x + size / 2, y + 1, 1);
+
+  // Bottom line
+  oled.drawLine(
+    1 + x - size / 2,
+    y + size / 2,
+    2 + x + size / 2,
+    y + size / 2,
+    1
+  );
+  oled.drawLine(
+    x - size / 2,
+    y + size / 2 + 1,
+    1 + x + size / 2,
+    y + size / 2 + 1,
+    1
+  );
 }
 
-function updateDisplay(product?: { name: string; price: BN; decimals: number; mint: PublicKey }) {
-    // Clear display
-    oled.clearDisplay();
-    
-    // Draw Solana logos on sides
-    drawSolanaLogo(15, opts.height/2, 6);
-    drawSolanaLogo(opts.width-15, opts.height/2, 6);
-    
-    // Use product info if available, otherwise use default text
-    const text1 = "Buy one";
-    const text2 = product ? product.name : "FoolsGold";
-    const text3 = product ? `${Number(product.price.toString()) / Math.pow(10, product.decimals)} USDC` : "0.5 USDC";
-    
-    const text1X = (opts.width - text1.length * 6) / 2;
-    const text2X = (opts.width - text2.length * 6) / 2;
-    const text3X = (opts.width - text3.length * 6) / 2;
-    
-    oled.setCursor(text1X, 5);
-    oled.writeString(font, 1, text1, 1, true);
-    oled.setCursor(text2X, 15);
-    oled.writeString(font, 1, text2, 1, true);
-    oled.setCursor(text3X, 25);
-    oled.writeString(font, 1, text3, 1, true);
+function updateDisplay(product?: {
+  name: string;
+  price: BN;
+  decimals: number;
+  mint: PublicKey;
+}) {
+  // Clear display
+  oled.clearDisplay();
+
+  // Draw Solana logos on sides
+  drawSolanaLogo(15, opts.height / 2, 6);
+  drawSolanaLogo(opts.width - 15, opts.height / 2, 6);
+
+  // Use product info if available, otherwise use default text
+  const text1 = "Buy one";
+  const text2 = product ? product.name : "FoolsGold";
+  const text3 = product
+    ? `${
+        Number(product.price.toString()) / Math.pow(10, product.decimals)
+      } USDC`
+    : "0.5 USDC";
+
+  const text1X = (opts.width - text1.length * 6) / 2;
+  const text2X = (opts.width - text2.length * 6) / 2;
+  const text3X = (opts.width - text3.length * 6) / 2;
+
+  oled.setCursor(text1X, 5);
+  oled.writeString(font, 1, text1, 1, true);
+  oled.setCursor(text2X, 15);
+  oled.writeString(font, 1, text2, 1, true);
+  oled.setCursor(text3X, 25);
+  oled.writeString(font, 1, text3, 1, true);
 }
 
 async function startListeningToLedSwitchAccount() {
@@ -114,7 +147,7 @@ async function startListeningToLedSwitchAccount() {
     );
 
     // Fetch initial state
-    const SOLANA_BAR_PROGRAM = new Program<LetMePay>(idl as any, provider);
+    const SOLANA_BAR_PROGRAM = new Program<LetMeBuy>(idl as any, provider);
 
     const receiptsAccount = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
       receiptsPDA
@@ -141,30 +174,37 @@ async function startListeningToLedSwitchAccount() {
     updateDisplay(firstProduct);
 
     // When a purchase happens, flash the display
-    connection.onAccountChange(receiptsPDA, async (account) => {
-      try {
-        const decoded = program.coder.accounts.decode("receipts", account.data);
-        console.log("Account changed:", JSON.stringify(decoded));
+    connection.onAccountChange(
+      receiptsPDA,
+      async (account) => {
+        try {
+          const decoded = program.coder.accounts.decode(
+            "receipts",
+            account.data
+          );
+          console.log("Account changed:", JSON.stringify(decoded));
 
-        // Get the first product from the latest receipt
-        const product = decoded.products[0];
+          // Get the first product from the latest receipt
+          const product = decoded.products[0];
 
-        // Flash display
-        oled.invertDisplay(true);
-        await sleep(300);
-        oled.invertDisplay(false);
+          // Flash display
+          oled.invertDisplay(true);
+          await sleep(300);
+          oled.invertDisplay(false);
 
-        // Update display with new product info
-        updateDisplay(product);
+          // Update display with new product info
+          updateDisplay(product);
 
-        // Activate the pour mechanism
-        GPIO_23.writeSync(0);
-        await sleep(300);
-        GPIO_23.writeSync(1);
-      } catch (error) {
-        console.error("Error processing account change:", error);
-      }
-    }, "processed");
+          // Activate the pour mechanism
+          GPIO_23.writeSync(0);
+          await sleep(300);
+          GPIO_23.writeSync(1);
+        } catch (error) {
+          console.error("Error processing account change:", error);
+        }
+      },
+      "processed"
+    );
   } catch (error) {
     console.error("Error in startListeningToLedSwitchAccount:", error);
   }
@@ -215,8 +255,8 @@ function sleep(ms: number) {
 
 // Modify your cleanup handler to include OLED cleanup
 process.on("SIGINT", () => {
-    oled.clearDisplay();
-    oled.turnOffDisplay();
-    GPIO_23.writeSync(1);
-    process.exit();
+  oled.clearDisplay();
+  oled.turnOffDisplay();
+  GPIO_23.writeSync(1);
+  process.exit();
 });

@@ -1,24 +1,15 @@
 {
-  "address": "barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9",
+  "address": "BUYuxRfhCMWavaUWxhGtPP3ksKEDZxCD5gzknk3JfAya",
   "metadata": {
-    "name": "let_me_pay",
+    "name": "let_me_buy",
     "version": "0.1.0",
     "spec": "0.1.0",
-    "description": "Setup any store and let people pay via Qr Codes on letmepay.app"
+    "description": "Buy shots with Solana Pay"
   },
   "instructions": [
     {
       "name": "add_product",
-      "discriminator": [
-        0,
-        219,
-        137,
-        36,
-        105,
-        180,
-        164,
-        93
-      ],
+      "discriminator": [0, 219, 137, 36, 105, 180, 164, 93],
       "accounts": [
         {
           "name": "receipts",
@@ -27,16 +18,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
@@ -71,16 +53,7 @@
     },
     {
       "name": "delete_product",
-      "discriminator": [
-        173,
-        212,
-        141,
-        230,
-        33,
-        82,
-        166,
-        25
-      ],
+      "discriminator": [173, 212, 141, 230, 33, 82, 166, 25],
       "accounts": [
         {
           "name": "receipts",
@@ -89,16 +62,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
@@ -126,16 +90,7 @@
     },
     {
       "name": "delete_store",
-      "discriminator": [
-        150,
-        83,
-        75,
-        192,
-        195,
-        29,
-        178,
-        183
-      ],
+      "discriminator": [150, 83, 75, 192, 195, 29, 178, 183],
       "accounts": [
         {
           "name": "receipts",
@@ -144,16 +99,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
@@ -177,16 +123,7 @@
     },
     {
       "name": "initialize",
-      "discriminator": [
-        175,
-        175,
-        109,
-        31,
-        13,
-        152,
-        155,
-        237
-      ],
+      "discriminator": [175, 175, 109, 31, 13, 152, 155, 237],
       "accounts": [
         {
           "name": "receipts",
@@ -195,16 +132,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
@@ -232,16 +160,7 @@
     },
     {
       "name": "make_purchase",
-      "discriminator": [
-        193,
-        62,
-        227,
-        136,
-        105,
-        212,
-        201,
-        20
-      ],
+      "discriminator": [193, 62, 227, 136, 105, 212, 201, 20],
       "accounts": [
         {
           "name": "receipts",
@@ -250,16 +169,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
@@ -305,38 +215,9 @@
             "program": {
               "kind": "const",
               "value": [
-                140,
-                151,
-                37,
-                143,
-                78,
-                36,
-                137,
-                241,
-                187,
-                61,
-                16,
-                41,
-                20,
-                142,
-                13,
-                131,
-                11,
-                90,
-                19,
-                153,
-                218,
-                255,
-                16,
-                132,
-                4,
-                142,
-                123,
-                216,
-                219,
-                233,
-                248,
-                89
+                140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142,
+                13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216,
+                219, 233, 248, 89
               ]
             }
           }
@@ -371,16 +252,7 @@
     },
     {
       "name": "mark_as_delivered",
-      "discriminator": [
-        112,
-        46,
-        230,
-        68,
-        152,
-        97,
-        194,
-        62
-      ],
+      "discriminator": [112, 46, 230, 68, 152, 97, 194, 62],
       "accounts": [
         {
           "name": "receipts",
@@ -389,16 +261,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
@@ -426,16 +289,7 @@
     },
     {
       "name": "update_telegram_channel",
-      "discriminator": [
-        125,
-        26,
-        242,
-        114,
-        17,
-        12,
-        103,
-        200
-      ],
+      "discriminator": [125, 26, 242, 114, 17, 12, 103, 200],
       "accounts": [
         {
           "name": "receipts",
@@ -444,16 +298,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  99,
-                  101,
-                  105,
-                  112,
-                  116,
-                  115
-                ]
+                "value": [114, 101, 99, 101, 105, 112, 116, 115]
               },
               {
                 "kind": "arg",
@@ -483,31 +328,13 @@
   "accounts": [
     {
       "name": "Receipts",
-      "discriminator": [
-        222,
-        245,
-        237,
-        64,
-        59,
-        49,
-        29,
-        246
-      ]
+      "discriminator": [222, 245, 237, 64, 59, 49, 29, 246]
     }
   ],
   "events": [
     {
       "name": "PurchaseMade",
-      "discriminator": [
-        73,
-        37,
-        99,
-        22,
-        201,
-        228,
-        56,
-        21
-      ]
+      "discriminator": [73, 37, 99, 22, 201, 228, 56, 21]
     }
   ],
   "errors": [

@@ -14,10 +14,10 @@ on:
       program:
         description: "Program to test"
         required: true
-        default: "let_me_pay"
+        default: "let_me_buy"
 
 jobs:
   test:
     uses: solana-developers/github-workflows/.github/workflows/test.yaml@v0.2.6
     with:
-      program: ${{ 'let_me_pay' }}
+      program: ${{ 'let_me_buy' }}

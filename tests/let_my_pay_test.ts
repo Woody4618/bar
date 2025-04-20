@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { LetMePay } from "../target/types/let_me_pay";
+import { LetMeBuy } from "../target/types/let_me_buy";
 import { assert } from "chai";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import {
@@ -14,8 +14,8 @@ import * as fs from "fs";
 describe("SolanaStore", () => {
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const program = anchor.workspace.LetMePay as Program<LetMePay>;
-  const wallet = anchor.workspace.LetMePay.provider.wallet;
+  const program = anchor.workspace.LetMeBuy as Program<LetMeBuy>;
+  const wallet = anchor.workspace.LetMeBuy.provider.wallet;
   const connection = program.provider.connection;
   const storeName = "Test Store";
   const mintKeypair = Keypair.fromSecretKey(

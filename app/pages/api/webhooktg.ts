@@ -1,5 +1,5 @@
 import { Connection } from "@solana/web3.js";
-import idl from "./let_me_pay.json";
+import idl from "./let_me_buy.json";
 import {
   createProviderForConnection,
   parseAnchorTransactionEvents,
