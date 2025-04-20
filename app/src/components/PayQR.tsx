@@ -4,10 +4,9 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { encodeURL, createQR } from "@solana/pay";
 import { useSearchParams } from "next/navigation";
 import { useWallet } from "@solana/wallet-adapter-react";
-
 interface TransactionRequestQRProps {
   instruction: string;
-  barName: string;
+  storeName: string;
   productName?: string;
   productMint?: string;
   productPrice?: number;
@@ -18,7 +17,7 @@ interface TransactionRequestQRProps {
 
 export default function TransactionRequestQR({
   instruction,
-  barName,
+  storeName,
   productName = "",
   productMint = "",
   productPrice = 0,
@@ -38,7 +37,7 @@ export default function TransactionRequestQR({
   const generateUrl = useCallback(() => {
     const params = new URLSearchParams();
     params.append("instruction", instruction);
-    params.append("barName", barName);
+    params.append("storeName", storeName);
     if (productName) params.append("productName", productName);
     if (productMint) params.append("productMint", productMint);
     if (productPrice) {
@@ -52,7 +51,7 @@ export default function TransactionRequestQR({
     return `${window.location.origin}/api/transaction?${params.toString()}`;
   }, [
     instruction,
-    barName,
+    storeName,
     productName,
     productMint,
     productPrice,

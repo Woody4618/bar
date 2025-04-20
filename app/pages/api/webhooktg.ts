@@ -1,5 +1,5 @@
 import { Connection } from "@solana/web3.js";
-import idl from "./solana_bar.json";
+import idl from "./let_me_buy.json";
 import {
   createProviderForConnection,
   parseAnchorTransactionEvents,
@@ -103,10 +103,10 @@ export default async function handler(
         );
         console.log("Parsed Anchor events:", events);
 
-        const purchaseEvent = events.find((e) => e.name === "shotPurchased");
+        const purchaseEvent = events.find((e) => e.name === "purchaseMade");
 
         if (purchaseEvent) {
-          console.log("ShotPurchased event:", purchaseEvent);
+          console.log("Purchade event:", purchaseEvent);
 
           // Skip if no Telegram channel ID is set
           if (!purchaseEvent.data.telegramChannelId) {

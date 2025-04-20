@@ -1,0 +1,23 @@
+name: Anchor Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "programs/**"
+      - "tests/**"
+      - "Anchor.toml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+  workflow_dispatch:
+    inputs:
+      program:
+        description: "Program to test"
+        required: true
+        default: "let_me_buy"
+
+jobs:
+  test:
+    uses: solana-developers/github-workflows/.github/workflows/test.yaml@v0.2.6
+    with:
+      program: ${{ 'let_me_buy' }}

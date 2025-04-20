@@ -3,8 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 import {
   CONNECTION,
-  SOLANA_BAR_PROGRAM,
-  TOKEN_PROGRAM_ID,
+  LET_ME_BUY_PROGRAM,
   getReceiptsPDA,
 } from "@/src/util/const";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
@@ -41,22 +40,21 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
 const get = async (req: NextApiRequest, res: NextApiResponse<GET>) => {
   console.log(req.query);
-  const barName = getFromPayload(req, "Query", "barName");
+  const storeName = getFromPayload(req, "Query", "storeName");
   const productName = getFromPayload(req, "Query", "productName");
   const productPrice = getFromPayload(req, "Query", "productPrice");
   const productDecimals = getFromPayload(req, "Query", "productDecimals");
-  const icon =
-    "https://media.discordapp.net/attachments/964525722301501477/978683590743302184/sol-logo1.png";
+  const icon = "https://www.letmebuy.app/icon.png";
 
-  let label = "Solana Shots";
-  if (productName && barName) {
+  let label = "Let me buy";
+  if (productName && storeName) {
     const price =
       productPrice && productDecimals
         ? (
             Number(productPrice) / Math.pow(10, Number(productDecimals))
           ).toFixed(2)
         : "0.00";
-    label = `Buy 1 of ${productName} at ${barName} - ${price} USDC`;
+    label = `Buy 1 of ${productName} at ${storeName} - ${price} USDC`;
   }
 
   res.status(200).json({
@@ -68,11 +66,11 @@ const get = async (req: NextApiRequest, res: NextApiResponse<GET>) => {
 const post = async (req: NextApiRequest, res: NextApiResponse<POST>) => {
   const accountField = getFromPayload(req, "Body", "account");
   const instructionField = getFromPayload(req, "Query", "instruction");
-  const barName = getFromPayload(req, "Query", "barName");
   const productName = getFromPayload(req, "Query", "productName");
+  const storeName = getFromPayload(req, "Query", "storeName");
   const tableNumber = getFromPayload(req, "Query", "tableNumber");
 
-  if (!barName || !productName || !tableNumber) {
+  if (!storeName || !productName || !tableNumber) {
     res.status(400).send({
       transaction: "",
       message: "",
@@ -82,7 +80,7 @@ const post = async (req: NextApiRequest, res: NextApiResponse<POST>) => {
   }
 
   const sender = new PublicKey(accountField);
-  const RECEIPTS_PDA = getReceiptsPDA(barName);
+  const RECEIPTS_PDA = getReceiptsPDA(storeName);
 
   const transaction = new Transaction();
   const latestBlockhash = await CONNECTION.getLatestBlockhash();
@@ -92,7 +90,7 @@ const post = async (req: NextApiRequest, res: NextApiResponse<POST>) => {
   let message;
   if (instructionField == "buy_shot") {
     // Get the receipts account to find the product
-    const receiptsAccount = await SOLANA_BAR_PROGRAM.account.receipts.fetch(
+    const receiptsAccount = await LET_ME_BUY_PROGRAM.account.receipts.fetch(
       RECEIPTS_PDA
     );
     const products = receiptsAccount.products as any[];
@@ -113,8 +111,8 @@ const post = async (req: NextApiRequest, res: NextApiResponse<POST>) => {
       sender
     );
 
-    let ix = await SOLANA_BAR_PROGRAM.methods
-      .buyShot(barName, productName, Number(tableNumber))
+    let ix = await LET_ME_BUY_PROGRAM.methods
+      .makePurchase(storeName, productName, Number(tableNumber))
       .accounts({
         signer: sender,
         authority: new PublicKey(receiptsAccount.authority),
@@ -125,7 +123,8 @@ const post = async (req: NextApiRequest, res: NextApiResponse<POST>) => {
 
     transaction.add(ix);
 
-    message = `Buy ${productName} at ${barName}!`;
+    const price = Number(product.price) / Math.pow(10, product.decimals);
+    message = `Buy 1 ${productName} at ${storeName} - ${price} USDC!`;
   } else {
     message = "Unknown instruction";
   }

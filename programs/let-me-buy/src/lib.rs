@@ -1,14 +1,15 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::pubkey::Pubkey;
 use anchor_lang::system_program;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, TransferChecked};
 
-declare_id!("barqFQ2m1YsNTQwfj3hnEN7svuppTa6V2hKAHPpBiX9");
+declare_id!("BUYuxRfhCMWavaUWxhGtPP3ksKEDZxCD5gzknk3JfAya");
 
-const SOL_MINT: Pubkey = pubkey!("So11111111111111111111111111111111111111112");
+const SOL_MINT: Pubkey = pubkey!("So11111111111111111111111111111111111111111");
 
 #[event]
-pub struct ShotPurchased {
+pub struct PurchaseMade {
     pub buyer: Pubkey,
     pub product_name: String,
     pub price: u64,
@@ -16,12 +17,12 @@ pub struct ShotPurchased {
     pub table_number: u8,
     pub receipt_id: u64,
     pub telegram_channel_id: String,
-    pub bar_name: String,
+    pub store_name: String,
     pub receipts_account: Pubkey,
 }
 
 #[error_code]
-pub enum ShotErrorCode {
+pub enum StoreErrorCode {
     #[msg("InvalidTreasury")]
     InvalidTreasury,
     #[msg("ProductAlreadyExists")]
@@ -32,18 +33,25 @@ pub enum ShotErrorCode {
     InvalidMint,
     #[msg("InvalidAuthority")]
     InvalidAuthority,
-    #[msg("BarNotEmpty")]
-    BarNotEmpty,
+    #[msg("StoreNotEmpty")]
+    StoreNotEmpty,
     #[msg("ProductNameEmpty")]
     ProductNameEmpty,
+    #[msg("StringTooLong")]
+    StringTooLong,
+    #[msg("VectorLimitReached")]
+    VectorLimitReached,
 }
 
 #[program]
-pub mod solana_bar {
+pub mod let_me_buy {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>, bar_name: String) -> Result<()> {
-        ctx.accounts.receipts.bar_name = bar_name.clone();
+    pub fn initialize(ctx: Context<Initialize>, store_name: String) -> Result<()> {
+        // Validate store name length
+        require!(store_name.len() <= 32, StoreErrorCode::StringTooLong);
+
+        ctx.accounts.receipts.store_name = store_name.clone();
         ctx.accounts.receipts.authority = *ctx.accounts.authority.key;
         ctx.accounts.receipts.telegram_channel_id = String::new(); // Initialize as empty
         Ok(())
@@ -51,13 +59,19 @@ pub mod solana_bar {
 
     pub fn update_telegram_channel(
         ctx: Context<UpdateTelegramChannel>,
-        bar_name: String,
+        store_name: String,
         telegram_channel_id: String,
     ) -> Result<()> {
         // Verify the caller is the authority
         require!(
             *ctx.accounts.authority.key == ctx.accounts.receipts.authority,
-            ShotErrorCode::InvalidAuthority
+            StoreErrorCode::InvalidAuthority
+        );
+
+        // Validate telegram channel ID length
+        require!(
+            telegram_channel_id.len() <= 32,
+            StoreErrorCode::StringTooLong
         );
 
         ctx.accounts.receipts.telegram_channel_id = telegram_channel_id;
@@ -66,25 +80,34 @@ pub mod solana_bar {
 
     pub fn add_product(
         ctx: Context<AddProduct>,
-        bar_name: String,
+        store_name: String,
         name: String,
         price: u64,
     ) -> Result<()> {
         // Verify the caller is the authority
         require!(
             *ctx.accounts.authority.key == ctx.accounts.receipts.authority,
-            ShotErrorCode::InvalidAuthority
+            StoreErrorCode::InvalidAuthority
         );
 
         // Check if product name is empty
-        require!(!name.trim().is_empty(), ShotErrorCode::ProductNameEmpty);
+        require!(!name.trim().is_empty(), StoreErrorCode::ProductNameEmpty);
 
-        // Check if product with same mint already exists
+        // Validate product name length
+        require!(name.len() <= 32, StoreErrorCode::StringTooLong);
+
+        // Check if product with same name already exists
         for product in &ctx.accounts.receipts.products {
             if product.name == name {
-                return Err(ShotErrorCode::ProductAlreadyExists.into());
+                return Err(StoreErrorCode::ProductAlreadyExists.into());
             }
         }
+
+        // Check if products vector limit is reached
+        require!(
+            ctx.accounts.receipts.products.len() < 20,
+            StoreErrorCode::VectorLimitReached
+        );
 
         // Add new product
         ctx.accounts.receipts.products.push(Products {
@@ -97,9 +120,9 @@ pub mod solana_bar {
         Ok(())
     }
 
-    pub fn buy_shot(
-        ctx: Context<BuyShot>,
-        bar_name: String,
+    pub fn make_purchase(
+        ctx: Context<MakePurchase>,
+        store_name: String,
         product_name: String,
         table_number: u8,
     ) -> Result<()> {
@@ -110,11 +133,11 @@ pub mod solana_bar {
             .products
             .iter()
             .find(|p| p.name == product_name)
-            .ok_or(ShotErrorCode::ProductNotFound)?;
+            .ok_or(StoreErrorCode::ProductNotFound)?;
 
         require!(
             product.mint == ctx.accounts.mint.key(),
-            ShotErrorCode::InvalidMint
+            StoreErrorCode::InvalidMint
         );
 
         let price = product.price;
@@ -123,8 +146,8 @@ pub mod solana_bar {
         let is_sol = product.mint == SOL_MINT;
 
         // Add a new receipt to the receipts account.
-        let receipt_id = ctx.accounts.receipts.total_shots_sold;
-        ctx.accounts.receipts.receipts.push(Receipt {
+        let receipt_id = ctx.accounts.receipts.total_purchases;
+        let new_receipt = Receipt {
             buyer: *ctx.accounts.signer.key,
             was_delivered: false,
             price,
@@ -132,18 +155,21 @@ pub mod solana_bar {
             receipt_id,
             table_number,
             product_name: name.clone(),
-        });
+        };
 
-        let len = ctx.accounts.receipts.receipts.len();
-        if len >= 10 {
+        // If we've reached the limit, remove the oldest receipt first
+        if ctx.accounts.receipts.receipts.len() >= 20 {
             ctx.accounts.receipts.receipts.remove(0);
         }
 
-        // Increment the total shots sold.
-        ctx.accounts.receipts.total_shots_sold = ctx
+        // Add the new receipt
+        ctx.accounts.receipts.receipts.push(new_receipt);
+
+        // Increment the total purchases.
+        ctx.accounts.receipts.total_purchases = ctx
             .accounts
             .receipts
-            .total_shots_sold
+            .total_purchases
             .checked_add(1)
             .unwrap();
 
@@ -172,7 +198,7 @@ pub mod solana_bar {
         }
 
         // Emit the purchase event
-        emit!(ShotPurchased {
+        emit!(PurchaseMade {
             buyer: *ctx.accounts.signer.key,
             product_name: name,
             price,
@@ -180,23 +206,23 @@ pub mod solana_bar {
             table_number,
             receipt_id,
             telegram_channel_id: ctx.accounts.receipts.telegram_channel_id.clone(),
-            bar_name: ctx.accounts.receipts.bar_name.clone(),
+            store_name: ctx.accounts.receipts.store_name.clone(),
             receipts_account: ctx.accounts.receipts.key(),
         });
 
         Ok(())
     }
 
-    pub fn mark_shot_as_delivered(
-        ctx: Context<MarkShotAsDelivered>,
-        _bar_name: String,
-        recipe_id: u64,
+    pub fn mark_as_delivered(
+        ctx: Context<MarkAsDelivered>,
+        _store_name: String,
+        receipt_id: u64,
     ) -> Result<()> {
-        msg!("Marked shot as delivered");
+        msg!("Marked purchase as delivered");
         for i in 0..ctx.accounts.receipts.receipts.len() {
-            msg!("Marked shot as delivered  {}", i);
-            if ctx.accounts.receipts.receipts[i].receipt_id == recipe_id {
-                msg!("Marked shot as delivered {} {} ", recipe_id, i);
+            msg!("Marked purchase as delivered  {}", i);
+            if ctx.accounts.receipts.receipts[i].receipt_id == receipt_id {
+                msg!("Marked purchase as delivered {} {} ", receipt_id, i);
                 ctx.accounts.receipts.receipts[i].was_delivered = true;
             }
         }
@@ -205,13 +231,13 @@ pub mod solana_bar {
 
     pub fn delete_product(
         ctx: Context<DeleteProduct>,
-        bar_name: String,
+        store_name: String,
         product_name: String,
     ) -> Result<()> {
         // Verify the caller is the authority
         require!(
             *ctx.accounts.authority.key == ctx.accounts.receipts.authority,
-            ShotErrorCode::InvalidAuthority
+            StoreErrorCode::InvalidAuthority
         );
 
         // Find and remove the product
@@ -219,18 +245,18 @@ pub mod solana_bar {
         let index = products
             .iter()
             .position(|p| p.name == product_name)
-            .ok_or(ShotErrorCode::ProductNotFound)?;
+            .ok_or(StoreErrorCode::ProductNotFound)?;
 
         products.remove(index);
 
         Ok(())
     }
 
-    pub fn delete_bar(ctx: Context<DeleteBar>, bar_name: String) -> Result<()> {
+    pub fn delete_store(ctx: Context<DeleteStore>, store_name: String) -> Result<()> {
         // Verify the caller is the authority
         require!(
             *ctx.accounts.authority.key == ctx.accounts.receipts.authority,
-            ShotErrorCode::InvalidAuthority
+            StoreErrorCode::InvalidAuthority
         );
 
         // Probably not necessary to delete all products before deleting the bar
@@ -253,14 +279,15 @@ pub mod solana_bar {
 }
 
 #[derive(Accounts)]
-#[instruction(bar_name: String)]
+#[instruction(store_name: String)]
 pub struct Initialize<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + 32 + 32 + 4 + 4 + (4 + 32 + 8 + 1 + 32) * 10 + (4 + 32 + 1 + 8 + 8 + 4 + 32) * 10 + 4 + 32,
-        seeds = [b"receipts", bar_name.as_bytes()],
-        bump
+        space = 8 + Receipts::INIT_SPACE,
+        seeds = [b"receipts", store_name.as_bytes()],
+        bump,
+        constraint = store_name.len() <= 32 @ StoreErrorCode::StringTooLong
     )]
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
@@ -269,11 +296,11 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(bar_name: String, telegram_channel_id: String)]
+#[instruction(store_name: String, telegram_channel_id: String)]
 pub struct UpdateTelegramChannel<'info> {
     #[account(
         mut,
-        seeds = [b"receipts", bar_name.as_bytes()],
+        seeds = [b"receipts", store_name.as_bytes()],
         bump
     )]
     pub receipts: Account<'info, Receipts>,
@@ -282,25 +309,29 @@ pub struct UpdateTelegramChannel<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(bar_name: String, name: String, price: u64)]
+#[instruction(store_name: String, name: String, price: u64)]
 pub struct AddProduct<'info> {
     #[account(
         mut,
-        seeds = [b"receipts", bar_name.as_bytes()],
-        bump
+        seeds = [b"receipts", store_name.as_bytes()],
+        bump,
+        realloc = 8 + Receipts::INIT_SPACE,
+        realloc::payer = authority,
+        realloc::zero = false
     )]
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub mint: Account<'info, Mint>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
-#[instruction(bar_name: String, product_name: String, table_number: u8)]
-pub struct BuyShot<'info> {
+#[instruction(store_name: String, product_name: String, table_number: u8)]
+pub struct MakePurchase<'info> {
     #[account(
         mut,
-        seeds = [b"receipts", bar_name.as_bytes()],
+        seeds = [b"receipts", store_name.as_bytes()],
         bump
     )]
     pub receipts: Account<'info, Receipts>,
@@ -325,11 +356,11 @@ pub struct BuyShot<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(bar_name: String, recipe_id: u64)]
-pub struct MarkShotAsDelivered<'info> {
+#[instruction(store_name: String, receipt_id: u64)]
+pub struct MarkAsDelivered<'info> {
     #[account(
         mut,
-        seeds = [b"receipts", bar_name.as_bytes()],
+        seeds = [b"receipts", store_name.as_bytes()],
         bump
     )]
     pub receipts: Account<'info, Receipts>,
@@ -338,24 +369,28 @@ pub struct MarkShotAsDelivered<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(bar_name: String, product_name: String)]
+#[instruction(store_name: String, product_name: String)]
 pub struct DeleteProduct<'info> {
     #[account(
         mut,
-        seeds = [b"receipts", bar_name.as_bytes()],
-        bump
+        seeds = [b"receipts", store_name.as_bytes()],
+        bump,
+        realloc = 8 + Receipts::INIT_SPACE,
+        realloc::payer = authority,
+        realloc::zero = false
     )]
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
     pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
-#[instruction(bar_name: String)]
-pub struct DeleteBar<'info> {
+#[instruction(store_name: String)]
+pub struct DeleteStore<'info> {
     #[account(
         mut,
-        seeds = [b"receipts", bar_name.as_bytes()],
+        seeds = [b"receipts", store_name.as_bytes()],
         bump,
         close = authority
     )]
@@ -364,25 +399,32 @@ pub struct DeleteBar<'info> {
     pub authority: Signer<'info>,
 }
 
-#[account()]
+#[account]
+#[derive(InitSpace)]
 pub struct Receipts {
+    #[max_len(20)]
     pub receipts: Vec<Receipt>,
-    pub total_shots_sold: u64,
-    pub bar_name: String,
+    pub total_purchases: u64,
+    #[max_len(32)]
+    pub store_name: String,
     pub authority: Pubkey,
+    #[max_len(20)]
     pub products: Vec<Products>,
+    #[max_len(32)]
     pub telegram_channel_id: String,
+    pub bump: u8,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, InitSpace)]
 pub struct Products {
     pub price: u64,
     pub decimals: u8,
     pub mint: Pubkey,
+    #[max_len(32)]
     pub name: String,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, InitSpace)]
 pub struct Receipt {
     pub receipt_id: u64,
     pub buyer: Pubkey,
@@ -390,5 +432,6 @@ pub struct Receipt {
     pub price: u64,
     pub timestamp: i64,
     pub table_number: u8,
+    #[max_len(32)]
     pub product_name: String,
 }
