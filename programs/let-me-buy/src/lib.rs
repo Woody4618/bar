@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::pubkey::Pubkey;
 use anchor_lang::system_program;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, TransferChecked};
@@ -36,6 +37,10 @@ pub enum StoreErrorCode {
     StoreNotEmpty,
     #[msg("ProductNameEmpty")]
     ProductNameEmpty,
+    #[msg("StringTooLong")]
+    StringTooLong,
+    #[msg("VectorLimitReached")]
+    VectorLimitReached,
 }
 
 #[program]
@@ -43,6 +48,9 @@ pub mod let_me_buy {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>, store_name: String) -> Result<()> {
+        // Validate store name length
+        require!(store_name.len() <= 32, StoreErrorCode::StringTooLong);
+
         ctx.accounts.receipts.store_name = store_name.clone();
         ctx.accounts.receipts.authority = *ctx.accounts.authority.key;
         ctx.accounts.receipts.telegram_channel_id = String::new(); // Initialize as empty
@@ -58,6 +66,12 @@ pub mod let_me_buy {
         require!(
             *ctx.accounts.authority.key == ctx.accounts.receipts.authority,
             StoreErrorCode::InvalidAuthority
+        );
+
+        // Validate telegram channel ID length
+        require!(
+            telegram_channel_id.len() <= 32,
+            StoreErrorCode::StringTooLong
         );
 
         ctx.accounts.receipts.telegram_channel_id = telegram_channel_id;
@@ -79,12 +93,21 @@ pub mod let_me_buy {
         // Check if product name is empty
         require!(!name.trim().is_empty(), StoreErrorCode::ProductNameEmpty);
 
-        // Check if product with same mint already exists
+        // Validate product name length
+        require!(name.len() <= 32, StoreErrorCode::StringTooLong);
+
+        // Check if product with same name already exists
         for product in &ctx.accounts.receipts.products {
             if product.name == name {
                 return Err(StoreErrorCode::ProductAlreadyExists.into());
             }
         }
+
+        // Check if products vector limit is reached
+        require!(
+            ctx.accounts.receipts.products.len() < 20,
+            StoreErrorCode::VectorLimitReached
+        );
 
         // Add new product
         ctx.accounts.receipts.products.push(Products {
@@ -124,7 +147,7 @@ pub mod let_me_buy {
 
         // Add a new receipt to the receipts account.
         let receipt_id = ctx.accounts.receipts.total_purchases;
-        ctx.accounts.receipts.receipts.push(Receipt {
+        let new_receipt = Receipt {
             buyer: *ctx.accounts.signer.key,
             was_delivered: false,
             price,
@@ -132,12 +155,15 @@ pub mod let_me_buy {
             receipt_id,
             table_number,
             product_name: name.clone(),
-        });
+        };
 
-        let len = ctx.accounts.receipts.receipts.len();
-        if len >= 20 {
+        // If we've reached the limit, remove the oldest receipt first
+        if ctx.accounts.receipts.receipts.len() >= 20 {
             ctx.accounts.receipts.receipts.remove(0);
         }
+
+        // Add the new receipt
+        ctx.accounts.receipts.receipts.push(new_receipt);
 
         // Increment the total purchases.
         ctx.accounts.receipts.total_purchases = ctx
@@ -258,9 +284,10 @@ pub struct Initialize<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + 32 + 32 + 4 + 4 + (4 + 32 + 8 + 1 + 32) * 20 + (4 + 32 + 1 + 8 + 8 + 4 + 32) * 20 + 4 + 32,
+        space = 8 + Receipts::INIT_SPACE,
         seeds = [b"receipts", store_name.as_bytes()],
-        bump
+        bump,
+        constraint = store_name.len() <= 32 @ StoreErrorCode::StringTooLong
     )]
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
@@ -287,12 +314,16 @@ pub struct AddProduct<'info> {
     #[account(
         mut,
         seeds = [b"receipts", store_name.as_bytes()],
-        bump
+        bump,
+        realloc = 8 + Receipts::INIT_SPACE,
+        realloc::payer = authority,
+        realloc::zero = false
     )]
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub mint: Account<'info, Mint>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
@@ -343,11 +374,15 @@ pub struct DeleteProduct<'info> {
     #[account(
         mut,
         seeds = [b"receipts", store_name.as_bytes()],
-        bump
+        bump,
+        realloc = 8 + Receipts::INIT_SPACE,
+        realloc::payer = authority,
+        realloc::zero = false
     )]
     pub receipts: Account<'info, Receipts>,
     #[account(mut)]
     pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
@@ -364,25 +399,32 @@ pub struct DeleteStore<'info> {
     pub authority: Signer<'info>,
 }
 
-#[account()]
+#[account]
+#[derive(InitSpace)]
 pub struct Receipts {
+    #[max_len(20)]
     pub receipts: Vec<Receipt>,
     pub total_purchases: u64,
+    #[max_len(32)]
     pub store_name: String,
     pub authority: Pubkey,
+    #[max_len(20)]
     pub products: Vec<Products>,
+    #[max_len(32)]
     pub telegram_channel_id: String,
+    pub bump: u8,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, InitSpace)]
 pub struct Products {
     pub price: u64,
     pub decimals: u8,
     pub mint: Pubkey,
+    #[max_len(32)]
     pub name: String,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, InitSpace)]
 pub struct Receipt {
     pub receipt_id: u64,
     pub buyer: Pubkey,
@@ -390,5 +432,6 @@ pub struct Receipt {
     pub price: u64,
     pub timestamp: i64,
     pub table_number: u8,
+    #[max_len(32)]
     pub product_name: String,
 }
