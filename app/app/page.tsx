@@ -54,7 +54,8 @@ export default function Home() {
             />
           </div>
           <p className="text-slate-300 text-lg text-center max-w-2xl">
-            Create a Solana powered store for any restaurant, bar or whatever you like.
+            Create a Solana powered store for any restaurant, bar or whatever
+            you like.
           </p>
         </div>
 
@@ -65,14 +66,14 @@ export default function Home() {
           </div>
         ) : stores.length === 0 ? (
           <div className="max-w-2xl mx-auto">
-            <div className="text-center p-12 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+            <div className="text-center p-12 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-300">
               <h2 className="text-2xl font-semibold text-slate-200 mb-4">
                 Welcome to Let Me Buy
               </h2>
               <p className="text-slate-300 mb-8">
                 There are no stores yet.Get started by creating the first store.
               </p>
-              <div className="bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+              <div className="bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-300">
                 <h3 className="text-xl font-medium text-slate-200 mb-6">
                   Create Your Store
                 </h3>
@@ -94,7 +95,7 @@ export default function Home() {
                     href={`/store/${newStoreName}/setup`}
                     className={`w-full text-center px-6 py-4 rounded-xl transition-all duration-300 ${
                       newStoreName
-                        ? "bg-blue-600 text-white hover:bg-blue-700 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+                        ? "bg-slate-600 text-white hover:bg-slate-500 shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
                         : "bg-slate-700 text-slate-400 cursor-not-allowed"
                     }`}
                   >
@@ -111,7 +112,7 @@ export default function Home() {
                 Your Stores
               </h2>
               <div className="flex items-center gap-4">
-                <div className="bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+                <div className="bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-300">
                   <p className="text-slate-300">
                     Total Stores:{" "}
                     <span className="text-slate-200 font-medium">
@@ -158,7 +159,7 @@ export default function Home() {
               ))}
 
               {/* Create New Store Card */}
-              <div className="bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+              <div className="bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-300">
                 <h3 className="text-xl font-semibold text-slate-200 mb-4">
                   Create New Store
                 </h3>
@@ -178,7 +179,7 @@ export default function Home() {
                     href={`/store/${newStoreName}/setup`}
                     className={`block text-center px-6 py-3 rounded-xl transition-all duration-300 ${
                       newStoreName
-                        ? "bg-blue-600 text-white hover:bg-blue-700 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+                        ? "bg-slate-600 text-white hover:bg-slate-500 shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
                         : "bg-slate-700 text-slate-400 cursor-not-allowed"
                     }`}
                   >

@@ -409,7 +409,7 @@ export default function StorePage() {
 
               {selectedProduct && (
                 <div className="flex flex-col items-center gap-4">
-                  <div className="relative bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+                  <div className="relative bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] transition-all duration-300">
                     <div className="text-center mb-4">
                       <h3 className="text-xl font-semibold text-slate-200 mb-1">
                         {selectedProduct}
