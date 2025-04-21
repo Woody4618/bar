@@ -13,39 +13,38 @@ interface Store {
 }
 
 export default function Home() {
-  const [bars, setBars] = useState<Store[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newBarName, setNewBarName] = useState("");
+  const [newStoreName, setNewStoreName] = useState("");
 
   useEffect(() => {
-    const fetchBars = async () => {
+    const fetchStores = async () => {
       try {
-        // Use Anchor's built-in account filtering
         const accounts = await LET_ME_BUY_PROGRAM.account.receipts.all();
 
-        const barsWithNames = accounts.map((account) => ({
+        const storesWithNames = accounts.map((account) => ({
           pubkey: account.publicKey,
           storeName: account.account.storeName,
           authority: account.account.authority,
           totalPurchases: account.account.totalPurchases.toNumber(),
         }));
 
-        setBars(barsWithNames);
+        setStores(storesWithNames);
       } catch (error) {
-        console.error("Error fetching bars:", error);
+        console.error("Error fetching stores:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBars();
+    fetchStores();
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col items-center mb-12">
-          <div className="w-64 h-64 mb-6 relative">
+    <main className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800">
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex flex-col items-center mb-16">
+          <div className="w-48 h-48 mb-8 relative">
             <Image
               src="/icon_white_transparent.png"
               alt="Let Me Buy Logo"
@@ -54,101 +53,138 @@ export default function Home() {
               priority
             />
           </div>
-          <p className="text-slate-400 text-lg mt-4 text-center">
-            Decentralized payment system for stores and businesses
+          <p className="text-slate-300 text-lg text-center max-w-2xl">
+            Create a Solana powered store for any restaurant, bar or whatever you like.
           </p>
         </div>
 
         {loading ? (
-          <div className="text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-            <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Loading stores...
-            </p>
+          <div className="flex flex-col items-center justify-center min-h-[400px]">
+            <div className="w-16 h-16 border-4 border-slate-400 border-t-transparent rounded-full animate-spin mb-6"></div>
+            <p className="text-xl text-slate-300">Loading your stores...</p>
           </div>
-        ) : bars.length === 0 ? (
-          <div className="text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-            <p className="text-slate-300 text-xl mb-8">
-              No stores found. Create one to get started!
-            </p>
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 shadow-xl max-w-md mx-auto">
-              <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
-                Create New Store
+        ) : stores.length === 0 ? (
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center p-12 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+              <h2 className="text-2xl font-semibold text-slate-200 mb-4">
+                Welcome to Let Me Buy
               </h2>
-              <div className="flex flex-col gap-4">
-                <input
-                  type="text"
-                  placeholder="Enter store name (no spaces)"
-                  value={newBarName}
-                  onChange={(e) =>
-                    setNewBarName(
-                      e.target.value.toLowerCase().replace(/\s+/g, "")
-                    )
-                  }
-                  className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <Link
-                  href={`/store/${newBarName}/setup`}
-                  className={`text-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg ${
-                    newBarName
-                      ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600"
-                      : "bg-slate-700 text-slate-400 cursor-not-allowed"
-                  }`}
-                >
-                  Create Store
-                </Link>
+              <p className="text-slate-300 mb-8">
+                There are no stores yet.Get started by creating the first store.
+              </p>
+              <div className="bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+                <h3 className="text-xl font-medium text-slate-200 mb-6">
+                  Create Your Store
+                </h3>
+                <div className="flex flex-col gap-6">
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Enter store name (no spaces)"
+                      value={newStoreName}
+                      onChange={(e) =>
+                        setNewStoreName(
+                          e.target.value.toLowerCase().replace(/\s+/g, "")
+                        )
+                      }
+                      className="w-full bg-slate-700/80 text-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] rounded-xl border border-slate-500/50 p-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+                    />
+                  </div>
+                  <Link
+                    href={`/store/${newStoreName}/setup`}
+                    className={`w-full text-center px-6 py-4 rounded-xl transition-all duration-300 ${
+                      newStoreName
+                        ? "bg-blue-600 text-white hover:bg-blue-700 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+                        : "bg-slate-700 text-slate-400 cursor-not-allowed"
+                    }`}
+                  >
+                    Create Store
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {bars.map((bar) => (
-              <Link
-                key={bar.pubkey.toString()}
-                href={`/store/${bar.storeName}`}
-                className="block"
-              >
-                <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-700/50 transition-all duration-200 shadow-xl">
-                  <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
-                    {bar.storeName}
-                  </h2>
-                  <p className="text-slate-400">
-                    Address: {bar.pubkey.toString().slice(0, 8)}...
-                  </p>
-                  <p className="text-slate-400">
-                    Total sales: {bar.totalPurchases}
+          <div className="space-y-12">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-semibold text-slate-200">
+                Your Stores
+              </h2>
+              <div className="flex items-center gap-4">
+                <div className="bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+                  <p className="text-slate-300">
+                    Total Stores:{" "}
+                    <span className="text-slate-200 font-medium">
+                      {stores.length}
+                    </span>
                   </p>
                 </div>
-              </Link>
-            ))}
+              </div>
+            </div>
 
-            {/* Create New Store Card */}
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 shadow-xl">
-              <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
-                Create New Store
-              </h2>
-              <div className="flex flex-col gap-4">
-                <input
-                  type="text"
-                  placeholder="Enter store name (no spaces)"
-                  value={newBarName}
-                  onChange={(e) =>
-                    setNewBarName(
-                      e.target.value.toLowerCase().replace(/\s+/g, "")
-                    )
-                  }
-                  className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {stores.map((store) => (
                 <Link
-                  href={`/store/${newBarName}/setup`}
-                  className={`text-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg ${
-                    newBarName
-                      ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600"
-                      : "bg-slate-700 text-slate-400 cursor-not-allowed"
-                  }`}
+                  key={store.pubkey.toString()}
+                  href={`/store/${store.storeName}`}
+                  className="group"
                 >
-                  Create Store
+                  <div className="bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-6 hover:bg-slate-700/90 transition-all duration-300 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02]">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-semibold text-slate-200 group-hover:text-white transition-colors">
+                        {store.storeName}
+                      </h3>
+                      <div className="bg-green-900/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                        Active
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-slate-300 text-sm">
+                        Address:{" "}
+                        <span className="text-slate-200 font-medium">
+                          {store.pubkey.toString().slice(0, 8)}...
+                          {store.pubkey.toString().slice(-8)}
+                        </span>
+                      </p>
+                      <p className="text-slate-300 text-sm">
+                        Total Sales:{" "}
+                        <span className="text-slate-200 font-medium">
+                          {store.totalPurchases}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
                 </Link>
+              ))}
+
+              {/* Create New Store Card */}
+              <div className="bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+                <h3 className="text-xl font-semibold text-slate-200 mb-4">
+                  Create New Store
+                </h3>
+                <div className="space-y-4">
+                  <input
+                    type="text"
+                    placeholder="Enter store name (no spaces)"
+                    value={newStoreName}
+                    onChange={(e) =>
+                      setNewStoreName(
+                        e.target.value.toLowerCase().replace(/\s+/g, "")
+                      )
+                    }
+                    className="w-full bg-slate-700/80 text-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] rounded-xl border border-slate-500/50 p-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+                  />
+                  <Link
+                    href={`/store/${newStoreName}/setup`}
+                    className={`block text-center px-6 py-3 rounded-xl transition-all duration-300 ${
+                      newStoreName
+                        ? "bg-blue-600 text-white hover:bg-blue-700 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+                        : "bg-slate-700 text-slate-400 cursor-not-allowed"
+                    }`}
+                  >
+                    Create Store
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

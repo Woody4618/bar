@@ -316,9 +316,9 @@ export default function BarSetupPage() {
 
   if (!storeName) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-          <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+      <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 flex items-center justify-center">
+        <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+          <h1 className="text-3xl font-bold mb-4 text-slate-200">
             Store Name Required
           </h1>
           <p className="text-slate-300">
@@ -332,52 +332,50 @@ export default function BarSetupPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-          <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Loading bar data...
-          </p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 flex items-center justify-center">
+        <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+          <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl text-slate-200">Loading bar data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <main className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800">
       <div className="fixed top-0 right-0 p-4 z-50 flex gap-4">
         <Link
           href={`/store/${storeName}`}
-          className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200"
+          className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
         >
           View Storefront
         </Link>
-        <WalletMultiButtonDynamic className="!bg-slate-800 !text-white hover:!bg-slate-700 !border !border-slate-700" />
+        <WalletMultiButtonDynamic className="!bg-slate-700/50 !text-slate-200 hover:!bg-slate-700/70 !border !border-slate-600/30" />
       </div>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex items-center gap-2">
           <Link href="/" className="hover:opacity-80 transition-opacity">
             <Image
-              src="/solana-logo.png"
+              src="/transparent_white_logo.png"
               alt="Solana Logo"
               width={32}
               height={32}
               className="w-8 h-8"
             />
           </Link>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-slate-200">
             {storeName} - Setup
           </h1>
         </div>
 
         {receipts == null ? (
-          <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+            <h2 className="text-2xl font-bold text-slate-200">
               Initialize {storeName}
             </h2>
             {isInitializing ? (
               <div className="flex flex-col items-center gap-4">
-                <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
                 <p className="text-slate-300">Initializing bar...</p>
               </div>
             ) : (
@@ -386,9 +384,9 @@ export default function BarSetupPage() {
                 disabled={!connected || !isAuthority}
                 className={`${
                   connected && isAuthority
-                    ? "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                    ? "bg-blue-600 hover:bg-blue-700"
                     : "bg-slate-700 cursor-not-allowed"
-                } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg`}
+                } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]`}
               >
                 {!connected
                   ? "Connect Wallet"
@@ -400,8 +398,8 @@ export default function BarSetupPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
+            <div className="p-6 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+              <h2 className="text-2xl font-bold text-slate-200 mb-4">
                 Add Product
               </h2>
               <div className="flex flex-col gap-3">
@@ -416,30 +414,28 @@ export default function BarSetupPage() {
                   value={newProduct.name}
                   onChange={(e) => {
                     setNewProduct({ ...newProduct, name: e.target.value });
-                    setError(null); // Clear error when user starts typing
+                    setError(null);
                   }}
-                  className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="bg-slate-700/80 text-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] rounded-xl border border-slate-500/50 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
                 />
                 <input
                   type="text"
                   placeholder="Price"
                   value={newProduct.price}
                   onChange={(e) => {
-                    // Only allow numbers and decimal point
                     const value = e.target.value.replace(/[^0-9.]/g, "");
-                    // Only allow one decimal point
                     const parts = value.split(".");
                     if (parts.length > 2) return;
                     setNewProduct({ ...newProduct, price: value });
                   }}
-                  className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="bg-slate-700/80 text-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] rounded-xl border border-slate-500/50 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
                 />
                 <select
                   value={newProduct.mint}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, mint: e.target.value })
                   }
-                  className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="bg-slate-700/80 text-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] rounded-xl border border-slate-500/50 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
                 >
                   {MINT_OPTIONS.map((option) => (
                     <option key={option.address} value={option.address}>
@@ -454,9 +450,9 @@ export default function BarSetupPage() {
                   }
                   className={`${
                     connected && isAuthority && newProduct.name.trim()
-                      ? "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                      ? "bg-blue-600 hover:bg-blue-700"
                       : "bg-slate-700 cursor-not-allowed"
-                  } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg`}
+                  } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]`}
                 >
                   {!connected
                     ? "Connect Wallet"
@@ -467,21 +463,21 @@ export default function BarSetupPage() {
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
+            <div className="p-6 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+              <h2 className="text-2xl font-bold text-slate-200 mb-4">
                 Current Products
               </h2>
               <div className="space-y-4">
                 {receipts.products?.map((product: any) => (
                   <div
                     key={product.name}
-                    className="p-4 rounded-xl bg-slate-800 border border-slate-700 flex justify-between items-center"
+                    className="p-4 rounded-xl bg-slate-700/80 border border-slate-500/50 flex justify-between items-center shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all duration-300"
                   >
                     <div>
-                      <h3 className="text-lg font-semibold text-white">
+                      <h3 className="text-lg font-semibold text-slate-200">
                         {product.name}
                       </h3>
-                      <p className="text-slate-400">
+                      <p className="text-slate-300">
                         Price:{" "}
                         {(
                           product.price / Math.pow(10, product.decimals)
@@ -496,7 +492,7 @@ export default function BarSetupPage() {
                         connected && isAuthority
                           ? "bg-red-500 hover:bg-red-600"
                           : "bg-slate-700 cursor-not-allowed"
-                      } text-white px-4 py-2 rounded-lg transition-all duration-200`}
+                      } text-white px-4 py-2 rounded-lg transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]`}
                     >
                       {!connected
                         ? "Connect Wallet"
@@ -513,24 +509,22 @@ export default function BarSetupPage() {
 
         {receipts && (
           <div className="mt-8">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
-              Receipts
-            </h2>
+            <h2 className="text-2xl font-bold text-slate-200 mb-4">Receipts</h2>
             <Receipts receipts={receipts} />
           </div>
         )}
 
         {receipts && (
           <div className="mt-8">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
+            <h2 className="text-2xl font-bold text-slate-200 mb-4">
               Telegram Notifications
             </h2>
-            <div className="p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
+            <div className="p-6 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
               <div className="flex flex-col gap-3">
                 <div className="text-slate-300 mb-2">
                   Current Channel ID: {receipts.telegramChannelId || "Not set"}
                 </div>
-                <div className="text-slate-400 text-sm mb-4">
+                <div className="text-slate-300 text-sm mb-4">
                   <p className="font-semibold mb-2">Setup Instructions:</p>
                   <ol className="list-decimal list-inside space-y-2">
                     <li>Create a Telegram channel (or use an existing one)</li>
@@ -547,7 +541,7 @@ export default function BarSetupPage() {
                     </li>
                     <li>Enter the channel ID below and click Update</li>
                   </ol>
-                  <p className="mt-2 text-slate-500">
+                  <p className="mt-2 text-slate-400">
                     Note: The bot will only send notifications when a channel ID
                     is set.
                   </p>
@@ -557,7 +551,7 @@ export default function BarSetupPage() {
                   placeholder="Telegram Channel ID"
                   value={telegramChannelId}
                   onChange={(e) => setTelegramChannelId(e.target.value)}
-                  className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="bg-slate-700/80 text-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] rounded-xl border border-slate-500/50 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
                 />
                 <div className="flex items-center gap-2">
                   <button
@@ -565,9 +559,9 @@ export default function BarSetupPage() {
                     disabled={!connected || !isAuthority || isUpdatingTelegram}
                     className={`${
                       connected && isAuthority && !isUpdatingTelegram
-                        ? "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                        ? "bg-blue-600 hover:bg-blue-700"
                         : "bg-slate-700 cursor-not-allowed"
-                    } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg flex-1`}
+                    } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02] flex-1`}
                   >
                     {!connected
                       ? "Connect Wallet"
@@ -578,7 +572,7 @@ export default function BarSetupPage() {
                       : "Update Channel"}
                   </button>
                   {isUpdatingTelegram && (
-                    <div className="w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
                   )}
                 </div>
                 {receipts.telegramChannelId && (
@@ -613,7 +607,7 @@ export default function BarSetupPage() {
                 connected && isAuthority
                   ? "bg-red-500 hover:bg-red-600"
                   : "bg-slate-700 cursor-not-allowed"
-              } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg`}
+              } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]`}
             >
               {!connected
                 ? "Connect Wallet"

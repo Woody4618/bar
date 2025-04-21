@@ -10,27 +10,27 @@ const Receipts: FC<ReceiptsProps> = ({ receipts }) => {
   if (!receipts) return null;
 
   return (
-    <div className="w-full max-w-4xl p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-      <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+    <div className="w-full max-w-4xl p-6 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+      <h2 className="text-2xl font-bold mb-6 text-slate-200">
         Recent Purchases
       </h2>
       <div className="space-y-4">
         {[...receipts.receipts].reverse().map((receipt, index) => (
           <div
             key={index}
-            className="p-4 rounded-xl bg-slate-800 border border-slate-700 shadow-lg"
+            className="p-4 rounded-xl bg-slate-700/80 border border-slate-500/50 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all duration-300"
           >
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-slate-300 font-medium">
+                <p className="text-slate-200 font-medium">
                   {receipt.productName}
                 </p>
-                <p className="text-slate-400 text-sm">
+                <p className="text-slate-300 text-sm">
                   Table {receipt.tableNumber}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-slate-300">
+                <p className="text-slate-200">
                   {(
                     receipt.price.toNumber() /
                     Math.pow(
@@ -42,7 +42,7 @@ const Receipts: FC<ReceiptsProps> = ({ receipts }) => {
                   ).toFixed(2)}{" "}
                   USDC
                 </p>
-                <p className="text-slate-400 text-sm">
+                <p className="text-slate-300 text-sm">
                   {new Date(
                     receipt.timestamp.toNumber() * 1000
                   ).toLocaleString()}
@@ -50,7 +50,7 @@ const Receipts: FC<ReceiptsProps> = ({ receipts }) => {
               </div>
             </div>
             <div className="mt-2 flex justify-between items-center">
-              <p className="text-slate-400 text-sm">
+              <p className="text-slate-300 text-sm">
                 Buyer: {receipt.buyer.toString().slice(0, 8)}...
               </p>
               <div className="flex items-center gap-2">

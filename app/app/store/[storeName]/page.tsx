@@ -271,10 +271,8 @@ export default function StorePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-          <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Loading store data...
-          </p>
+          <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl text-white">Loading store data...</p>
         </div>
       </div>
     );
@@ -284,9 +282,7 @@ export default function StorePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="text-white text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-          <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Error
-          </h2>
+          <h2 className="text-2xl font-bold mb-4 text-white">Error</h2>
           <p className="text-slate-300">{error}</p>
         </div>
       </div>
@@ -294,7 +290,7 @@ export default function StorePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <main className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800">
       <div className="fixed top-0 left-0 right-0 flex justify-center items-start pt-4 z-50">
         <PurchaseNotification
           show={showPurchaseNotification}
@@ -305,46 +301,40 @@ export default function StorePage() {
         {receipts && (
           <Link
             href={`/store/${storeName}/setup`}
-            className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200"
+            className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
           >
             Store Setup
           </Link>
         )}
-        <WalletMultiButtonDynamic className="!bg-slate-800 !text-white hover:!bg-slate-700 !border !border-slate-700" />
+        <WalletMultiButtonDynamic className="!bg-slate-700/50 !text-slate-200 hover:!bg-slate-700/70 !border !border-slate-600/30" />
       </div>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex items-center gap-2">
           <Link href="/" className="hover:opacity-80 transition-opacity">
             <Image
-              src="/solana-logo.png"
+              src="/transparent_white_logo.png"
               alt="Solana Logo"
               width={32}
               height={32}
               className="w-8 h-8"
             />
           </Link>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            {storeName}
-          </h1>
+          <h1 className="text-3xl font-bold text-slate-200">{storeName}</h1>
         </div>
 
         {loading ? (
-          <div className="text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-            <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Loading store data...
-            </p>
+          <div className="text-center p-8 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+            <div className="w-16 h-16 border-4 border-slate-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-xl text-slate-300">Loading store data...</p>
           </div>
         ) : error ? (
-          <div className="text-center p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-            <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Error
-            </h2>
+          <div className="text-center p-8 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+            <h2 className="text-2xl font-bold mb-4 text-slate-200">Error</h2>
             <p className="text-slate-300">{error}</p>
           </div>
         ) : receipts == null ? (
-          <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
+            <h2 className="text-2xl font-bold text-slate-200">
               Store Not Initialized
             </h2>
             <p className="text-slate-300 text-center">
@@ -355,7 +345,7 @@ export default function StorePage() {
               {connected && (
                 <Link
                   href={`/store/${storeName}/setup`}
-                  className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg text-center"
+                  className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
                 >
                   Initialize Store
                 </Link>
@@ -363,8 +353,8 @@ export default function StorePage() {
             </div>
           </div>
         ) : receipts.products?.length === 0 ? (
-          <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-3xl hover:shadow-4xl hover:scale-[1.02] transition-all duration-300">
+            <h2 className="text-2xl font-bold text-slate-200">
               No Products Yet
             </h2>
             <p className="text-slate-300 text-center">
@@ -373,7 +363,7 @@ export default function StorePage() {
             </p>
             <Link
               href={`/store/${storeName}/setup`}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
             >
               Go to Setup
             </Link>
@@ -383,7 +373,7 @@ export default function StorePage() {
             <div className="w-full max-w-md">
               <div className="flex gap-4 mb-4">
                 <select
-                  className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="bg-slate-700/80 text-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] rounded-xl border border-slate-500/50 p-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
                   value={selectedProduct}
                   onChange={(e) => setSelectedProduct(e.target.value)}
                 >
@@ -405,7 +395,7 @@ export default function StorePage() {
                   ))}
                 </select>
                 <select
-                  className="bg-slate-800 text-white shadow-lg rounded-xl border border-slate-700 p-3 w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="bg-slate-700/80 text-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] rounded-xl border border-slate-500/50 p-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
                   value={selectedTable}
                   onChange={(e) => setSelectedTable(Number(e.target.value))}
                 >
@@ -419,9 +409,9 @@ export default function StorePage() {
 
               {selectedProduct && (
                 <div className="flex flex-col items-center gap-4">
-                  <div className="relative bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+                  <div className="relative bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:scale-[1.02] transition-all duration-300">
                     <div className="text-center mb-4">
-                      <h3 className="text-xl font-semibold text-white mb-1">
+                      <h3 className="text-xl font-semibold text-slate-200 mb-1">
                         {selectedProduct}
                       </h3>
                       {receipts.products?.find(
@@ -462,7 +452,7 @@ export default function StorePage() {
                           transition={{ duration: 0.3 }}
                           className="absolute inset-0 flex items-center justify-center"
                         >
-                          <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                          <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
                             <svg
                               className="w-16 h-16 text-white"
                               fill="none"
@@ -483,7 +473,7 @@ export default function StorePage() {
                   {connected && (
                     <button
                       onClick={handlePurchase}
-                      className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg"
+                      className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
                     >
                       Buy with Wallet
                     </button>
