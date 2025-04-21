@@ -74,7 +74,7 @@ yarn install
 
 3. Configure environment variables:
 
-The deployed bar already comes with a setup bot and you need to just add the solanabarbot to your channel.
+The deployed bar already comes with a setup bot and you need to just add the LetMeBuyBot to your channel.
 
 If you want to use your own bot you can create a telegram token by talking to [BotFather](https://core.telegram.org/bots/tutorial). You basically just ask the botfather if he can create you a bot using /newbot and then you can use the token he gives you.
 

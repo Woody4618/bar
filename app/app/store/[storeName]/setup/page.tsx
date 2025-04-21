@@ -535,7 +535,7 @@ export default function BarSetupPage() {
                   <ol className="list-decimal list-inside space-y-2">
                     <li>Create a Telegram channel (or use an existing one)</li>
                     <li>
-                      Add @solanabarbot as an administrator to your channel
+                      Add @letmebuybot as an administrator to your channel
                     </li>
                     <li>
                       For public channels: Use @channelname (e.g.,
