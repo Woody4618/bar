@@ -286,8 +286,13 @@ export default function BarSetupPage() {
       setIsUpdatingTelegram(true);
       const { blockhash } = await CONNECTION.getLatestBlockhash();
 
+      // Remove @ if present when submitting
+      const cleanChannelId = telegramChannelId.startsWith("@")
+        ? telegramChannelId.substring(1)
+        : telegramChannelId;
+
       const transaction = await LET_ME_BUY_PROGRAM.methods
-        .updateTelegramChannel(storeName, telegramChannelId)
+        .updateTelegramChannel(storeName, cleanChannelId)
         .accounts({
           authority: publicKey,
         })
