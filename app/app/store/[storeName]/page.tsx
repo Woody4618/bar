@@ -301,7 +301,7 @@ export default function StorePage() {
         {receipts && (
           <Link
             href={`/store/${storeName}/setup`}
-            className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+            className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-500 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] flex items-center justify-center"
           >
             Store Setup
           </Link>
@@ -345,7 +345,7 @@ export default function StorePage() {
               {connected && (
                 <Link
                   href={`/store/${storeName}/setup`}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+                  className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-500 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
                 >
                   Initialize Store
                 </Link>
@@ -363,7 +363,7 @@ export default function StorePage() {
             </p>
             <Link
               href={`/store/${storeName}/setup`}
-              className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-500 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
             >
               Go to Setup
             </Link>
@@ -473,7 +473,7 @@ export default function StorePage() {
                   {connected && (
                     <button
                       onClick={handlePurchase}
-                      className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+                      className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-500 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
                     >
                       Buy with Wallet
                     </button>

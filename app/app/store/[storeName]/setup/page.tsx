@@ -351,7 +351,7 @@ export default function BarSetupPage() {
       <div className="fixed top-0 right-0 p-4 z-50 flex gap-4">
         <Link
           href={`/store/${storeName}`}
-          className="bg-slate-600 text-white px-4 py-2 rounded-xl hover:bg-slate-500 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
+          className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-500 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] flex items-center justify-center"
         >
           View Storefront
         </Link>
@@ -391,7 +391,7 @@ export default function BarSetupPage() {
                   connected && isAuthority
                     ? "bg-slate-600 hover:bg-slate-500"
                     : "bg-slate-700 cursor-not-allowed"
-                } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]`}
+                } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)]`}
               >
                 {!connected
                   ? "Connect Wallet"
@@ -457,7 +457,7 @@ export default function BarSetupPage() {
                     connected && isAuthority && newProduct.name.trim()
                       ? "bg-slate-600 hover:bg-slate-500"
                       : "bg-slate-700 cursor-not-allowed"
-                  } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]`}
+                  } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)]`}
                 >
                   {!connected
                     ? "Connect Wallet"
@@ -566,7 +566,7 @@ export default function BarSetupPage() {
                       connected && isAuthority && !isUpdatingTelegram
                         ? "bg-slate-600 hover:bg-slate-500"
                         : "bg-slate-700 cursor-not-allowed"
-                    } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02] flex-1`}
+                    } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] flex-1`}
                   >
                     {!connected
                       ? "Connect Wallet"
@@ -612,7 +612,7 @@ export default function BarSetupPage() {
                 connected && isAuthority
                   ? "bg-red-500 hover:bg-red-600"
                   : "bg-slate-700 cursor-not-allowed"
-              } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]`}
+              } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)]`}
             >
               {!connected
                 ? "Connect Wallet"

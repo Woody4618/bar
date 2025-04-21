@@ -109,7 +109,7 @@ export default function Home() {
           <div className="space-y-12">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold text-slate-200">
-                Your Stores
+                All Stores
               </h2>
               <div className="flex items-center gap-4">
                 <div className="bg-slate-700/80 backdrop-blur-md border border-slate-500/50 rounded-xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-300">
