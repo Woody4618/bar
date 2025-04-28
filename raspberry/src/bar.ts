@@ -8,6 +8,43 @@ const i2c = require("i2c-bus");
 const Oled = require("oled-i2c-bus");
 const font = require("oled-font-5x7");
 import { BN } from "@coral-xyz/anchor";
+import * as fs from "fs";
+
+// Interface for config values
+interface BarConfig {
+  barName: string;
+  pumpDuration: number;
+  productName: string;
+  rpcUrl: string;
+}
+
+// Function to read config from file
+function readConfig(): BarConfig {
+  try {
+    const configPath = "/boot/firmware/wifi_config.txt";
+    const configContent = fs.readFileSync(configPath, "utf8");
+
+    const barNameMatch = configContent.match(/BAR_NAME=([^\n]+)/);
+    const pumpDurationMatch = configContent.match(/PUMP_DURATION=([^\n]+)/);
+    const productNameMatch = configContent.match(/PRODUCT_NAME=([^\n]+)/);
+    const rpcUrlMatch = configContent.match(/RPC_URL=([^\n]+)/);
+
+    return {
+      barName: barNameMatch?.[1]?.trim() || "foolsgold",
+      pumpDuration: parseInt(pumpDurationMatch?.[1]?.trim() || "300"),
+      productName: productNameMatch?.[1]?.trim() || "FoolsGold",
+      rpcUrl: rpcUrlMatch?.[1]?.trim() || "https://api.mainnet-beta.solana.com",
+    };
+  } catch (error) {
+    console.error("Error reading config file:", error);
+    return {
+      barName: "foolsgold",
+      pumpDuration: 300,
+      productName: "FoolsGold",
+      rpcUrl: "https://api.mainnet-beta.solana.com",
+    };
+  }
+}
 
 // Initialize OLED
 const opts = {
@@ -24,11 +61,25 @@ oled.clearDisplay();
 oled.turnOnDisplay();
 
 // Initialize GPIO 23 as output and set to high (setting 594 because its a raspberry pi 5, can use smth else than onoff package)
-const GPIO_23 = new Gpio(594, "out");
+const GPIO_23 = new Gpio(23, "out");
 GPIO_23.writeSync(1);
 
+// Read config from file
+const config = readConfig();
+const BAR_NAME = config.barName;
+const PUMP_DURATION = config.pumpDuration;
+const DEFAULT_PRODUCT_NAME = config.productName;
+
+// Log the complete configuration
+console.log("=== Bar Configuration ===");
+console.log("Bar Name:", BAR_NAME);
+console.log("Pump Duration:", PUMP_DURATION, "ms");
+console.log("Default Product:", DEFAULT_PRODUCT_NAME);
+console.log("RPC URL:", config.rpcUrl);
+console.log("========================");
+
 // Initialize connection
-const connection = new Connection("mainnet-beta");
+const connection = new Connection(config.rpcUrl);
 
 // Load keypair from environment or use the provided one
 const keypair = Keypair.fromSecretKey(
@@ -58,9 +109,6 @@ anchor.setProvider(provider);
 const program = new Program(idl as anchor.Idl, { connection });
 
 console.log("Program ID", program.programId.toString());
-
-// Bar name - this should be configured for your specific bar
-const BAR_NAME = "foolsgold"; // Replace with your actual bar name
 
 // Start listening for shot purchases
 startListeningToLedSwitchAccount();
@@ -119,7 +167,7 @@ function updateDisplay(product?: {
 
   // Use product info if available, otherwise use default text
   const text1 = "Buy one";
-  const text2 = product ? product.name : "FoolsGold";
+  const text2 = product ? product.name : DEFAULT_PRODUCT_NAME;
   const text3 = product
     ? `${
         Number(product.price.toString()) / Math.pow(10, product.decimals)
@@ -166,7 +214,7 @@ async function startListeningToLedSwitchAccount() {
     // Reset GPIO
     // Activate the pour mechanism
     GPIO_23.writeSync(0);
-    await sleep(300);
+    await sleep(PUMP_DURATION);
     GPIO_23.writeSync(1);
 
     // Initial display update with the first product if available
@@ -197,7 +245,7 @@ async function startListeningToLedSwitchAccount() {
 
           // Activate the pour mechanism
           GPIO_23.writeSync(0);
-          await sleep(300);
+          await sleep(PUMP_DURATION);
           GPIO_23.writeSync(1);
         } catch (error) {
           console.error("Error processing account change:", error);
@@ -222,7 +270,7 @@ async function pourShotAndMarkAsDelivered(
 
     // Activate the pour mechanism
     GPIO_23.writeSync(0);
-    await sleep(300);
+    await sleep(PUMP_DURATION);
     GPIO_23.writeSync(1);
 
     console.log(

@@ -1,0 +1,13 @@
+[Unit]
+Description=WiFi Setup Service
+After=network.target NetworkManager.service
+Wants=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/wifi-setup.sh
+RemainAfterExit=yes
+User=root
+
+[Install]
+WantedBy=multi-user.target 

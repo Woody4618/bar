@@ -1,0 +1,20 @@
+# WiFi Configuration File
+# Format: SSID,password,priority
+# Higher priority number = higher priority (tried first)
+
+# WiFi Networks
+# Primary network (highest priority)
+NetWorkName,NetworkPassword,3
+
+# Backup network (lowest priority)
+Net Work Name 2,password2,1
+
+# You can add more networks following the same format
+# SSID,password,priority 
+
+
+# Bar Configuration for the Solana Bar project. Not related to the WiFi setup.
+BAR_NAME=foolsgold
+PUMP_DURATION=300
+PRODUCT_NAME=Beer
+RPC_URL=https://api.mainnet-beta.solana.com
