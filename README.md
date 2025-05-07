@@ -36,7 +36,8 @@ https://github.com/user-attachments/assets/733e8308-1a5e-40e5-a47d-d9935279a92e
 - [ ] **Jumper wires, breadboard, and basic electronics tools** (https://www.amazon.de/dp/B0CFXZDBVY?ref=ppx_yo2ov_dt_b_fed_asin_title)
 - [ ] **Servo motor to press the pump button** (https://www.amazon.de/dp/B07KPS9845)
 - [ ] **Micro SD card for Raspberry Pi (32GB+)** (Any will work as long as it fits in the raspberry pi. Better take a good one)
-      Any of these different pumps:
+            
+Any of these different pumps:
 - [ ] **Wine dispenser one press** (https://www.amazon.de/dp/B0CD7BDWMN)
 - [ ] **Wine dispenser hold press** (https://www.amazon.de/dp/B0DBHJBKCC)
 - [ ] **Jägermeister dispenser** (https://de.jagermeister.com/shop/equipment/jaegermeister-mini-shot-machine)
