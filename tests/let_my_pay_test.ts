@@ -110,10 +110,8 @@ describe("SolanaStore", () => {
     const addProductTx = await program.methods
       .addProduct(storeName, productName, productPrice)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
         mint: mint,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
     console.log("Add product transaction signature: ", addProductTx);
@@ -122,15 +120,10 @@ describe("SolanaStore", () => {
     const makePurchaseTx = await program.methods
       .makePurchase(storeName, productName, 5)
       .accounts({
-        receipts: receiptsPDA,
         signer: wallet.publicKey,
         authority: wallet.publicKey,
         mint: mint,
         senderTokenAccount: recipientTokenAccount.address,
-        recipientTokenAccount: recipientTokenAccount.address,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        systemProgram: SystemProgram.programId,
-        associatedTokenProgram: anchor.utils.token.ASSOCIATED_PROGRAM_ID,
       })
       .rpc();
 

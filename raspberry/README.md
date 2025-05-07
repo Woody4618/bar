@@ -1,53 +1,40 @@
-# How to make autostart:
+# Raspberry Pi Setup
 
-Replace your path to your file and user or use ai to generate the service file.
+## How to make autostart:
+
+Copy the all contents of the raspberry folder directly onto the sd card root directory after you have setup the raspberry pi with the normal raspberry OS image using the raspberry pi imager.
+Configure the bar_config.txt file with the correct values for the bar. You can setup your bar at letmebuy.app and then copy paste the RPC_URL and BAR_NAME. Use a proper RPC_URL from quicknode or triton that has a good websocket support.
+
+Then ssh into the raspberry pi and run the following commands:
+
+If you want to use the OLED display you need enable the i2c interface:
 
 ```bash
-printf '[Unit]\nDescription=Bar Service\nAfter=network.target\n\n[Service]\nType=simple\nUser=jonas\nWorkingDirectory=/home/jonas/Documents/bar/raspberry\nExecStart=/usr/bin/npx tsx src/bar.ts\nRestart=always\nRestartSec=10\n\n[Install]\nWantedBy=multi-user.target' | sudo tee /etc/systemd/system/bar.service
+sudo raspi-config
 ```
 
+Navigate to Interfacing Options -> I2C -> Yes and then reboot.
+
+Then run the install script that will install node and npm and install the bar.service that autostarts the bar.ts file:
+
 ```bash
-sudo systemctl daemon-reload && sudo systemctl enable bar.service && sudo systemctl start bar.service
+sudo chmod +x /boot/firmware/bar-install.sh
+sudo /boot/firmware/bar-install.sh
 ```
+
+Then we setup the wifi service:
+
+First add your wifi connections to the wifi_config.txt file then install and start the service:
+
+```bash
+sudo chmod +x wifiSetup/setup-wifi-service.sh
+sudo /wifiSetup/setup-wifi-service.sh
+```
+
+This will copy the bar folder to your home directory and install all the dependencies.
 
 ```bash
 systemctl status bar.service
-```
-
-# Show current wifi connection:
-
-```bash
-iwconfig wlan0 | grep ESSID
-```
-
-# Add different wifi connections to wpa_supplicant.conf:
-
-```bash
-sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
-```
-
-Add you Wifi like this:
-
-```bash
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
-country=DE
-
-network={
-    ssid="yourWifiHotSpot"
-    psk="password"
-    key_mgmt=WPA-PSK
-    priority=10
-}
-network={
-    ssid="YourHomeWifi"
-    psk="password"
-    priority=9
-}
-network={
-    ssid="YourMobileHotspot"
-    psk="password"
-    key_mgmt=WPA-PSK
-    priority=5
-}
+systemctl status wifi-setup.service
+journalctl -u bar -f
 ```

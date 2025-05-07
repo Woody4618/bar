@@ -2,7 +2,7 @@
 
 A decentralized bar system built on Solana that allows users to purchase drinks using USDC, connected to a Raspberry Pi that shows the product and plays a sound as soon as the transaction is confirmed, and also sends Telegram notifications to a channel for tracking sales and table deliveries.
 
-![Live Version WIP](https://bar-six-self.vercel.app/)
+![Live Version WIP](https://letmebuy.app/)
 
 Here you can just create your own bar and use the page on a screen to sell items.
 You can also print out the qr codes and create a menu for each table. The qr codes are static and work as long as the web nextjs app api is deployed somewhere, for example on vercel.
@@ -171,3 +171,127 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+# To connect to respberry pi via USB-C port
+
+add `dtoverlay=dwc2` to config.txt
+
+and `... rootwait modules-load=dwc2,g_ether ...` to cmdline.txt
+
+reboot.
+
+On Raspberry pi zero you can just use the usb-c port.
+For raspberry pi 5 you need to use a ethernet to usbc port adapter.
+
+Use `ifconfig` to see the connection.
+
+If you pi is slow you may need more swap space. You can measure CPU and memory usage with:
+
+```bash
+sudo apt install htop
+htop
+```
+
+And i recommend to increase the swap size to at least 1024MB:
+
+```bash
+sudo nano /etc/dphys-swapfile
+CONF_SWAPSIZE=1024
+```
+
+And then reboot:
+
+```bash
+sudo reboot
+```
+
+And then update and install the dependencies:
+
+```bash
+sudo apt update
+sudo apt install nodejs
+sudo apt install npm
+```
+
+Then you can run the bar with:
+
+```bash
+sudo npx tsx raspberry/src/bar.ts
+```
+
+Or if you only want to make sure your pi is setup correctly and see if you can control the servo:
+
+```bash
+sudo node servo_test.js
+```
+
+Make it autostart with a service:
+
+Create a service or copy the existing one from the repo here:
+
+```bash
+[Unit]
+Description=Solana Bar Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/bar/Dokumente/raspberry/src
+ExecStart=/usr/bin/sudo /usr/bin/npx tsx /home/bar/Dokumente/raspberry/src/bar.ts
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo mv bar-button.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable bar-button.service
+sudo systemctl start bar-button.service
+sudo systemctl status bar-button.service
+```
+
+Add additonal wifis:
+
+```bash
+sudo nmcli connection add type wifi con-name "Hotspot" ifname wlan0 ssid "YouriPhoneSSID" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "YouriPhonePassword" connection.autoconnect yes connection.autoconnect-priority 2
+
+sudo nmcli connection up "Hotspot"
+
+nmcli device wifi list
+```
+
+# Use raspberry pi with a WIFI USB Stick
+
+1. Buy a sim card with data and activate it
+2. Buy a WIFI USB Stick. For germany i tested ZTE WCDMA Technologies MSM ZTE Mobile Broadband and it worked well.
+3. Connect the WIFI USB Stick to the raspberry pi via usb to micro usb and connect it to the USB port of the pi. Not the power port since that may be blocked by out power solution for the raspberry pi.
+4. In most cases it should be detected automatically and you can just use it.
+
+Check if the modem is detected:
+
+```bash
+lsusb
+...
+Bus 001 Device 008: ID 19d2:1405 ZTE WCDMA Technologies MSM ZTE Mobile Broadband
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+```
+
+Then you can if the raspberry does atually use the modem:
+
+```bash
+nmcli device
+...
+eth0           ethernet  connected               Wired connection 1
+```
+
+It will most likely be showed as Wired connection 1.
+You can also check if the raspberry actually uses the modem using:
+
+```bash
+ip route
+```
