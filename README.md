@@ -2,10 +2,21 @@
 
 A decentralized bar system built on Solana that allows users to purchase drinks using USDC, connected to a Raspberry Pi that shows the product and plays a sound as soon as the transaction is confirmed, and also sends Telegram notifications to a channel for tracking sales and table deliveries.
 
-![Live Version](https://letmebuy.app/)
+[Live Version of the app](https://letmebuy.app/)
 
 Here you can just create your own bar and use the page on a screen to sell items.
 You can also print out the qr codes and create a menu for each table. The qr codes are static and work as long as the web nextjs app api is deployed somewhere, for example on vercel. You can either deploy your own or use the one that is deployed already.
+
+![IMG_6559](https://github.com/user-attachments/assets/4fa413e9-2b92-4ed2-b0d1-1c0954099cae)
+
+Here is a Video of how the bar looks like in action. And its not hard to build! 
+https://x.com/SolPlay_jonas/status/1915380491852697746 
+
+
+
+https://github.com/user-attachments/assets/733e8308-1a5e-40e5-a47d-d9935279a92e
+
+
 
 ## Features
 
@@ -51,7 +62,15 @@ I would also recommend one of the power solutions to power the raspberry pi and 
 
 ## Hardware Setup
 
-1. Connect the OLED display:
+<img width="1348" alt="image" src="https://github.com/user-attachments/assets/cab48154-ee3d-4ed2-b9d5-a046f316b50f" />
+
+1. Connect the Servo to press the button. It will be controlled via GPIO 14
+
+- Connect the Brown cable to GND for example pin 6
+- Connect the Red Cable to 5V pin 2 or 4
+- Connect the yellow cable, control pin to GPIO 14 which is pin 8 
+
+3. Connect the OLED display:
 
 A detailed guide on how to connect the OLED display to the raspberry pi can be found [here](https://github.com/solana-developers/solana-depin-examples/tree/main/Raspberry-LED-display)
 
@@ -60,7 +79,7 @@ A detailed guide on how to connect the OLED display to the raspberry pi can be f
 - VCC to 3.3V (pin 1)
 - GND to ground (pin 6)
 
-2. Connect DFPlayer Mini MP3:
+3. Connect DFPlayer Mini MP3:
    - Follow the instructions [here](https://www.az-delivery.de/MTHRZKKB) to connect the DFPlayer Mini MP3 to the raspberry pi
    - Put an mp3 file in the DFPlayer Mini MP3 folder on the sd card
    - Make sure the file name is "0001_YOURSONGNAME.mp3"
@@ -68,10 +87,13 @@ A detailed guide on how to connect the OLED display to the raspberry pi can be f
    - The red LED on the DFPlayer Mini MP3 should light up when the file is playing it will not light up all the time.
    - To test if the DFPlayer Mini MP3 is working you can connect a speaker and power and then connect the bottom right two pins for a short time and it will play the first song.
 
-- 3V to 3V or 5V Pin 1 on the Raspberry Pi whatever you still have free
-- Connect the Speaker to two speaker pins
-- GNG to any GND on the raspberry pi
+- 3V to 3V or 5V Pin 1, 2 or 4  on the Raspberry Pi whatever you still have free
+- Connect your 3w Speaker to two speaker pins
+- GNG to any GND on the raspberry pi for example pin 34
 - The Trigger port 1 to GPIO 23 (pin 16) this one wil play the first song on the DFPlayer Mini MP3 card whenever a purchase is made.
+
+<img width="687" alt="image" src="https://github.com/user-attachments/assets/22eb901b-a653-4eb9-9bbd-801ca611aab8" />
+
 
 ## Software Setup
 
