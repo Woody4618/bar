@@ -7,7 +7,7 @@ A decentralized bar system built on Solana that allows users to purchase drinks 
 Here you can just create your own bar and use the page on a screen to sell items.
 You can also print out the qr codes and create a menu for each table. The qr codes are static and work as long as the web nextjs app api is deployed somewhere, for example on vercel. You can either deploy your own or use the one that is deployed already.
 
-![IMG_6559](https://github.com/user-attachments/assets/4fa413e9-2b92-4ed2-b0d1-1c0954099cae)
+<img src="https://github.com/user-attachments/assets/4fa413e9-2b92-4ed2-b0d1-1c0954099cae" width="300"/>
 
 Here is a Video of how the bar looks like in action. And its not hard to build! 
 https://x.com/SolPlay_jonas/status/1915380491852697746 
