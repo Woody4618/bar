@@ -2,33 +2,52 @@
 
 A decentralized bar system built on Solana that allows users to purchase drinks using USDC, connected to a Raspberry Pi that shows the product and plays a sound as soon as the transaction is confirmed, and also sends Telegram notifications to a channel for tracking sales and table deliveries.
 
-![Live Version WIP](https://letmebuy.app/)
+![Live Version](https://letmebuy.app/)
 
 Here you can just create your own bar and use the page on a screen to sell items.
-You can also print out the qr codes and create a menu for each table. The qr codes are static and work as long as the web nextjs app api is deployed somewhere, for example on vercel.
+You can also print out the qr codes and create a menu for each table. The qr codes are static and work as long as the web nextjs app api is deployed somewhere, for example on vercel. You can either deploy your own or use the one that is deployed already.
 
 ## Features
 
 - Purchase drinks using USDC or other SPL tokens via Solana Pay QR codes
 - Real-time product display on Raspberry Pi OLED screen
 - Sound notification on successful purchases
-- Telegram notifications for sales tracking
+- Automatic Telegram notifications for sales tracking
 - Multi-product support with configurable prices for any SPL token or SOL
 - Receipt tracking and management
 - Bar setup and configuration interface
 
-## Prerequisites
+---
 
-- Node.js and npm/yarn
-- Solana CLI tools
-- A Solana mobile wallet (Solflare works best at the moment, but also works with Phantom, Backpack, etc.)
-- A Telegram channel to send notifications to
-- A Helius account to stream the Solana blockchain data
-- Raspberry Pi 4B (or 5 or similar) with WiFi connection (Raspberry zero would need some changes but needs less power which would be good for the battery life)
-- OLED display (I2C interface, AZDelivery OLED Parent 128 x 64 Pixel 0.96 Inches)
-- Speaker or audio output device (DFPlayer Mini MP3 Player Modul)
-- 2 Micro sd cards, one for raspberry pi os (16Gb for example) and one for the DFPlayer Mini sound chip (Under 4 Gb is enough)
-- Power bank (optional so you can use the raspberry pi without a power supply which is cool :))
+## 🛒 What You Need to Build This Project
+
+- [ ] **Raspberry Pi Zero 2WH** (https://www.amazon.de/dp/B0DB2JBD9C)
+- [ ] **Jumper wires, breadboard, and basic electronics tools** (https://www.amazon.de/dp/B0CFXZDBVY?ref=ppx_yo2ov_dt_b_fed_asin_title)
+- [ ] **Servo motor to press the pump button** (https://www.amazon.de/dp/B07KPS9845)
+- [ ] **Micro SD card for Raspberry Pi (32GB+)** (Any will work as long as it fits in the raspberry pi. Better take a good one)
+      Any of these different pumps:
+- [ ] **Wine dispenser one press** (https://www.amazon.de/dp/B0CD7BDWMN)
+- [ ] **Wine dispenser hold press** (https://www.amazon.de/dp/B0DBHJBKCC)
+- [ ] **Jägermeister dispenser** (https://de.jagermeister.com/shop/equipment/jaegermeister-mini-shot-machine)
+
+There is some [starter kits](https://www.amazon.de/dp/B06VTH7L28) which contains the servo and some cables if you want to have some more options. For examples you can add a distance sensor, or some motor or something else to your bar project.
+
+Optional:
+
+If you want to show the current product on a screen or play a sound when a purchase is made you can add the following:
+I would also recommend one of the power solutions to power the raspberry pi and the pump so you dont neet to have it connected to a cable all the time. The X306 is a bit easer to setup and has more power. But the PiSugar is a bit smaller and cuter.
+
+- [ ] **OLED display (I2C interface, 128x64, 0.96") (optional)** (https://www.amazon.de/dp/B074N9VLZX)
+- [ ] **DFPlayer Mini MP3 Player Module (optional)** (https://www.amazon.de/dp/B0DRGCC1M6)
+- [ ] **Speaker (optional)** (https://www.amazon.de/dp/B09PL6XFHC)
+- [ ] **Micro SD card for DFPlayer Mini (under 4GB)** (Any will work. Just put the mp3s in the mp3 folder and then you can play them with the DFPlayer Mini)
+- [ ] **Power bank (optional)** (Needs to be a good powerbank that can supply 5V constantly)
+- [ ] **WIFI USB Stick (optional for mobile data)** (I tested the ZTE WCDMA Technologies MSM ZTE Mobile Broadband and it worked well for germany. Also need a sim card with data in that case)
+- [ ] **USP Power Solution PISugar 1200mAh** (https://www.amazon.de/dp/B08D678XPR)
+- [ ] **X306 V1.3 Ultra-Thin UPS Shield 3800mAh** (https://www.amazon.de/dp/B0B77M4Q4M)
+- [ ] **X306 Batteries** (https://www.amazon.de/dp/B0DCK4PTXS)
+
+---
 
 ## Hardware Setup
 
@@ -49,9 +68,14 @@ A detailed guide on how to connect the OLED display to the raspberry pi can be f
    - The red LED on the DFPlayer Mini MP3 should light up when the file is playing it will not light up all the time.
    - To test if the DFPlayer Mini MP3 is working you can connect a speaker and power and then connect the bottom right two pins for a short time and it will play the first song.
 
+- 3V to 3V or 5V Pin 1 on the Raspberry Pi whatever you still have free
+- Connect the Speaker to two speaker pins
+- GNG to any GND on the raspberry pi
+- The Trigger port 1 to GPIO 23 (pin 16) this one wil play the first song on the DFPlayer Mini MP3 card whenever a purchase is made.
+
 ## Software Setup
 
-You can directly use the bar at https://bar-six-self.vercel.app/ you only need to deploy a new program if you want to do changes to the bar or want your own unique frontend design.
+You can directly use the bar at https://letmebuy.app/ you only need to deploy a new program if you want to do changes to the bar or want your own unique frontend design.
 
 1. Clone the repository:
 
@@ -112,7 +136,11 @@ yarn dev
 
 ## Raspberry Pi Setup
 
-Easiest way to develop on the raspberry pi is to connect from cursor or Vs code via SSH connect button on the bottom left and then directly copy files over and develop on the raspberry directly.
+**For detailed Raspberry Pi setup instructions, see [`raspberry/README.md`](raspberry/README.md).**
+
+There is an install script in the raspberry folder that will install the dependencies and configure the bar script as a service if you want to automate the setup.
+
+Easiest way to develop on the raspberry pi is to connect from Cursor or VS Code via SSH connect button on the bottom left and then directly copy files over and develop on the raspberry directly.
 
 1. Install dependencies:
 
@@ -123,11 +151,7 @@ yarn install
 
 2. Configure the bar name in `src/bar.ts`:
 
-Set the barname to the name of your bar. Then the respberry will show all receipts changes for that bar.
-
-```typescript
-const BAR_NAME = "your-bar-name";
-```
+Set the barname to the name of your bar and the product are loaded from the bar_config.txt directly from the root folder of the micro SD card. Then the raspberry will show all receipts changes for that bar.
 
 3. Start the service:
 
@@ -171,6 +195,10 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+_For detailed Raspberry Pi setup, troubleshooting, and advanced configuration, see [`raspberry/README.md`](raspberry/README.md)._
 
 # To connect to respberry pi via USB-C port
 
@@ -265,7 +293,12 @@ sudo nmcli connection up "Hotspot"
 nmcli device wifi list
 ```
 
-# Use raspberry pi with a WIFI USB Stick
+# Connect the Raspberry to the internet
+
+By default this project uses WIFI. But if you want to you can also connect it to 4g, LTE or Lorawan to work anywhere.
+Here are some options:
+
+## Use raspberry pi with a WIFI USB Stick
 
 1. Buy a sim card with data and activate it
 2. Buy a WIFI USB Stick. For germany i tested ZTE WCDMA Technologies MSM ZTE Mobile Broadband and it worked well.
@@ -295,3 +328,15 @@ You can also check if the raspberry actually uses the modem using:
 ```bash
 ip route
 ```
+
+## Use Raspberry pi 4G Hat
+
+1. Buy a 4G Hat. For example the [Waveshare SIM7600G-H 4G HAT](https://www.amazon.de/dp/B0BD544MRN)
+2. Connect the 4G Hat to the raspberry pi via the GPIO pins.
+3. Connect the 4G Hat to the internet via the sim card.
+
+## Use Lorawan
+
+1. Buy a Lorawan Devboard. I tried with the HTCC-AB02S and it worked well.
+
+Check out the more detailed Lorawan README [here](LorawanConnection_README.md)

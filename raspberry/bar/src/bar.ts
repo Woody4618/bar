@@ -164,6 +164,7 @@ function subscribeToAccountChanges(receiptsPDA: PublicKey) {
         const product =
           decoded.products.find((p: any) => p.name === DEFAULT_PRODUCT_NAME) ||
           decoded.products[0];
+        
         updateDisplay(product);
 
         await Promise.all([
@@ -288,8 +289,11 @@ async function startListeningToLedSwitchAccount() {
     }
 
     // Initial display update with the first product if available
-    const firstProduct = receiptsAccount.products?.[0];
-    updateDisplay(firstProduct);
+    const product =
+      receiptsAccount.products.find((p: any) => p.name === DEFAULT_PRODUCT_NAME) ||
+      receiptsAccount.products[0];
+      
+    updateDisplay(product);
 
     // When a purchase happens, flash the display
     subscribeToAccountChanges(receiptsPDA);
