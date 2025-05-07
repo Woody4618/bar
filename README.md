@@ -1,4 +1,4 @@
-# Let Me Buy
+# Let Me Buy - A Solana powered Raspberrypi drink dispenser 
 
 A decentralized bar system built on Solana that allows users to purchase drinks using USDC, connected to a Raspberry Pi that shows the product and plays a sound as soon as the transaction is confirmed, and also sends Telegram notifications to a channel for tracking sales and table deliveries.
 
