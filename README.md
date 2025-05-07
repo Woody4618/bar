@@ -65,13 +65,13 @@ I would also recommend one of the power solutions to power the raspberry pi and 
 
 <img width="1348" alt="image" src="https://github.com/user-attachments/assets/cab48154-ee3d-4ed2-b9d5-a046f316b50f" />
 
-1. Connect the Servo to press the button. It will be controlled via GPIO 14
+## 1. Connect the Servo to press the button. It will be controlled via GPIO 14
 
 - Connect the Brown cable to GND for example pin 6
 - Connect the Red Cable to 5V pin 2 or 4
 - Connect the yellow cable, control pin to GPIO 14 which is pin 8 
 
-3. Connect the OLED display:
+## 2. Connect the OLED display:
 
 A detailed guide on how to connect the OLED display to the raspberry pi can be found [here](https://github.com/solana-developers/solana-depin-examples/tree/main/Raspberry-LED-display)
 
@@ -80,13 +80,14 @@ A detailed guide on how to connect the OLED display to the raspberry pi can be f
 - VCC to 3.3V (pin 1)
 - GND to ground (pin 6)
 
-3. Connect DFPlayer Mini MP3:
-   - Follow the instructions [here](https://www.az-delivery.de/MTHRZKKB) to connect the DFPlayer Mini MP3 to the raspberry pi
-   - Put an mp3 file in the DFPlayer Mini MP3 folder on the sd card
-   - Make sure the file name is "0001_YOURSONGNAME.mp3"
-   - Make sure the file is in a folder called "mp3"
-   - The red LED on the DFPlayer Mini MP3 should light up when the file is playing it will not light up all the time.
-   - To test if the DFPlayer Mini MP3 is working you can connect a speaker and power and then connect the bottom right two pins for a short time and it will play the first song.
+## 3. Connect DFPlayer Mini MP3
+
+- Follow the instructions [here](https://www.az-delivery.de/MTHRZKKB) to connect the DFPlayer Mini MP3 to the raspberry pi
+- Put an mp3 file in the DFPlayer Mini MP3 folder on the sd card
+- Make sure the file name is "0001_YOURSONGNAME.mp3"
+- Make sure the file is in a folder called "mp3"
+- The red LED on the DFPlayer Mini MP3 should light up when the file is playing it will not light up all the time.
+- To test if the DFPlayer Mini MP3 is working you can connect a speaker and power and then connect the bottom right two pins for a short time and it will play the first song.
 
 - 3V to 3V or 5V Pin 1, 2 or 4  on the Raspberry Pi whatever you still have free
 - Connect your 3w Speaker to two speaker pins
@@ -98,7 +99,7 @@ A detailed guide on how to connect the OLED display to the raspberry pi can be f
 
 ## Software Setup
 
-You can directly use the bar at https://letmebuy.app/ you only need to deploy a new program if you want to do changes to the bar or want your own unique frontend design.
+You can directly use the bar at https://letmebuy.app/ you only need to deploy a new program and app if you want to do changes to the bar program or want your own unique frontend design.
 
 1. Clone the repository:
 
@@ -137,6 +138,21 @@ RPC_URL=https://api.mainnet-beta.solana.com
 cd app
 yarn dev
 ```
+
+The easiest way to deploy the web app is using [Vercel](https://vercel.com/) 
+
+### Deploy program
+
+If you choose to deploy your own program. Just follow the [anchor docs](https://www.anchor-lang.com/docs). 
+
+```bash
+anchor test
+anchor build
+anchor deploy
+```
+
+Then you need to deplace the program id in all places where it is used. Jus search and replace in hte project. 
+If you change the program you also need to copy the idl into a few places. For that you can use the copy_types.sh script in the root of the repo or use the srcipt to figure out all the places where the idl needs to be placed. 
 
 ## Bar Configuration
 
