@@ -30,6 +30,17 @@ https://github.com/user-attachments/assets/733e8308-1a5e-40e5-a47d-d9935279a92e
 
 ---
 
+## How it works 
+
+Best watch the Video Walkthrough for a detailed explanation.
+The heart of the project is the [WebApp](https://letmebuy.app) that controls an Anchor program which lets you create your own store where you can sell items via Solana Pay Transaction Request QR codes. The reaspberry pi listens via a websocket connection to the Anchor Events that are emmited from the program whenever there is a new Purchase. When it find a drink in the receipts that has not been delivered yet and fits it configured product it will press the button at the pump, deliver the drink and then mark the receipt as deliverd via a transaction. 
+The Vercel app also listens to a Helius Webhook that triggers an API everytime there is a new Purcahse anchor event and then posts a message into a Telegram chat. 
+
+<img width="1002" alt="image" src="https://github.com/user-attachments/assets/5c239729-c163-448a-9ddd-2744eb78de7e" />
+
+
+---
+
 ## 🛒 What You Need to Build This Project
 
 - [ ] **Raspberry Pi Zero 2WH** (https://www.amazon.de/dp/B0DB2JBD9C)
@@ -192,7 +203,7 @@ yarn install
 
 Set the barname to the name of your bar and the product are loaded from the bar_config.txt directly from the root folder of the micro SD card. Then the raspberry will show all receipts changes for that bar.
 
-3. Start the service:
+3. Start the script:
 
 ```bash
 npx tsx src/bar.ts
