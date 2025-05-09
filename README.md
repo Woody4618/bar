@@ -339,11 +339,12 @@ nmcli device wifi list
 Having the QR codes printer and glued to the raspberry is cool. But also maybe a bit dangerous in case someone overwrites your QR code. So what you can do instead is directly show the QR code on a screen conneted to the Raspberry pi. 
 
 Some options for that would be: 
-[1.54inch E-Paper Display Module](https://www.amazon.de/dp/B07Q6V93HQ)
-[AZDelivery 1 x 1,69-Zoll-TFT-Display mit 240 x 280](https://www.amazon.de/dp/B0CDPYYQ74)
-[Waveshare 1.54 Inch E-Paper Display Panel Module Kit 200 * 200](https://www.amazon.de/dp/B0728BJTZC)
-[IBest 2.7inch E-Paper Display Module 264x176 Resolution 3.3V/5V Two-Color E-Ink Display](https://www.amazon.de/dp/B07Q7W26N8)
-[Goshyda OLED-Display, 2,42 Zoll kleines, hochwertiges OLED](https://www.amazon.de/dp/B08N48FRS3)
+
+- [1.54inch E-Paper Display Module](https://www.amazon.de/dp/B07Q6V93HQ)
+- [AZDelivery 1 x 1,69-Zoll-TFT-Display mit 240 x 280](https://www.amazon.de/dp/B0CDPYYQ74)
+- [Waveshare 1.54 Inch E-Paper Display Panel Module Kit 200 * 200](https://www.amazon.de/dp/B0728BJTZC)
+- [IBest 2.7inch E-Paper Display Module 264x176 Resolution 3.3V/5V Two-Color E-Ink Display](https://www.amazon.de/dp/B07Q7W26N8)
+- [Goshyda OLED-Display, 2,42 Zoll kleines, hochwertiges OLED](https://www.amazon.de/dp/B08N48FRS3)
 
 I have not gotten the time yet to try these. So if anyone could provide the code for one of these would be awesome. Since these dont use the L2C interface we currently use for the smalle OLED display. 
 
