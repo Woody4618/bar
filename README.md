@@ -250,27 +250,18 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 _For detailed Raspberry Pi setup, troubleshooting, and advanced configuration, see [`raspberry/README.md`](raspberry/README.md)._
 
-# To connect to respberry pi via USB-C port
+# Manual Raspberry pi setup
 
-add `dtoverlay=dwc2` to config.txt
+If you do not want to use the Setup script in the Rasperry folder you can perform the steps manually. 
 
-and `... rootwait modules-load=dwc2,g_ether ...` to cmdline.txt
-
-reboot.
-
-On Raspberry pi zero you can just use the usb-c port.
-For raspberry pi 5 you need to use a ethernet to usbc port adapter.
-
-Use `ifconfig` to see the connection.
-
-If you pi is slow you may need more swap space. You can measure CPU and memory usage with:
+I recommend increasing swap space on the pi because the Js scripts are quite memory hungry. Especially when you also want to remote code on the raspbery. You can measure CPU and memory usage with:
 
 ```bash
 sudo apt install htop
 htop
 ```
 
-And i recommend to increase the swap size to at least 1024MB:
+I recommend to increase the swap size to at least 1024MB:
 
 ```bash
 sudo nano /etc/dphys-swapfile
@@ -304,8 +295,8 @@ sudo node servo_test.js
 ```
 
 Make it autostart with a service:
-
 Create a service or copy the existing one from the repo here:
+Adjust the paths to where you have saved the files on your pi. 
 
 ```bash
 [Unit]
@@ -333,7 +324,7 @@ sudo systemctl start bar-button.service
 sudo systemctl status bar-button.service
 ```
 
-Add additonal wifis:
+If you do not want to use the automatic wifi service from the raspberry folder you can add additonal wifis like this:
 
 ```bash
 sudo nmcli connection add type wifi con-name "Hotspot" ifname wlan0 ssid "YouriPhoneSSID" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "YouriPhonePassword" connection.autoconnect yes connection.autoconnect-priority 2
@@ -342,6 +333,19 @@ sudo nmcli connection up "Hotspot"
 
 nmcli device wifi list
 ```
+
+# Attach a bigger screen 
+
+Having the QR codes printer and glued to the raspberry is cool. But also maybe a bit dangerous in case someone overwrites your QR code. So what you can do instead is directly show the QR code on a screen conneted to the Raspberry pi. 
+
+Some options for that would be: 
+[1.54inch E-Paper Display Module](https://www.amazon.de/dp/B07Q6V93HQ)
+[AZDelivery 1 x 1,69-Zoll-TFT-Display mit 240 x 280](https://www.amazon.de/dp/B0CDPYYQ74)
+[Waveshare 1.54 Inch E-Paper Display Panel Module Kit 200 * 200](https://www.amazon.de/dp/B0728BJTZC)
+[IBest 2.7inch E-Paper Display Module 264x176 Resolution 3.3V/5V Two-Color E-Ink Display](https://www.amazon.de/dp/B07Q7W26N8)
+[Goshyda OLED-Display, 2,42 Zoll kleines, hochwertiges OLED](https://www.amazon.de/dp/B08N48FRS3)
+
+I have not gotten the time yet to try these. So if anyone could provide the code for one of these would be awesome. Since these dont use the L2C interface we currently use for the smalle OLED display. 
 
 # Connect the Raspberry to the internet
 
