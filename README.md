@@ -1,54 +1,51 @@
-# Let Me Buy - A Solana powered Raspberrypi drink dispenser 
+# Let Me Buy - A Solana powered Raspberrypi drink dispenser
 
 A decentralized bar system built on Solana that allows users to purchase drinks using USDC, connected to a Raspberry Pi that shows the product and plays a sound as soon as the transaction is confirmed, and also sends Telegram notifications to a channel for tracking sales and table deliveries.
 
 [Live Version of the app](https://letmebuy.app/)
 
-Here you can just create your own bar and use the page on a screen to sell items.
-You can also print out the qr codes and create a menu for each table. The qr codes are static and work as long as the web nextjs app api is deployed somewhere, for example on vercel. You can either deploy your own or use the one that is deployed already.
+---
+
+## Table of Contents
+
+1. [Demo & Media](#demo--media)
+2. [What You Need to Build This Project](#what-you-need-to-build-this-project)
+3. [How it Works](#how-it-works)
+4. [Features](#features)
+5. [Quick Start](#quick-start)
+6. [Setup](#setup)
+   - [Hardware Setup](#hardware-setup)
+   - [Software Setup](#software-setup)
+   - [Raspberry Pi Setup](#raspberry-pi-setup)
+7. [Manual Raspberry Pi Setup](#manual-raspberry-pi-setup)
+8. [Development](#development)
+9. [Contributing](#contributing)
+10. [License](#license)
+
+---
+
+## Demo & Media
 
 <img src="https://github.com/user-attachments/assets/4fa413e9-2b92-4ed2-b0d1-1c0954099cae" width="300"/>
 
-Here is a Video of how the bar looks like in action. And its not hard to build! 
-https://x.com/SolPlay_jonas/status/1915380491852697746 
-
-
+Here is a Video of how the bar looks like in action. And its not hard to build!
+https://x.com/SolPlay_jonas/status/1915380491852697746
 
 https://github.com/user-attachments/assets/733e8308-1a5e-40e5-a47d-d9935279a92e
 
-
-
-## Features
-
-- Purchase drinks using USDC or other SPL tokens via Solana Pay QR codes
-- Real-time product display on Raspberry Pi OLED screen
-- Sound notification on successful purchases
-- Automatic Telegram notifications for sales tracking
-- Multi-product support with configurable prices for any SPL token or SOL
-- Receipt tracking and management
-- Bar setup and configuration interface
-
----
-
-## How it works 
-
-Best watch the Video Walkthrough for a detailed explanation.
-The heart of the project is the [WebApp](https://letmebuy.app) that controls an Anchor program which lets you create your own store where you can sell items via Solana Pay Transaction Request QR codes. The reaspberry pi listens via a websocket connection to the Anchor Events that are emmited from the program whenever there is a new Purchase. When it find a drink in the receipts that has not been delivered yet and fits it configured product it will press the button at the pump, deliver the drink and then mark the receipt as deliverd via a transaction. 
-The Vercel app also listens to a Helius Webhook that triggers an API everytime there is a new Purcahse anchor event and then posts a message into a Telegram chat. 
-
 <img width="1002" alt="image" src="https://github.com/user-attachments/assets/5c239729-c163-448a-9ddd-2744eb78de7e" />
 
-
 ---
 
-## 🛒 What You Need to Build This Project
+## What You Need to Build This Project
 
 - [ ] **Raspberry Pi Zero 2WH** (https://www.amazon.de/dp/B0DB2JBD9C)
 - [ ] **Jumper wires, breadboard, and basic electronics tools** (https://www.amazon.de/dp/B0CFXZDBVY?ref=ppx_yo2ov_dt_b_fed_asin_title)
 - [ ] **Servo motor to press the pump button** (https://www.amazon.de/dp/B07KPS9845)
 - [ ] **Micro SD card for Raspberry Pi (32GB+)** (Any will work as long as it fits in the raspberry pi. Better take a good one)
-            
+
 Any of these different pumps:
+
 - [ ] **Wine dispenser one press** (https://www.amazon.de/dp/B0CD7BDWMN)
 - [ ] **Wine dispenser hold press** (https://www.amazon.de/dp/B0DBHJBKCC)
 - [ ] **Jägermeister dispenser** (https://de.jagermeister.com/shop/equipment/jaegermeister-mini-shot-machine)
@@ -72,17 +69,52 @@ I would also recommend one of the power solutions to power the raspberry pi and 
 
 ---
 
-## Hardware Setup
+## How it works
+
+Best watch the Video Walkthrough for a detailed explanation.
+The heart of the project is the [WebApp](https://letmebuy.app) that controls an Anchor program which lets you create your own store where you can sell items via Solana Pay Transaction Request QR codes. The raspberry pi listens via a websocket connection to the Anchor Events that are emitted from the program whenever there is a new Purchase. When it finds a drink in the receipts that has not been delivered yet and fits its configured product it will press the button at the pump, deliver the drink and then mark the receipt as delivered via a transaction.
+The Vercel app also listens to a Helius Webhook that triggers an API every time there is a new Purchase anchor event and then posts a message into a Telegram chat.
+
+---
+
+## Features
+
+- Purchase drinks using USDC or other SPL tokens via Solana Pay QR codes
+- Real-time product display on Raspberry Pi OLED screen
+- Sound notification on successful purchases
+- Automatic Telegram notifications for sales tracking
+- Multi-product support with configurable prices for any SPL token or SOL
+- Receipt tracking and management
+- Bar setup and configuration interface
+
+---
+
+## Quick Start
+
+**Recommended:** Use the install script in the `raspberry` folder to automate setup and configure the bar script as a service.
+
+```bash
+cd raspberry
+./install.sh
+```
+
+This will install dependencies and set up the Raspberry Pi service automatically. For manual setup, see below.
+
+---
+
+## Setup
+
+### Hardware Setup
 
 <img width="1348" alt="image" src="https://github.com/user-attachments/assets/cab48154-ee3d-4ed2-b9d5-a046f316b50f" />
 
-## 1. Connect the Servo to press the button. It will be controlled via GPIO 14
+#### 1. Connect the Servo to press the button. It will be controlled via GPIO 14
 
 - Connect the Brown cable to GND for example pin 6
 - Connect the Red Cable to 5V pin 2 or 4
-- Connect the yellow cable, control pin to GPIO 14 which is pin 8 
+- Connect the yellow cable, control pin to GPIO 14 which is pin 8
 
-## 2. Connect the OLED display:
+#### 2. Connect the OLED display:
 
 A detailed guide on how to connect the OLED display to the raspberry pi can be found [here](https://github.com/solana-developers/solana-depin-examples/tree/main/Raspberry-LED-display)
 
@@ -91,7 +123,7 @@ A detailed guide on how to connect the OLED display to the raspberry pi can be f
 - VCC to 3.3V (pin 1)
 - GND to ground (pin 6)
 
-## 3. Connect DFPlayer Mini MP3
+#### 3. Connect DFPlayer Mini MP3
 
 - Follow the instructions [here](https://www.az-delivery.de/MTHRZKKB) to connect the DFPlayer Mini MP3 to the raspberry pi
 - Put an mp3 file in the DFPlayer Mini MP3 folder on the sd card
@@ -100,15 +132,14 @@ A detailed guide on how to connect the OLED display to the raspberry pi can be f
 - The red LED on the DFPlayer Mini MP3 should light up when the file is playing it will not light up all the time.
 - To test if the DFPlayer Mini MP3 is working you can connect a speaker and power and then connect the bottom right two pins for a short time and it will play the first song.
 
-- 3V to 3V or 5V Pin 1, 2 or 4  on the Raspberry Pi whatever you still have free
+- 3V to 3V or 5V Pin 1, 2 or 4 on the Raspberry Pi whatever you still have free
 - Connect your 3w Speaker to two speaker pins
 - GNG to any GND on the raspberry pi for example pin 34
 - The Trigger port 1 to GPIO 23 (pin 16) this one wil play the first song on the DFPlayer Mini MP3 card whenever a purchase is made.
 
 <img width="687" alt="image" src="https://github.com/user-attachments/assets/22eb901b-a653-4eb9-9bbd-801ca611aab8" />
 
-
-## Software Setup
+### Software Setup
 
 You can directly use the bar at https://letmebuy.app/ you only need to deploy a new program and app if you want to do changes to the bar program or want your own unique frontend design.
 
@@ -150,11 +181,11 @@ cd app
 yarn dev
 ```
 
-The easiest way to deploy the web app is using [Vercel](https://vercel.com/) 
+The easiest way to deploy the web app is using [Vercel](https://vercel.com/)
 
-### Deploy program
+#### Deploy program
 
-If you choose to deploy your own program. Just follow the [anchor docs](https://www.anchor-lang.com/docs). 
+If you choose to deploy your own program. Just follow the [anchor docs](https://www.anchor-lang.com/docs).
 
 ```bash
 anchor test
@@ -162,29 +193,10 @@ anchor build
 anchor deploy
 ```
 
-Then you need to deplace the program id in all places where it is used. Jus search and replace in hte project. 
-If you change the program you also need to copy the idl into a few places. For that you can use the copy_types.sh script in the root of the repo or use the srcipt to figure out all the places where the idl needs to be placed. 
+Then you need to replace the program id in all places where it is used. Jus search and replace in hte project.
+If you change the program you also need to copy the idl into a few places. For that you can use the copy_types.sh script in the root of the repo or use the srcipt to figure out all the places where the idl needs to be placed.
 
-## Bar Configuration
-
-1. Create a new bar:
-
-   - Visit `/bar/your-bar-name/setup`
-   - Connect your wallet
-   - Initialize the bar
-
-2. Add products:
-
-   - Set product names and prices in USDC. Other SPL tokens work as well and can be added to the list
-   - Configure Telegram notifications
-   - Manage receipts
-
-3. Set up Telegram notifications:
-   - Create a Telegram channel
-   - Add your bot as an administrator
-   - Configure the channel ID in the bar setup
-
-## Raspberry Pi Setup
+### Raspberry Pi Setup
 
 **For detailed Raspberry Pi setup instructions, see [`raspberry/README.md`](raspberry/README.md).**
 
@@ -211,48 +223,11 @@ npx tsx src/bar.ts
 
 You can also setup the script in the autostart of the raspberry pi via a service. See the readme in the raspberry folder for detailed explanation.
 
-## Development
-
-The project consists of four main components:
-
-1. Solana Program (`programs/solana-bar/`):
-
-   - Handles bar initialization
-   - Manages product and receipt accounts
-   - Processes purchases
-
-2. Web Interface (`app/`):
-
-   - Bar setup and management
-   - Product configuration
-   - QR code generation for purchases
-
-3. Raspberry Pi Service (`raspberry/`):
-
-   - Monitors receipt account
-   - Displays product information on OLED
-   - Plays sound notifications on receipts changes
-
-4. Telegram notifications:
-   - Sends notifications to a specific channel when a purchase is made
-   - This is done via a [Helius webhook](https://docs.helius.dev/data-streaming/webhooks) that calls the end point api/webhooktg
-   - This api endpoint parses the anchor events out of the transactions and then uses the Telegram token to send a message to the channel that is configured in the bar setup
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ---
 
-_For detailed Raspberry Pi setup, troubleshooting, and advanced configuration, see [`raspberry/README.md`](raspberry/README.md)._
+## Manual Raspberry Pi Setup
 
-# Manual Raspberry pi setup
-
-If you do not want to use the Setup script in the Rasperry folder you can perform the steps manually. 
+If you do not want to use the Setup script in the Rasperry folder you can perform the steps manually.
 
 I recommend increasing swap space on the pi because the Js scripts are quite memory hungry. Especially when you also want to remote code on the raspbery. You can measure CPU and memory usage with:
 
@@ -296,7 +271,7 @@ sudo node servo_test.js
 
 Make it autostart with a service:
 Create a service or copy the existing one from the repo here:
-Adjust the paths to where you have saved the files on your pi. 
+Adjust the paths to where you have saved the files on your pi.
 
 ```bash
 [Unit]
@@ -334,19 +309,62 @@ sudo nmcli connection up "Hotspot"
 nmcli device wifi list
 ```
 
-# Attach a bigger screen 
+---
 
-Having the QR codes printer and glued to the raspberry is cool. But also maybe a bit dangerous in case someone overwrites your QR code. So what you can do instead is directly show the QR code on a screen conneted to the Raspberry pi. 
+## Development
 
-Some options for that would be: 
+The project consists of four main components:
+
+1. Solana Program (`programs/solana-bar/`):
+
+   - Handles bar initialization
+   - Manages product and receipt accounts
+   - Processes purchases
+
+2. Web Interface (`app/`):
+
+   - Bar setup and management
+   - Product configuration
+   - QR code generation for purchases
+
+3. Raspberry Pi Service (`raspberry/`):
+
+   - Monitors receipt account
+   - Displays product information on OLED
+   - Plays sound notifications on receipts changes
+
+4. Telegram notifications:
+   - Sends notifications to a specific channel when a purchase is made
+   - This is done via a [Helius webhook](https://docs.helius.dev/data-streaming/webhooks) that calls the end point api/webhooktg
+   - This api endpoint parses the anchor events out of the transactions and then uses the Telegram token to send a message to the channel that is configured in the bar setup
+
+---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+_For detailed Raspberry Pi setup, troubleshooting, and advanced configuration, see [`raspberry/README.md`](raspberry/README.md)._
+
+# Attach a bigger screen
+
+Having the QR codes printer and glued to the raspberry is cool. But also maybe a bit dangerous in case someone overwrites your QR code. So what you can do instead is directly show the QR code on a screen conneted to the Raspberry pi.
+
+Some options for that would be:
 
 - [1.54inch E-Paper Display Module](https://www.amazon.de/dp/B07Q6V93HQ)
 - [AZDelivery 1 x 1,69-Zoll-TFT-Display mit 240 x 280](https://www.amazon.de/dp/B0CDPYYQ74)
-- [Waveshare 1.54 Inch E-Paper Display Panel Module Kit 200 * 200](https://www.amazon.de/dp/B0728BJTZC)
+- [Waveshare 1.54 Inch E-Paper Display Panel Module Kit 200 \* 200](https://www.amazon.de/dp/B0728BJTZC)
 - [IBest 2.7inch E-Paper Display Module 264x176 Resolution 3.3V/5V Two-Color E-Ink Display](https://www.amazon.de/dp/B07Q7W26N8)
 - [Goshyda OLED-Display, 2,42 Zoll kleines, hochwertiges OLED](https://www.amazon.de/dp/B08N48FRS3)
 
-I have not gotten the time yet to try these. So if anyone could provide the code for one of these would be awesome. Since these dont use the L2C interface we currently use for the smalle OLED display. 
+I have not gotten the time yet to try these. So if anyone could provide the code for one of these would be awesome. Since these dont use the L2C interface we currently use for the smalle OLED display.
 
 # Connect the Raspberry to the internet
 
