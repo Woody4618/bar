@@ -1,4 +1,4 @@
-# Let Me Buy - A Solana powered Raspberrypi drink dispenser
+# LetMeBuy - A Solana powered Raspberry Pi drink dispenser
 
 A decentralized bar system built on Solana that allows users to purchase drinks using USDC, connected to a Raspberry Pi that shows the product and plays a sound as soon as the transaction is confirmed, and also sends Telegram notifications to a channel for tracking sales and table deliveries.
 
@@ -21,6 +21,8 @@ A decentralized bar system built on Solana that allows users to purchase drinks 
 8. [Development](#development)
 9. [Contributing](#contributing)
 10. [License](#license)
+11. [Attach a bigger screen to show QR code](#attach-a-bigger-screen)
+12. [Connect the Raspberry to mobile internet](#connect-the-raspberry-to-mobile-internet)
 
 ---
 
@@ -202,112 +204,6 @@ If you change the program you also need to copy the idl into a few places. For t
 
 There is an install script in the raspberry folder that will install the dependencies and configure the bar script as a service if you want to automate the setup.
 
-Easiest way to develop on the raspberry pi is to connect from Cursor or VS Code via SSH connect button on the bottom left and then directly copy files over and develop on the raspberry directly.
-
-1. Install dependencies:
-
-```bash
-cd raspberry
-yarn install
-```
-
-2. Configure the bar name in `src/bar.ts`:
-
-Set the barname to the name of your bar and the product are loaded from the bar_config.txt directly from the root folder of the micro SD card. Then the raspberry will show all receipts changes for that bar.
-
-3. Start the script:
-
-```bash
-npx tsx src/bar.ts
-```
-
-You can also setup the script in the autostart of the raspberry pi via a service. See the readme in the raspberry folder for detailed explanation.
-
----
-
-## Manual Raspberry Pi Setup
-
-If you do not want to use the Setup script in the Rasperry folder you can perform the steps manually.
-
-I recommend increasing swap space on the pi because the Js scripts are quite memory hungry. Especially when you also want to remote code on the raspbery. You can measure CPU and memory usage with:
-
-```bash
-sudo apt install htop
-htop
-```
-
-I recommend to increase the swap size to at least 1024MB:
-
-```bash
-sudo nano /etc/dphys-swapfile
-CONF_SWAPSIZE=1024
-```
-
-And then reboot:
-
-```bash
-sudo reboot
-```
-
-And then update and install the dependencies:
-
-```bash
-sudo apt update
-sudo apt install nodejs
-sudo apt install npm
-```
-
-Then you can run the bar with:
-
-```bash
-sudo npx tsx raspberry/src/bar.ts
-```
-
-Or if you only want to make sure your pi is setup correctly and see if you can control the servo:
-
-```bash
-sudo node servo_test.js
-```
-
-Make it autostart with a service:
-Create a service or copy the existing one from the repo here:
-Adjust the paths to where you have saved the files on your pi.
-
-```bash
-[Unit]
-Description=Solana Bar Service
-After=network.target
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/home/bar/Dokumente/raspberry/src
-ExecStart=/usr/bin/sudo /usr/bin/npx tsx /home/bar/Dokumente/raspberry/src/bar.ts
-Restart=on-failure
-RestartSec=5
-Environment=NODE_ENV=production
-
-[Install]
-WantedBy=multi-user.target
-```
-
-```bash
-sudo mv bar-button.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable bar-button.service
-sudo systemctl start bar-button.service
-sudo systemctl status bar-button.service
-```
-
-If you do not want to use the automatic wifi service from the raspberry folder you can add additonal wifis like this:
-
-```bash
-sudo nmcli connection add type wifi con-name "Hotspot" ifname wlan0 ssid "YouriPhoneSSID" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "YouriPhonePassword" connection.autoconnect yes connection.autoconnect-priority 2
-
-sudo nmcli connection up "Hotspot"
-
-nmcli device wifi list
-```
 
 ---
 
@@ -352,7 +248,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 _For detailed Raspberry Pi setup, troubleshooting, and advanced configuration, see [`raspberry/README.md`](raspberry/README.md)._
 
-# Attach a bigger screen
+# Attach a bigger screen to show QR code
 
 Having the QR codes printer and glued to the raspberry is cool. But also maybe a bit dangerous in case someone overwrites your QR code. So what you can do instead is directly show the QR code on a screen conneted to the Raspberry pi.
 
@@ -366,7 +262,7 @@ Some options for that would be:
 
 I have not gotten the time yet to try these. So if anyone could provide the code for one of these would be awesome. Since these dont use the L2C interface we currently use for the smalle OLED display.
 
-# Connect the Raspberry to the internet
+# Connect the Raspberry to mobile internet
 
 By default this project uses WIFI. But if you want to you can also connect it to 4g, LTE or Lorawan to work anywhere.
 Here are some options:
