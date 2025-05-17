@@ -10,6 +10,7 @@ interface Store {
   storeName: string;
   authority: PublicKey;
   totalPurchases: number;
+  details: string;
 }
 
 export default function Home() {
@@ -27,6 +28,7 @@ export default function Home() {
           storeName: account.account.storeName,
           authority: account.account.authority,
           totalPurchases: account.account.totalPurchases.toNumber(),
+          details: account.account.details || "",
         }));
 
         setStores(storesWithNames);
@@ -81,15 +83,21 @@ export default function Home() {
                   <div>
                     <input
                       type="text"
-                      placeholder="Enter store name (no spaces)"
+                      placeholder="Enter store name (lowercase letters, numbers, and hyphens only)"
                       value={newStoreName}
                       onChange={(e) =>
                         setNewStoreName(
-                          e.target.value.toLowerCase().replace(/\s+/g, "")
+                          e.target.value
+                            .toLowerCase()
+                            .replace(/[^a-z0-9-]/g, "")
                         )
                       }
                       className="w-full bg-slate-700/80 text-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] rounded-xl border border-slate-500/50 p-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
                     />
+                    <p className="text-sm text-slate-400 mt-2">
+                      Store names can contain lowercase letters, numbers, and
+                      single hyphens (not at start/end)
+                    </p>
                   </div>
                   <Link
                     href={`/store/${newStoreName}/setup`}
@@ -141,10 +149,9 @@ export default function Home() {
                     </div>
                     <div className="space-y-2">
                       <p className="text-slate-300 text-sm">
-                        Address:{" "}
+                        Details:{" "}
                         <span className="text-slate-200 font-medium">
-                          {store.pubkey.toString().slice(0, 8)}...
-                          {store.pubkey.toString().slice(-8)}
+                          {store.details || "No details provided"}
                         </span>
                       </p>
                       <p className="text-slate-300 text-sm">
@@ -166,15 +173,19 @@ export default function Home() {
                 <div className="space-y-4">
                   <input
                     type="text"
-                    placeholder="Enter store name (no spaces)"
+                    placeholder="Enter store name (lowercase letters, numbers, and hyphens only)"
                     value={newStoreName}
                     onChange={(e) =>
                       setNewStoreName(
-                        e.target.value.toLowerCase().replace(/\s+/g, "")
+                        e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")
                       )
                     }
                     className="w-full bg-slate-700/80 text-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] rounded-xl border border-slate-500/50 p-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
                   />
+                  <p className="text-sm text-slate-400 mt-2">
+                    Store names can contain lowercase letters, numbers, and
+                    single hyphens (not at start/end)
+                  </p>
                   <Link
                     href={`/store/${newStoreName}/setup`}
                     className={`block text-center px-6 py-3 rounded-xl transition-all duration-300 ${

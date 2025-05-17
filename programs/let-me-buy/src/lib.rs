@@ -41,6 +41,27 @@ pub enum StoreErrorCode {
     StringTooLong,
     #[msg("VectorLimitReached")]
     VectorLimitReached,
+    #[msg("InvalidStoreName")]
+    InvalidStoreName,
+}
+
+fn validate_store_name(name: &str) -> Result<()> {
+    // Check if name contains only lowercase letters, numbers, and hyphens
+    if !name
+        .chars()
+        .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
+    {
+        return Err(StoreErrorCode::InvalidStoreName.into());
+    }
+    // Don't allow names that start or end with a hyphen
+    if name.starts_with('-') || name.ends_with('-') {
+        return Err(StoreErrorCode::InvalidStoreName.into());
+    }
+    // Don't allow consecutive hyphens
+    if name.contains("--") {
+        return Err(StoreErrorCode::InvalidStoreName.into());
+    }
+    Ok(())
 }
 
 #[program]
@@ -50,6 +71,9 @@ pub mod let_me_buy {
     pub fn initialize(ctx: Context<Initialize>, store_name: String) -> Result<()> {
         // Validate store name length
         require!(store_name.len() <= 32, StoreErrorCode::StringTooLong);
+
+        // Validate store name characters
+        validate_store_name(&store_name)?;
 
         ctx.accounts.receipts.store_name = store_name.clone();
         ctx.accounts.receipts.authority = *ctx.accounts.authority.key;
@@ -75,6 +99,24 @@ pub mod let_me_buy {
         );
 
         ctx.accounts.receipts.telegram_channel_id = telegram_channel_id;
+        Ok(())
+    }
+
+    pub fn update_details(
+        ctx: Context<UpdateDetails>,
+        store_name: String,
+        details: String,
+    ) -> Result<()> {
+        // Verify the caller is the authority
+        require!(
+            *ctx.accounts.authority.key == ctx.accounts.receipts.authority,
+            StoreErrorCode::InvalidAuthority
+        );
+
+        // Validate details length
+        require!(details.len() <= 128, StoreErrorCode::StringTooLong);
+
+        ctx.accounts.receipts.details = details;
         Ok(())
     }
 
@@ -309,6 +351,19 @@ pub struct UpdateTelegramChannel<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(store_name: String, details: String)]
+pub struct UpdateDetails<'info> {
+    #[account(
+        mut,
+        seeds = [b"receipts", store_name.as_bytes()],
+        bump
+    )]
+    pub receipts: Account<'info, Receipts>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
 #[instruction(store_name: String, name: String, price: u64)]
 pub struct AddProduct<'info> {
     #[account(
@@ -413,6 +468,8 @@ pub struct Receipts {
     #[max_len(32)]
     pub telegram_channel_id: String,
     pub bump: u8,
+    #[max_len(128)]
+    pub details: String,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, InitSpace)]

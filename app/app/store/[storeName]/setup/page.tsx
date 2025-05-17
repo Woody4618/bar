@@ -31,6 +31,8 @@ export default function BarSetupPage() {
   const [isInitializing, setIsInitializing] = useState(false);
   const [telegramChannelId, setTelegramChannelId] = useState("");
   const [isUpdatingTelegram, setIsUpdatingTelegram] = useState(false);
+  const [storeDetails, setStoreDetails] = useState("");
+  const [isUpdatingDetails, setIsUpdatingDetails] = useState(false);
   const { publicKey, connected, sendTransaction } = useWallet();
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -141,6 +143,7 @@ export default function BarSetupPage() {
   useEffect(() => {
     if (receipts) {
       setTelegramChannelId(receipts.telegramChannelId || "");
+      setStoreDetails(receipts.details || "");
     }
   }, [receipts]);
 
@@ -316,6 +319,41 @@ export default function BarSetupPage() {
       console.error("Error updating telegram channel:", error);
     } finally {
       setIsUpdatingTelegram(false);
+    }
+  };
+
+  const handleUpdateDetails = async () => {
+    if (!publicKey) return;
+
+    try {
+      setIsUpdatingDetails(true);
+      const { blockhash } = await CONNECTION.getLatestBlockhash();
+
+      const transaction = await LET_ME_BUY_PROGRAM.methods
+        .updateDetails(storeName, storeDetails)
+        .accounts({
+          authority: publicKey,
+        })
+        .transaction();
+
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = publicKey;
+
+      const signature = await sendTransaction(transaction, CONNECTION);
+      console.log("Store details update transaction sent:", signature);
+
+      const confirmation = await CONNECTION.confirmTransaction(
+        signature,
+        "confirmed"
+      );
+      if (confirmation.value.err) {
+        throw new Error("Transaction failed to confirm");
+      }
+      console.log("Transaction confirmed!");
+    } catch (error) {
+      console.error("Error updating store details:", error);
+    } finally {
+      setIsUpdatingDetails(false);
     }
   };
 
@@ -566,7 +604,7 @@ export default function BarSetupPage() {
                       connected && isAuthority && !isUpdatingTelegram
                         ? "bg-slate-600 hover:bg-slate-500"
                         : "bg-slate-700 cursor-not-allowed"
-                    } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] flex-1`}
+                    } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)]`}
                   >
                     {!connected
                       ? "Connect Wallet"
@@ -574,30 +612,63 @@ export default function BarSetupPage() {
                       ? "Not Authorized"
                       : isUpdatingTelegram
                       ? "Updating..."
-                      : "Update Channel"}
+                      : "Update Channel ID"}
                   </button>
-                  {isUpdatingTelegram && (
-                    <div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                  )}
                 </div>
-                {receipts.telegramChannelId && (
-                  <div className="mt-2 text-green-400 text-sm flex items-center gap-2">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Channel ID successfully set!
-                  </div>
-                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {receipts && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold text-slate-200 mb-4">
+              Store Details
+            </h2>
+            <div className="p-6 rounded-2xl bg-slate-700/80 backdrop-blur-md border border-slate-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-300">
+              <div className="flex flex-col gap-3">
+                <div className="text-slate-300 mb-2">
+                  Current Details: {receipts.details || "Not set"}
+                </div>
+                <div className="text-slate-300 text-sm mb-4">
+                  <p className="font-semibold mb-2">About Store Details:</p>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>
+                      Add a description of your store (max 128 characters)
+                    </li>
+                    <li>This will be displayed on your store&apos;s page</li>
+                    <li>
+                      Include information like location, hours, or specialties
+                    </li>
+                  </ul>
+                </div>
+                <textarea
+                  placeholder="Store Details"
+                  value={storeDetails}
+                  onChange={(e) => setStoreDetails(e.target.value)}
+                  maxLength={128}
+                  rows={3}
+                  className="bg-slate-700/80 text-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] rounded-xl border border-slate-500/50 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+                />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleUpdateDetails}
+                    disabled={!connected || !isAuthority || isUpdatingDetails}
+                    className={`${
+                      connected && isAuthority && !isUpdatingDetails
+                        ? "bg-slate-600 hover:bg-slate-500"
+                        : "bg-slate-700 cursor-not-allowed"
+                    } text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)]`}
+                  >
+                    {!connected
+                      ? "Connect Wallet"
+                      : !isAuthority
+                      ? "Not Authorized"
+                      : isUpdatingDetails
+                      ? "Updating..."
+                      : "Update Details"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

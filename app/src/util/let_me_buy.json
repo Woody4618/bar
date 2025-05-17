@@ -433,6 +433,61 @@
       ]
     },
     {
+      "name": "update_details",
+      "discriminator": [
+        245,
+        102,
+        156,
+        21,
+        212,
+        18,
+        54,
+        13
+      ],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "store_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "store_name",
+          "type": "string"
+        },
+        {
+          "name": "details",
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "update_telegram_channel",
       "discriminator": [
         125,
@@ -714,6 +769,10 @@
           {
             "name": "bump",
             "type": "u8"
+          },
+          {
+            "name": "details",
+            "type": "string"
           }
         ]
       }

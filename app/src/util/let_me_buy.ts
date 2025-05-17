@@ -439,6 +439,61 @@ export type LetMeBuy = {
       ]
     },
     {
+      "name": "updateDetails",
+      "discriminator": [
+        245,
+        102,
+        156,
+        21,
+        212,
+        18,
+        54,
+        13
+      ],
+      "accounts": [
+        {
+          "name": "receipts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "storeName"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "storeName",
+          "type": "string"
+        },
+        {
+          "name": "details",
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "updateTelegramChannel",
       "discriminator": [
         125,
@@ -720,6 +775,10 @@ export type LetMeBuy = {
           {
             "name": "bump",
             "type": "u8"
+          },
+          {
+            "name": "details",
+            "type": "string"
           }
         ]
       }

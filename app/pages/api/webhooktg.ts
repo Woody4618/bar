@@ -8,45 +8,7 @@ import { Idl } from "@coral-xyz/anchor";
 import { NextApiRequest, NextApiResponse } from "next";
 
 // Telegram bot token from environment variable
-// const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-
-async function sendTelegramMessage(channelId: string, message: string) {
-  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-
-  try {
-    console.log("Sending message to channel:", channelId);
-    console.log("Message content:", message);
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        chat_id: channelId,
-        text: message,
-        parse_mode: "HTML",
-      }),
-    });
-
-    const responseData = await response.json();
-    console.log("Telegram API response:", responseData);
-
-    if (!response.ok) {
-      throw new Error(
-        `Telegram API error: ${response.statusText} - ${JSON.stringify(
-          responseData
-        )}`
-      );
-    }
-
-    return responseData;
-  } catch (error) {
-    console.error("Error sending Telegram message:", error);
-    throw error;
-  }
-}
 
 export default async function handler(
   req: NextApiRequest,
@@ -138,4 +100,41 @@ export default async function handler(
 
   // Handle other HTTP methods
   return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+}
+
+async function sendTelegramMessage(channelId: string, message: string) {
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+  try {
+    console.log("Sending message to channel:", channelId);
+    console.log("Message content:", message);
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chat_id: channelId,
+        text: message,
+        parse_mode: "HTML",
+      }),
+    });
+
+    const responseData = await response.json();
+    console.log("Telegram API response:", responseData);
+
+    if (!response.ok) {
+      throw new Error(
+        `Telegram API error: ${response.statusText} - ${JSON.stringify(
+          responseData
+        )}`
+      );
+    }
+
+    return responseData;
+  } catch (error) {
+    console.error("Error sending Telegram message:", error);
+    throw error;
+  }
 }

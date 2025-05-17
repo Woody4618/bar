@@ -23,7 +23,7 @@ describe("SolanaStore", () => {
   program = anchor.workspace.LetMeBuy as Program<LetMeBuy>;
   wallet = anchor.workspace.LetMeBuy.provider.wallet;
   const connection = program.provider.connection;
-  storeName = "Test Store";
+  storeName = "teststore";
   const mintKeypair = Keypair.fromSecretKey(
     new Uint8Array(
       JSON.parse(
@@ -96,15 +96,13 @@ describe("SolanaStore", () => {
     const initializeTx = await program.methods
       .initialize(storeName)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
     console.log("Initialize transaction signature: ", initializeTx);
 
     // Add a product
-    const productName = "Test Product";
+    const productName = "testproduct";
     const productPrice = new anchor.BN(1000000); // 1 SOL
 
     const addProductTx = await program.methods
@@ -156,7 +154,6 @@ describe("SolanaStore", () => {
       await program.methods
         .deleteProduct(storeName, "non_existent_product")
         .accounts({
-          receipts: receiptsPDA,
           authority: wallet.publicKey,
         })
         .rpc();
@@ -173,11 +170,9 @@ describe("SolanaStore", () => {
     );
 
     await program.methods
-      .deleteProduct(storeName, "Test Product")
+      .deleteProduct(storeName, "testproduct")
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
@@ -195,7 +190,6 @@ describe("SolanaStore", () => {
     await program.methods
       .deleteStore(storeName)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
       })
       .rpc();
@@ -209,7 +203,7 @@ describe("SolanaStore", () => {
   });
 
   it("Fails to add product with name too long", async () => {
-    const testStoreName = "TestStore2";
+    const testStoreName = "teststore2";
     const [receiptsPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from("receipts"), Buffer.from(testStoreName)],
       program.programId
@@ -219,9 +213,7 @@ describe("SolanaStore", () => {
     await program.methods
       .initialize(testStoreName)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
@@ -232,10 +224,8 @@ describe("SolanaStore", () => {
       await program.methods
         .addProduct(testStoreName, longProductName, productPrice)
         .accounts({
-          receipts: receiptsPDA,
           authority: wallet.publicKey,
           mint: mint,
-          systemProgram: SystemProgram.programId,
         })
         .rpc();
       assert.fail("Should have thrown an error");
@@ -247,14 +237,13 @@ describe("SolanaStore", () => {
     await program.methods
       .deleteStore(testStoreName)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
       })
       .rpc();
   });
 
   it("Fails to add more products than limit", async () => {
-    const testStoreName = "TestStore3";
+    const testStoreName = "teststore3";
     const [receiptsPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from("receipts"), Buffer.from(testStoreName)],
       program.programId
@@ -264,25 +253,21 @@ describe("SolanaStore", () => {
     await program.methods
       .initialize(testStoreName)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
     const productPrice = new anchor.BN(1000000);
-    const longProductName = "Test Product";
+    const longProductName = "testproduct";
 
     // Try to add 21 products (limit is 20)
     for (let i = 0; i < 21; i++) {
       try {
         await program.methods
-          .addProduct(testStoreName, `${longProductName} ${i}`, productPrice)
+          .addProduct(testStoreName, `testproduct${i}`, productPrice)
           .accounts({
-            receipts: receiptsPDA,
             authority: wallet.publicKey,
             mint: mint,
-            systemProgram: SystemProgram.programId,
           })
           .rpc();
 
@@ -301,14 +286,13 @@ describe("SolanaStore", () => {
     await program.methods
       .deleteStore(testStoreName)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
       })
       .rpc();
   });
 
   it("Fails to update telegram channel with ID too long", async () => {
-    const testStoreName = "TestStore4";
+    const testStoreName = "teststore4";
     const [receiptsPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from("receipts"), Buffer.from(testStoreName)],
       program.programId
@@ -318,9 +302,7 @@ describe("SolanaStore", () => {
     await program.methods
       .initialize(testStoreName)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
@@ -330,7 +312,6 @@ describe("SolanaStore", () => {
       await program.methods
         .updateTelegramChannel(testStoreName, longChannelId)
         .accounts({
-          receipts: receiptsPDA,
           authority: wallet.publicKey,
         })
         .rpc();
@@ -343,14 +324,13 @@ describe("SolanaStore", () => {
     await program.methods
       .deleteStore(testStoreName)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
       })
       .rpc();
   });
 
   it("Verifies receipts rotation when limit is reached", async () => {
-    const testStoreName = "TestStore5";
+    const testStoreName = "teststore5";
     const [receiptsPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from("receipts"), Buffer.from(testStoreName)],
       program.programId
@@ -360,23 +340,19 @@ describe("SolanaStore", () => {
     await program.methods
       .initialize(testStoreName)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
     // Add a product first
-    const productName = "Test Product";
+    const productName = "testproduct";
     const productPrice = new anchor.BN(1000000);
 
     await program.methods
       .addProduct(testStoreName, productName, productPrice)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
         mint: mint,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
@@ -385,15 +361,10 @@ describe("SolanaStore", () => {
       await program.methods
         .makePurchase(testStoreName, productName, i)
         .accounts({
-          receipts: receiptsPDA,
           signer: wallet.publicKey,
           authority: wallet.publicKey,
           mint: mint,
           senderTokenAccount: recipientTokenAccount.address,
-          recipientTokenAccount: recipientTokenAccount.address,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: SystemProgram.programId,
-          associatedTokenProgram: anchor.utils.token.ASSOCIATED_PROGRAM_ID,
         })
         .rpc();
 
@@ -426,9 +397,189 @@ describe("SolanaStore", () => {
     await program.methods
       .deleteStore(testStoreName)
       .accounts({
-        receipts: receiptsPDA,
         authority: wallet.publicKey,
       })
       .rpc();
+  });
+
+  it("Successfully updates store details", async () => {
+    const testStoreName = "teststore5";
+    const [receiptsPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("receipts"), Buffer.from(testStoreName)],
+      program.programId
+    );
+
+    // Initialize the store first
+    await program.methods
+      .initialize(testStoreName)
+      .accounts({
+        authority: wallet.publicKey,
+      })
+      .rpc();
+
+    const details = "A cozy bar with great drinks and atmosphere";
+
+    await program.methods
+      .updateDetails(testStoreName, details)
+      .accounts({
+        authority: wallet.publicKey,
+      })
+      .rpc();
+
+    const receiptsAccount = await program.account.receipts.fetch(receiptsPDA);
+    assert.equal(
+      receiptsAccount.details,
+      details,
+      "Details should match what was set"
+    );
+
+    // Clean up
+    await program.methods
+      .deleteStore(testStoreName)
+      .accounts({
+        authority: wallet.publicKey,
+      })
+      .rpc();
+  });
+
+  it("Fails to update details with string too long", async () => {
+    const testStoreName = "teststore6";
+    const [receiptsPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("receipts"), Buffer.from(testStoreName)],
+      program.programId
+    );
+
+    // Initialize the store first
+    await program.methods
+      .initialize(testStoreName)
+      .accounts({
+        authority: wallet.publicKey,
+      })
+      .rpc();
+
+    const longDetails = "a".repeat(129); // 129 characters, limit is 128
+
+    try {
+      await program.methods
+        .updateDetails(testStoreName, longDetails)
+        .accounts({
+          authority: wallet.publicKey,
+        })
+        .rpc();
+      assert.fail("Should have thrown an error");
+    } catch (err) {
+      assert(err.toString().includes("StringTooLong"));
+    }
+
+    // Clean up
+    await program.methods
+      .deleteStore(testStoreName)
+      .accounts({
+        authority: wallet.publicKey,
+      })
+      .rpc();
+  });
+
+  it("Fails to update details with unauthorized user", async () => {
+    const testStoreName = "teststore7";
+    const [receiptsPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("receipts"), Buffer.from(testStoreName)],
+      program.programId
+    );
+
+    // Initialize the store first
+    await program.methods
+      .initialize(testStoreName)
+      .accounts({
+        authority: wallet.publicKey,
+      })
+      .rpc();
+
+    // Create unauthorized user
+    const unauthorizedUser = Keypair.generate();
+    const airdropSig = await connection.requestAirdrop(
+      unauthorizedUser.publicKey,
+      1000000000
+    );
+    await connection.confirmTransaction(airdropSig);
+
+    const details = "Trying to update details without permission";
+
+    try {
+      await program.methods
+        .updateDetails(testStoreName, details)
+        .accounts({
+          authority: unauthorizedUser.publicKey,
+        })
+        .signers([unauthorizedUser])
+        .rpc();
+      assert.fail("Should have thrown an error");
+    } catch (err) {
+      assert(err.toString().includes("InvalidAuthority"));
+    }
+
+    // Clean up
+    // await program.methods
+    //   .deleteStore(testStoreName)
+    //   .accounts({
+    //     authority: wallet.publicKey,
+    //   })
+    //   .rpc();
+  });
+
+  it("Fails to initialize store with invalid name characters", async () => {
+    const invalidStoreNames = [
+      "TestStore", // uppercase letters
+      "test_store", // underscore not allowed
+      "TEST123", // uppercase letters with numbers
+      "Store!", // special characters
+      "-teststore", // starts with hyphen
+      "teststore-", // ends with hyphen
+      "test--store", // consecutive hyphens
+      "test@store", // special characters
+    ];
+
+    for (const storeName of invalidStoreNames) {
+      try {
+        await program.methods
+          .initialize(storeName)
+          .accounts({
+            authority: wallet.publicKey,
+          })
+          .rpc();
+        assert.fail("Should have thrown an error");
+      } catch (err) {
+        assert(err.toString().includes("InvalidStoreName"));
+      }
+    }
+  });
+
+  it("Successfully initializes store with valid name characters", async () => {
+    const validStoreNames = [
+      "teststore123",
+      "store42",
+      "abc123",
+      "123store",
+      "test-store", // hyphen allowed
+      "my-awesome-store", // multiple hyphens allowed
+      "store-123-test", // hyphen with numbers
+    ];
+
+    for (const storeName of validStoreNames) {
+      await program.methods
+        .initialize(storeName)
+        .accounts({
+          authority: wallet.publicKey,
+        })
+        .rpc();
+
+      // Clean up
+      await program.methods
+        .deleteStore(storeName)
+        .accounts({
+          authority: wallet.publicKey,
+        })
+        .rpc();
+    }
   });
 });

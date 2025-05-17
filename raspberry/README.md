@@ -31,8 +31,9 @@ Then we setup the wifi service:
 First add your wifi connections to the wifi_config.txt file then install and start the service:
 
 ```bash
-sudo chmod +x wifiSetup/setup-wifi-service.sh
-sudo /wifiSetup/setup-wifi-service.sh
+cd /boot/firmware/wifiSetup/
+sudo chmod +x setup-wifi-service.sh
+sudo ./setup-wifi-service.sh
 ```
 
 This will copy the bar folder to your home directory and install all the dependencies.

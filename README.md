@@ -123,7 +123,7 @@ A detailed guide on how to connect the OLED display to the raspberry pi can be f
 - SDA to GPIO 2 (pin 3)
 - SCL to GPIO 3 (pin 5)
 - VCC to 3.3V (pin 1)
-- GND to ground (pin 6)
+- GND to ground (pin 9 doesn't work for some reason. Use another one, for example: pin25)
 
 #### 3. Connect DFPlayer Mini MP3
 
