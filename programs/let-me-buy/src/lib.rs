@@ -3,6 +3,8 @@ use anchor_lang::solana_program::pubkey::Pubkey;
 use anchor_lang::system_program;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, TransferChecked};
+use borsh::{BorshDeserialize, BorshSerialize};
+
 
 declare_id!("BUYuxRfhCMWavaUWxhGtPP3ksKEDZxCD5gzknk3JfAya");
 
@@ -66,6 +68,8 @@ fn validate_store_name(name: &str) -> Result<()> {
 
 #[program]
 pub mod let_me_buy {
+    use anchor_lang::solana_program::{program::invoke, system_instruction};
+
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>, store_name: String) -> Result<()> {
@@ -316,7 +320,55 @@ pub mod let_me_buy {
     }
 
     pub fn realloc_store(ctx: Context<ReallocStore>, store_name: String) -> Result<()> {
-        msg!("Reallocating store account to new size");
+        // Verify authority
+        require!(
+            ctx.accounts.receipts.owner == ctx.program_id,
+            StoreErrorCode::InvalidAuthority
+        );
+
+        let new_size = 8 + Receipts::INIT_SPACE;
+
+        // Calculate the new account size
+        // let new_size = 8 + // discriminator
+        //     (std::mem::size_of::<Receipt>() * 20) + // receipts array
+        //     4 + // receipts_count
+        //     8 + // total_purchases
+        //     4 + 32 + // store_name
+        //     32 + // authority
+        //     (std::mem::size_of::<Products>() * 20) + // products array
+        //     4 + // products_count
+        //     4 + 32 + // telegram_channel_id
+        //     1 + // bump
+        //     4 + 128; // details
+
+        let receipts_info = &ctx.accounts.receipts;
+        let payer = &ctx.accounts.authority;
+        let system_program = &ctx.accounts.system_program;
+
+        // Calculate required lamports for the new size
+        let rent = Rent::get()?;
+        let new_minimum_balance = rent.minimum_balance(new_size);
+        let lamports_diff = new_minimum_balance.saturating_sub(receipts_info.lamports());
+
+        // Transfer additional lamports if needed
+        if lamports_diff > 0 {
+            invoke(
+                &system_instruction::transfer(payer.key, receipts_info.key, lamports_diff),
+                &[
+                    payer.to_account_info(),
+                    receipts_info.to_account_info(),
+                    system_program.to_account_info(),
+                ],
+            )?;
+        }
+
+        // Reallocate the account without zeroing
+        receipts_info.realloc(new_size, false)?;
+
+        msg!(
+            "Successfully reallocated store account to new size: {}",
+            new_size
+        );
         Ok(())
     }
 }
@@ -476,23 +528,13 @@ pub struct DeleteStore<'info> {
 #[derive(Accounts)]
 #[instruction(store_name: String)]
 pub struct ReallocStore<'info> {
+    /// CHECK: Account is a PDA that we verify in the instruction
     #[account(
         mut,
         seeds = [b"receipts", store_name.as_bytes()],
         bump,
-        realloc = 8 + // discriminator
-            4 + (32 * 20) + // receipts vec (4 for length + 20 * size of Receipt)
-            8 + // total_purchases
-            4 + 32 + // store_name string
-            32 + // authority
-            4 + (32 * 20) + // products vec
-            4 + 32 + // telegram_channel_id string
-            1 + // bump
-            4 + 128, // details string
-        realloc::payer = authority,
-        realloc::zero = true
     )]
-    pub receipts: Box<Account<'info, Receipts>>,
+    pub receipts: AccountInfo<'info>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
