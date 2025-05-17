@@ -303,12 +303,6 @@ pub mod let_me_buy {
             StoreErrorCode::InvalidAuthority
         );
 
-        // Probably not necessary to delete all products before deleting the bar
-        // require!(
-        //     ctx.accounts.receipts.products.is_empty(),
-        //     ShotErrorCode::BarNotEmpty
-        // );
-
         // Close the account and send rent to authority
         let authority = ctx.accounts.authority.to_account_info();
         let receipts = ctx.accounts.receipts.to_account_info();
@@ -318,6 +312,11 @@ pub mod let_me_buy {
             .unwrap();
         **receipts.lamports.borrow_mut() = 0;
 
+        Ok(())
+    }
+
+    pub fn realloc_store(ctx: Context<ReallocStore>, store_name: String) -> Result<()> {
+        msg!("Reallocating store account to new size");
         Ok(())
     }
 }
@@ -472,6 +471,31 @@ pub struct DeleteStore<'info> {
     pub receipts: Box<Account<'info, Receipts>>,
     #[account(mut)]
     pub authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
+#[instruction(store_name: String)]
+pub struct ReallocStore<'info> {
+    #[account(
+        mut,
+        seeds = [b"receipts", store_name.as_bytes()],
+        bump,
+        realloc = 8 + // discriminator
+            4 + (32 * 20) + // receipts vec (4 for length + 20 * size of Receipt)
+            8 + // total_purchases
+            4 + 32 + // store_name string
+            32 + // authority
+            4 + (32 * 20) + // products vec
+            4 + 32 + // telegram_channel_id string
+            1 + // bump
+            4 + 128, // details string
+        realloc::payer = authority,
+        realloc::zero = true
+    )]
+    pub receipts: Box<Account<'info, Receipts>>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, InitSpace)]
