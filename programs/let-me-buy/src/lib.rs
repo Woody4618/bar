@@ -326,7 +326,7 @@ pub mod let_me_buy {
             StoreErrorCode::InvalidAuthority
         );
 
-        let new_size = 8 + Receipts::INIT_SPACE;
+        let new_size = 8 + Receipts::INIT_SPACE + 1000;
 
         // Calculate the new account size
         // let new_size = 8 + // discriminator
