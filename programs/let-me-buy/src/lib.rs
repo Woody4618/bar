@@ -283,13 +283,15 @@ pub mod let_me_buy {
         );
 
         // Find and remove the product
-        let products = &mut ctx.accounts.receipts.products;
-        let index = products
+        let index = ctx
+            .accounts
+            .receipts
+            .products
             .iter()
             .position(|p| p.name == product_name)
             .ok_or(StoreErrorCode::ProductNotFound)?;
 
-        products.remove(index);
+        ctx.accounts.receipts.products.remove(index);
 
         Ok(())
     }
@@ -320,6 +322,24 @@ pub mod let_me_buy {
     }
 }
 
+#[account]
+#[derive(InitSpace)]
+pub struct Receipts {
+    #[max_len(20)]
+    pub receipts: Vec<Receipt>,
+    pub total_purchases: u64,
+    #[max_len(32)]
+    pub store_name: String,
+    pub authority: Pubkey,
+    #[max_len(20)]
+    pub products: Vec<Products>,
+    #[max_len(32)]
+    pub telegram_channel_id: String,
+    pub bump: u8,
+    #[max_len(128)]
+    pub details: String,
+}
+
 #[derive(Accounts)]
 #[instruction(store_name: String)]
 pub struct Initialize<'info> {
@@ -331,7 +351,7 @@ pub struct Initialize<'info> {
         bump,
         constraint = store_name.len() <= 32 @ StoreErrorCode::StringTooLong
     )]
-    pub receipts: Account<'info, Receipts>,
+    pub receipts: Box<Account<'info, Receipts>>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -345,7 +365,7 @@ pub struct UpdateTelegramChannel<'info> {
         seeds = [b"receipts", store_name.as_bytes()],
         bump
     )]
-    pub receipts: Account<'info, Receipts>,
+    pub receipts: Box<Account<'info, Receipts>>,
     #[account(mut)]
     pub authority: Signer<'info>,
 }
@@ -358,7 +378,7 @@ pub struct UpdateDetails<'info> {
         seeds = [b"receipts", store_name.as_bytes()],
         bump
     )]
-    pub receipts: Account<'info, Receipts>,
+    pub receipts: Box<Account<'info, Receipts>>,
     #[account(mut)]
     pub authority: Signer<'info>,
 }
@@ -374,7 +394,7 @@ pub struct AddProduct<'info> {
         realloc::payer = authority,
         realloc::zero = false
     )]
-    pub receipts: Account<'info, Receipts>,
+    pub receipts: Box<Account<'info, Receipts>>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub mint: Account<'info, Mint>,
@@ -389,7 +409,7 @@ pub struct MakePurchase<'info> {
         seeds = [b"receipts", store_name.as_bytes()],
         bump
     )]
-    pub receipts: Account<'info, Receipts>,
+    pub receipts: Box<Account<'info, Receipts>>,
     #[account(mut)]
     pub signer: Signer<'info>,
     #[account(mut)]
@@ -418,7 +438,7 @@ pub struct MarkAsDelivered<'info> {
         seeds = [b"receipts", store_name.as_bytes()],
         bump
     )]
-    pub receipts: Account<'info, Receipts>,
+    pub receipts: Box<Account<'info, Receipts>>,
     #[account(mut)]
     pub authority: Signer<'info>,
 }
@@ -434,7 +454,7 @@ pub struct DeleteProduct<'info> {
         realloc::payer = authority,
         realloc::zero = false
     )]
-    pub receipts: Account<'info, Receipts>,
+    pub receipts: Box<Account<'info, Receipts>>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -449,27 +469,9 @@ pub struct DeleteStore<'info> {
         bump,
         close = authority
     )]
-    pub receipts: Account<'info, Receipts>,
+    pub receipts: Box<Account<'info, Receipts>>,
     #[account(mut)]
     pub authority: Signer<'info>,
-}
-
-#[account]
-#[derive(InitSpace)]
-pub struct Receipts {
-    #[max_len(20)]
-    pub receipts: Vec<Receipt>,
-    pub total_purchases: u64,
-    #[max_len(32)]
-    pub store_name: String,
-    pub authority: Pubkey,
-    #[max_len(20)]
-    pub products: Vec<Products>,
-    #[max_len(32)]
-    pub telegram_channel_id: String,
-    pub bump: u8,
-    #[max_len(128)]
-    pub details: String,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, InitSpace)]
