@@ -97,10 +97,10 @@ The Vercel app also listens to a Helius Webhook that triggers an API every time 
 
 ```bash
 cd raspberry
-./install.sh
+./bar-install.sh
 ```
 
-This will install dependencies and set up the Raspberry Pi service automatically. For manual setup, see below.
+This will install dependencies and set up the Raspberry Pi service automatically. Best follow the tutorial in the README.MD in the raspberry folder. For manual setup, see below.
 
 ---
 
