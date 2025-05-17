@@ -392,7 +392,7 @@ pub struct AddProduct<'info> {
         bump,
         realloc = 8 + Receipts::INIT_SPACE,
         realloc::payer = authority,
-        realloc::zero = false
+        realloc::zero = true
     )]
     pub receipts: Box<Account<'info, Receipts>>,
     #[account(mut)]
