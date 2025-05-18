@@ -43,8 +43,6 @@ pub enum StoreErrorCode {
     VectorLimitReached,
     #[msg("InvalidStoreName")]
     InvalidStoreName,
-    #[msg("ArithmeticOverflow")]
-    ArithmeticOverflow,
 }
 
 fn validate_store_name(name: &str) -> Result<()> {
@@ -68,8 +66,6 @@ fn validate_store_name(name: &str) -> Result<()> {
 
 #[program]
 pub mod let_me_buy {
-    use anchor_lang::solana_program::{program::invoke, system_instruction};
-
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>, store_name: String) -> Result<()> {
@@ -318,83 +314,6 @@ pub mod let_me_buy {
 
         Ok(())
     }
-
-    pub fn realloc_store(ctx: Context<ReallocStore>, store_name: String) -> Result<()> {
-        // Verify authority
-        require!(
-            ctx.accounts.receipts.owner == ctx.program_id,
-            StoreErrorCode::InvalidAuthority
-        );
-
-        let new_size = 8 + Receipts::INIT_SPACE + 1000;
-
-        // Calculate the new account size
-        // let new_size = 8 + // discriminator
-        //     (std::mem::size_of::<Receipt>() * 20) + // receipts array
-        //     4 + // receipts_count
-        //     8 + // total_purchases
-        //     4 + 32 + // store_name
-        //     32 + // authority
-        //     (std::mem::size_of::<Products>() * 20) + // products array
-        //     4 + // products_count
-        //     4 + 32 + // telegram_channel_id
-        //     1 + // bump
-        //     4 + 128; // details
-
-        let receipts_info = &ctx.accounts.receipts;
-        let payer = &ctx.accounts.authority;
-        let system_program = &ctx.accounts.system_program;
-
-        // Calculate required lamports for the new size
-        let rent = Rent::get()?;
-        let new_minimum_balance = rent.minimum_balance(new_size);
-        let lamports_diff = new_minimum_balance.saturating_sub(receipts_info.lamports());
-
-        // Transfer additional lamports if needed
-        if lamports_diff > 0 {
-            invoke(
-                &system_instruction::transfer(payer.key, receipts_info.key, lamports_diff),
-                &[
-                    payer.to_account_info(),
-                    receipts_info.to_account_info(),
-                    system_program.to_account_info(),
-                ],
-            )?;
-        }
-
-        // Reallocate the account without zeroing
-        receipts_info.realloc(new_size, false)?;
-
-        msg!(
-            "Successfully reallocated store account to new size: {}",
-            new_size
-        );
-        Ok(())
-    }
-
-    pub fn close_store(ctx: Context<CloseStore>, store_name: String) -> Result<()> {
-        let receipts_info = &ctx.accounts.receipts;
-        let authority_info = &ctx.accounts.authority;
-
-        // Get the current lamports
-        let current_lamports = receipts_info.lamports();
-
-        // Transfer all lamports to the authority (closing the account)
-        **receipts_info.try_borrow_mut_lamports()? = 0;
-        **authority_info.try_borrow_mut_lamports()? = authority_info
-            .lamports()
-            .checked_add(current_lamports)
-            .ok_or(error!(StoreErrorCode::ArithmeticOverflow))?;
-
-        // Clear the account data
-        let mut data = receipts_info.try_borrow_mut_data()?;
-        for byte in data.iter_mut() {
-            *byte = 0;
-        }
-
-        msg!("Successfully closed store account");
-        Ok(())
-    }
 }
 
 #[account]
@@ -547,36 +466,6 @@ pub struct DeleteStore<'info> {
     pub receipts: Box<Account<'info, Receipts>>,
     #[account(mut)]
     pub authority: Signer<'info>,
-}
-
-#[derive(Accounts)]
-#[instruction(store_name: String)]
-pub struct ReallocStore<'info> {
-    /// CHECK: Account is a PDA that we verify in the instruction
-    #[account(
-        mut,
-        seeds = [b"receipts", store_name.as_bytes()],
-        bump,
-    )]
-    pub receipts: AccountInfo<'info>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-#[instruction(store_name: String)]
-pub struct CloseStore<'info> {
-    /// CHECK: Account is a PDA that we verify in the instruction
-    #[account(
-        mut,
-        seeds = [b"receipts", store_name.as_bytes()],
-        bump,
-    )]
-    pub receipts: AccountInfo<'info>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, InitSpace)]
