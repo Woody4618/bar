@@ -48,6 +48,10 @@ export default function BarSetupPage() {
       address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
     },
     {
+      name: "Store Token",
+      address: "FLJYGHpCCcfYUdzhcfHSeSd2peb5SMajNWaCsRnhpump",
+    },
+    {
       name: "Test Token",
       address: "tokSEbdQMxeCZx5GYKR32ywbax6VE4twyqJCYnEtAaC",
     },
