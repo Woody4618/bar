@@ -54,7 +54,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse<GET>) => {
             Number(productPrice) / Math.pow(10, Number(productDecimals))
           ).toFixed(2)
         : "0.00";
-    label = `Buy 1 of ${productName} at ${storeName} - ${price} USDC`;
+    label = `Buy 1 of ${productName} at ${storeName} - ${price}`;
   }
 
   res.status(200).json({
@@ -123,8 +123,14 @@ const post = async (req: NextApiRequest, res: NextApiResponse<POST>) => {
 
     transaction.add(ix);
 
+    let tokenName = "USDC";
+
+    if (product.mint == "FLJYGHpCCcfYUdzhcfHSeSd2peb5SMajNWaCsRnhpump") {
+      tokenName = "STORE";
+    }
+
     const price = Number(product.price) / Math.pow(10, product.decimals);
-    message = `Buy 1 ${productName} at ${storeName} - ${price} USDC!`;
+    message = `Buy 1 ${productName} at ${storeName} - ${price} ${tokenName}!`;
   } else {
     message = "Unknown instruction";
   }
