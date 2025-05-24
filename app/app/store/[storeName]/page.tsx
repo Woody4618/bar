@@ -423,7 +423,7 @@ export default function StorePage() {
                               (p: any) => p.name === selectedProduct
                             ).price / Math.pow(10, 6)
                           ).toFixed(2)}{" "}
-                          STORE
+                          USDC
                         </p>
                       )}
                     </div>
