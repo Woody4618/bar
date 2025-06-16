@@ -4,6 +4,8 @@ A decentralized bar system built on Solana that allows users to purchase drinks 
 
 [Live Version of the app](https://letmebuy.app/)
 
+[Video Walkthrough](https://youtu.be/xjUPrugbCJ0?si=fKl1ujLvfDlLzQEj)
+
 ---
 
 ## Table of Contents
