@@ -1,0 +1,21 @@
+{
+  "name": "LetMeBuy",
+  "logo": "https://www.letmebuy.app/transparent_white_logo.png",
+  "description": "An app that lets you buy anything with Solana Pay",
+  "notification": "There is one of the bars currently in New York and one in Berlin.",
+  "sdk": "https://github.com/solana-program/program-metadata",
+  "project_url": "https://www.letmebuy.app/",
+  "contacts": [
+    "twitter:@Solplay_jonas"
+  ],
+  "policy": "https://example.com/security-policy",
+  "preferred_languages": ["en", "de"],
+  "encryption": "https://example.com/pgp-key",
+  "source_code": "https://github.com/Woody4618/bar",
+  "source_release": "v0.1.0",
+  "source_revision": "",
+  "auditors": ["Not audited"],
+  "acknowledgements": "https://example.com/security-acknowledgements",
+  "expiry": "2030-12-31",
+  "version": "0.1.0"
+}

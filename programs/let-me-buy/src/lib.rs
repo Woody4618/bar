@@ -409,7 +409,12 @@ pub struct MakePurchase<'info> {
     #[account(mut)]
     pub authority: SystemAccount<'info>,
     pub mint: Account<'info, Mint>,
-    #[account(mut)]
+    #[account(
+        mut,
+        associated_token::mint = mint,
+        associated_token::authority = signer,
+        associated_token::token_program = token_program,
+    )]
     pub sender_token_account: Account<'info, TokenAccount>,
     #[account(
         init_if_needed,

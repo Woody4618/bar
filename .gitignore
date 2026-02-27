@@ -6,3 +6,6 @@ target
 node_modules
 test-ledger
 .yarn
+secret/
+raspberry/bar_config.txt
+raspberry/wifi_config.txt

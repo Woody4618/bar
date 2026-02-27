@@ -1,6 +1,6 @@
 # Bar Configuration for the Solana Bar project. Not related to the WiFi setup. Use a proper RPC_URL from quicknode or triton
-BAR_NAME=jonasbar
+BAR_NAME=your_bar_name
 PUMP_DURATION=300
-PRODUCT_NAME=Shot
-RPC_URL=https://api.mainnet-beta.solana.com
-PRIVATE_KEY=
+PRODUCT_NAME=Water
+RPC_URL=https://your-rpc-url.example.com
+PRIVATE_KEY=[your,private,key,array,here]
