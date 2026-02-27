@@ -13,6 +13,7 @@
   "dependencies": {
     "@coral-xyz/anchor": "0.31.0",
     "@solana-developers/helpers": "^2.8.1",
+    "@solana/kora": "^0.1.3",
     "@solana/pay": "^0.2.4",
     "@solana/spl-token": "^0.3.7",
     "@solana/wallet-adapter-backpack": "^0.1.0",

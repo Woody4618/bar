@@ -4,7 +4,9 @@ import {
   CONNECTION,
   LET_ME_BUY_PROGRAM,
   getReceiptsPDA,
+  USDC_MINT,
 } from "@/src/util/const";
+import { buildAndSendGaslessTransaction } from "@/src/util/koraUtils";
 import PayQR from "@/src/components/PayQR";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
@@ -33,7 +35,7 @@ export default function StorePage() {
   const [receipts, setReceipts] = useState<any>();
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [selectedTable, setSelectedTable] = useState<number>(1);
-  const { publicKey, sendTransaction, connected } = useWallet();
+  const { publicKey, sendTransaction, signTransaction, connected } = useWallet();
   const [showPurchaseNotification, setShowPurchaseNotification] =
     useState(false);
   const [lastPurchasedProduct, setLastPurchasedProduct] = useState<
@@ -43,6 +45,8 @@ export default function StorePage() {
   const [showQRCheckmark, setShowQRCheckmark] = useState(false);
   const [initialReceiptIds, setInitialReceiptIds] = useState<number[]>([]);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [gasless, setGasless] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
   const subscriptionRef = useRef<number>();
   const mountedRef = useRef(true);
 
@@ -211,6 +215,7 @@ export default function StorePage() {
   const handlePurchase = async () => {
     if (!publicKey || !selectedProduct || !selectedTable) return;
 
+    setIsPurchasing(true);
     try {
       const receiptsAccount = await LET_ME_BUY_PROGRAM.account.receipts.fetch(
         RECEIPTS_PDA
@@ -230,24 +235,52 @@ export default function StorePage() {
         publicKey
       );
 
-      const transaction = await LET_ME_BUY_PROGRAM.methods
-        .makePurchase(storeName, selectedProduct, selectedTable)
-        .accounts({
-          signer: publicKey,
-          authority: new PublicKey(receiptsAccount.authority),
-          mint: new PublicKey(product.mint),
-          senderTokenAccount,
-        })
-        .transaction();
+      if (gasless && signTransaction) {
+        const isUsdcProduct = product.mint.toString() === USDC_MINT.toBase58();
+        if (!isUsdcProduct) {
+          alert("Gasless transactions only supported for USDC products");
+          return;
+        }
 
-      console.log("Sending transaction...");
-      const signature = await sendTransaction(transaction, CONNECTION, {});
-      console.log("Transaction sent with signature:", signature);
+        const purchaseIx = await LET_ME_BUY_PROGRAM.methods
+          .makePurchase(storeName, selectedProduct, selectedTable)
+          .accounts({
+            signer: publicKey,
+            authority: new PublicKey(receiptsAccount.authority),
+            mint: new PublicKey(product.mint),
+            senderTokenAccount,
+          })
+          .instruction();
 
-      // Show success message or update UI here
+        console.log("Building gasless transaction via Kora...");
+        const { signature, feeAmount } = await buildAndSendGaslessTransaction(
+          purchaseIx,
+          publicKey,
+          signTransaction,
+          CONNECTION
+        );
+        console.log("Gasless transaction confirmed:", signature);
+        console.log("Fee paid in USDC:", Number(feeAmount) / 1e6);
+      } else {
+        const transaction = await LET_ME_BUY_PROGRAM.methods
+          .makePurchase(storeName, selectedProduct, selectedTable)
+          .accounts({
+            signer: publicKey,
+            authority: new PublicKey(receiptsAccount.authority),
+            mint: new PublicKey(product.mint),
+            senderTokenAccount,
+          })
+          .transaction();
+
+        console.log("Sending transaction...");
+        const signature = await sendTransaction(transaction as any, CONNECTION, {});
+        console.log("Transaction sent with signature:", signature);
+      }
     } catch (error) {
       console.error("Error in purchase transaction:", error);
-      // You might want to show this error to the user
+      alert("Transaction failed: " + (error as Error).message);
+    } finally {
+      setIsPurchasing(false);
     }
   };
 
@@ -442,6 +475,7 @@ export default function StorePage() {
                         )?.decimals
                       }
                       tableNumber={selectedTable}
+                      gasless={gasless}
                     />
                     {showQRCheckmark &&
                       lastPurchasedProduct === selectedProduct && (
@@ -471,12 +505,26 @@ export default function StorePage() {
                       )}
                   </div>
                   {connected && (
-                    <button
-                      onClick={handlePurchase}
-                      className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-500 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
-                    >
-                      Buy with Wallet
-                    </button>
+                    <div className="flex flex-col items-center gap-3">
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={gasless}
+                          onChange={(e) => setGasless(e.target.checked)}
+                          className="w-5 h-5 rounded border-slate-500 bg-slate-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-800"
+                        />
+                        <span className="text-slate-300 text-sm">
+                          Gasless (pay fee in USDC)
+                        </span>
+                      </label>
+                      <button
+                        onClick={handlePurchase}
+                        disabled={isPurchasing}
+                        className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-500 transition-all duration-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isPurchasing ? "Processing..." : gasless ? "Buy Gasless" : "Buy with Wallet"}
+                      </button>
+                    </div>
                   )}
                 </div>
               )}

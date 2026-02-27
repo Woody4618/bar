@@ -50,9 +50,15 @@ const Receipts: FC<ReceiptsProps> = ({ receipts }) => {
               </div>
             </div>
             <div className="mt-2 flex justify-between items-center">
-              <p className="text-slate-300 text-sm">
+              <a
+                href={`https://explorer.solana.com/address/${receipt.buyer.toString()}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-300 text-sm hover:text-blue-400 transition-colors"
+              >
                 Buyer: {receipt.buyer.toString().slice(0, 8)}...
-              </p>
+                <span className="ml-1 text-xs">↗</span>
+              </a>
               <div className="flex items-center gap-2">
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${

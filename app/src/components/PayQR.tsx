@@ -13,6 +13,7 @@ interface TransactionRequestQRProps {
   productDecimals?: number;
   productQuantity?: number;
   tableNumber?: number;
+  gasless?: boolean;
 }
 
 export default function TransactionRequestQR({
@@ -24,6 +25,7 @@ export default function TransactionRequestQR({
   productDecimals = 6,
   productQuantity = 0,
   tableNumber = 1,
+  gasless = false,
 }: TransactionRequestQRProps) {
   const [isClient, setIsClient] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
@@ -47,6 +49,7 @@ export default function TransactionRequestQR({
     if (productQuantity)
       params.append("productQuantity", productQuantity.toString());
     if (tableNumber) params.append("tableNumber", tableNumber.toString());
+    if (gasless) params.append("gasless", "true");
 
     return `${window.location.origin}/api/transaction?${params.toString()}`;
   }, [
@@ -58,6 +61,7 @@ export default function TransactionRequestQR({
     productDecimals,
     productQuantity,
     tableNumber,
+    gasless,
   ]);
 
   const url = useMemo(() => generateUrl(), [generateUrl]);

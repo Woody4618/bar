@@ -4,6 +4,9 @@ import { LetMeBuy } from "./let_me_buy";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import idl from "./let_me_buy.json";
 
+export const KORA_RPC_URL = "https://kora-example-1-production.up.railway.app/";
+export const USDC_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+
 export const CONNECTION = new Connection(
   process.env.NEXT_PUBLIC_RPC
     ? process.env.NEXT_PUBLIC_RPC
